@@ -66,4 +66,7 @@ dependencies {
     //Dependência do firestore e do auth
     implementation("com.google.firebase:firebase-firestore-ktx:25.1.3")
     implementation("com.google.firebase:firebase-auth")
+
+    //Mais icones
+    implementation("androidx.compose.material:material-icons-extended")
 }
