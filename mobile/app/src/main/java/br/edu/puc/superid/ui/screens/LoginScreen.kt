@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.*
 import androidx.compose.ui.*
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
@@ -33,6 +34,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit = {}) {
     var senha by remember { mutableStateOf("") }
 
     val backgroundColor = Color(0xFF102952) // fundo azul escuro
+    val iconsColor = Color(0xFF00D7FF)
     val buttonColor = Color(0xFF00D7FF)
 
     Box(
@@ -71,20 +73,21 @@ fun LoginScreen(onLoginSuccess: () -> Unit = {}) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text(
+                placeholder = { Text(
                     color = Color.Gray,
                     text = "E-mail") },
                 leadingIcon = {
-                    Icon(imageVector = Icons.Outlined.Email, contentDescription = null, tint = buttonColor)
+                    Icon(imageVector = Icons.Outlined.Email, contentDescription = null, tint = iconsColor)
                 },
+                textStyle = TextStyle(color = Color.White),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = buttonColor,
+                    focusedBorderColor = iconsColor,
                     unfocusedBorderColor = Color.DarkGray,
-                    cursorColor = buttonColor
+                    cursorColor = iconsColor
                 )
             )
 
@@ -93,21 +96,22 @@ fun LoginScreen(onLoginSuccess: () -> Unit = {}) {
             OutlinedTextField(
                 value = senha,
                 onValueChange = { senha = it },
-                label = { Text(
+                placeholder = { Text(
                     color = Color.Gray,
                     text="Senha mestra") },
                 visualTransformation = PasswordVisualTransformation(),
                 leadingIcon = {
-                    Icon(imageVector = Icons.Outlined.Lock, contentDescription = null, tint = buttonColor)
+                    Icon(imageVector = Icons.Outlined.Lock, contentDescription = null, tint = iconsColor)
                 },
+                textStyle = TextStyle(color = Color.White),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = buttonColor,
+                    focusedBorderColor = iconsColor,
                     unfocusedBorderColor = Color.DarkGray,
-                    cursorColor = buttonColor
+                    cursorColor = iconsColor
                 )
             )
 
