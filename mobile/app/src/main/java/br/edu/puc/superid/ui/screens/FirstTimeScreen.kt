@@ -20,10 +20,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FirstTimeScreen() {
+fun FirstTimeScreen(navController: NavHostController) {
     val pagerState = rememberPagerState(pageCount = { 3 })
     val coroutineScope = rememberCoroutineScope()
 
@@ -125,9 +126,7 @@ fun FirstTimeScreen() {
             // Botões
             Column(modifier = Modifier.fillMaxWidth()) {
                 Button(
-                    onClick = {
-                        // Navegar para tela de criar conta
-                    },
+                    onClick = {navController.navigate("signup")},
                     colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
@@ -140,9 +139,7 @@ fun FirstTimeScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedButton(
-                    onClick = {
-                        // Navegar para tela de login
-                    },
+                    onClick = { navController.navigate("login") },
                     border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
@@ -157,10 +154,4 @@ fun FirstTimeScreen() {
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewOnboardingCarouselScreen() {
-    FirstTimeScreen()
 }
