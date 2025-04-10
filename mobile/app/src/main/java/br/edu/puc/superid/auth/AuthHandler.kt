@@ -3,6 +3,7 @@ package br.edu.puc.superid.auth
 import android.util.Log
 import br.edu.puc.superid.database.FirestoreHandler
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -37,6 +38,7 @@ class AuthHandler {
 
                     when (exceptionAuth) {
                         is FirebaseAuthWeakPasswordException -> Log.e("FAILURE", "Senha deve ter no mínimo 6 caracteres!")
+                        is FirebaseAuthUserCollisionException -> Log.e("FAILURE", "Email Já em uso!")
                         is FirebaseAuthInvalidCredentialsException -> Log.e("FAILURE", "Email mal formatado")
                     }
 
