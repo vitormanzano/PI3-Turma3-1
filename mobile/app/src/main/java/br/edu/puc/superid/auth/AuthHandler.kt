@@ -9,6 +9,7 @@ import com.google.firebase.ktx.Firebase
 
 class AuthHandler {
     private val auth = Firebase.auth
+    private val db = FirestoreHandler()
 
     fun login(email: String, senha: String) {
         auth.signInWithEmailAndPassword(email, senha)
@@ -22,15 +23,14 @@ class AuthHandler {
             }
     }
 
-        fun cadastrarCredencial(nome: String, email: String, senha: String) {
+    fun cadastrarCredencial(nome: String, email: String, senha: String, imei: String) {
         auth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("SUCCESS", "Credencial criado!")
                     val uid = auth.currentUser!!.uid
 
-                    val db = FirestoreHandler()
-                    db.cadastrarUsuario(nome, uid)
+                    db.cadastrarUsuario(nome, uid, imei)
                 }
                 else {
                     val exceptionAuth = task.exception
@@ -38,8 +38,8 @@ class AuthHandler {
                     when (exceptionAuth) {
                         is FirebaseAuthWeakPasswordException -> Log.e("FAILURE", "Senha deve ter no mínimo 6 caracteres!")
                         is FirebaseAuthInvalidCredentialsException -> Log.e("FAILURE", "Email mal formatado")
-
                     }
+
                     Log.w("FAILURE", "${task.exception}")
                 }
             }

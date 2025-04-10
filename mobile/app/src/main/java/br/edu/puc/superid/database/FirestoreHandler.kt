@@ -7,10 +7,11 @@ import com.google.firebase.ktx.Firebase
 class FirestoreHandler {
     private val db = Firebase.firestore
     //Falta colocar IMEI aqui
-    fun cadastrarUsuario(nome: String, uid: String) {
+    fun cadastrarUsuario(nome: String, uid: String, imei: String) {
         val novoDocUsuario = hashMapOf(
             "Nome" to nome,
-            "UID" to uid
+            "UID" to uid,
+            "IMEI" to imei
         )
 
         db.collection("users").add(novoDocUsuario)

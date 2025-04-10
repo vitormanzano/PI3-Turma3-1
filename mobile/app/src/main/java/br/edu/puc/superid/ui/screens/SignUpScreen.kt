@@ -1,5 +1,7 @@
 package br.edu.puc.superid.ui.screens
 
+import android.provider.Settings
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -29,15 +31,17 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import br.edu.puc.superid.auth.AuthHandler
 
 
 // TO DO fazer a parte de login utilizando o auth
 @Composable
-fun SignUpScreen(onSignUpSucess: () -> Unit = {}) {
+fun SignUpScreen(imei: String) {
     var name by remember { mutableStateOf("")}
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
+    val auth = AuthHandler()
 
     val backgroundColor = Color(0xFF102952) // fundo azul escuro
     val iconsColor = Color(0xFF00D7FF)
@@ -171,12 +175,12 @@ fun SignUpScreen(onSignUpSucess: () -> Unit = {}) {
                 )
             }
 
-
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = onSignUpSucess,
+                onClick = {
+                    auth.cadastrarCredencial(name, email, senha, imei)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
@@ -198,9 +202,8 @@ fun SignUpScreen(onSignUpSucess: () -> Unit = {}) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun SignUpScreenPreview() {
-    SignUpScreen(onSignUpSucess = {})
+    SignUpScreen("")
 }
