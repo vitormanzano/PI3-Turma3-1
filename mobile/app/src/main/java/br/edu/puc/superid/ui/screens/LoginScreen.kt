@@ -25,11 +25,12 @@ import androidx.compose.ui.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import br.edu.puc.superid.auth.AuthHandler
 
 
 // TO DO fazer a parte de login utilizando o auth
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit = {}) {
+fun LoginScreen() {
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
 
@@ -118,7 +119,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = onLoginSuccess,
+                onClick = {
+                    val auth = AuthHandler()
+
+                    auth.login(email, senha)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
@@ -144,5 +149,5 @@ fun LoginScreen(onLoginSuccess: () -> Unit = {}) {
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen(onLoginSuccess = {})
+    LoginScreen()
 }
