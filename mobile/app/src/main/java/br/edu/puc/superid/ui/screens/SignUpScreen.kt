@@ -16,8 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -31,17 +33,19 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import br.edu.puc.superid.auth.AuthHandler
 
 
 // TO DO fazer a parte de login utilizando o auth
 @Composable
-fun SignUpScreen(imei: String) {
+fun SignUpScreen(imei: String, navController: NavHostController) {
     var name by remember { mutableStateOf("")}
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
     val auth = AuthHandler()
+    var showDialog by remember { mutableStateOf(false) }
 
     val backgroundColor = Color(0xFF102952) // fundo azul escuro
     val iconsColor = Color(0xFF00D7FF)
@@ -164,15 +168,26 @@ fun SignUpScreen(imei: String) {
                     )
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = buildAnnotatedString {
-                        append("Li e estou de acordo com o ")
-                        withStyle(style = SpanStyle(color = iconsColor)) {
-                            append("Termo de Uso")
-                        }
+                val annotatedText = buildAnnotatedString {
+                    append("Li e estou de acordo com o ")
+                    pushStringAnnotation(tag = "TERMOS", annotation = "mostrar_dialog")
+                    withStyle(style = SpanStyle(color = iconsColor, fontWeight = FontWeight.Bold)) {
+                        append("Termo de Uso")
+                    }
+                    pop()
+                }
+
+                ClickableText(
+                    text = annotatedText,
+                    onClick = { offset ->
+                        annotatedText.getStringAnnotations(tag = "TERMOS", start = offset, end = offset)
+                            .firstOrNull()?.let {
+                                showDialog = true
+                            }
                     },
-                    color = Color.White,
+                    style = TextStyle(color = Color.White)
                 )
+
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -196,14 +211,29 @@ fun SignUpScreen(imei: String) {
                 text = "Já possui uma conta?",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White
+                color = Color.White,
+                modifier = Modifier.clickable {
+                    navController.navigate("login")
+                }
             )
         }
     }
-}
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Fechar")
+                }
+            },
+            title = {
+                Text("Termos de Uso")
+            },
+            text = {
+                Text("termos.")
+            },
+            containerColor = Color.White
+        )
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun SignUpScreenPreview() {
-    SignUpScreen("")
 }

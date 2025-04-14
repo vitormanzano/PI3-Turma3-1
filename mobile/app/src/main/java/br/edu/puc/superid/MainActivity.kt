@@ -14,30 +14,42 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import android.provider.Settings
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val PREFS_NAME = "MyPrefsFile"
+              val PREFS_NAME = "MyPrefsFile"
+              val settings = getSharedPreferences(PREFS_NAME, 0)
 
-            val settings = getSharedPreferences(PREFS_NAME, 0)
+              // Verifica se é a primeira vez
+              val isFirstTime = settings.getBoolean("my_first_time", true)
 
-            if (settings.getBoolean("my_first_time", true)) {
-                //the app is being launched for first time, do something
+              // Se for a primeira vez, salva que o app já foi iniciado
+              if (isFirstTime) {
+                  settings.edit().putBoolean("my_first_time", false).apply()
+              }
 
-                FirstTimeScreen()
+              // Define o startDestination com base na verificação
+              val startDestination = if (isFirstTime) "firstTime" else "signup"
 
-                // first time task
+              // Se necessário, obtém o Android ID
+              val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
-                // record the fact that the app has been started at least once
-                settings.edit().putBoolean("my_first_time", false).commit()
-            }
-            else {
-                val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
-                SignUpScreen(androidId)
-            }
+              val navController = rememberNavController()
+
+              NavHost(
+                  navController = navController,
+                  startDestination = startDestination
+              ) {
+                  composable("firstTime") { FirstTimeScreen(navController) }
+                  composable("login") { LoginScreen(navController) }
+                  composable("signup") { SignUpScreen(androidId, navController) }
+              }
         }
     }
 }
