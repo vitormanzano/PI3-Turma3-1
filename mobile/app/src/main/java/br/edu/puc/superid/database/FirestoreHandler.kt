@@ -6,6 +6,7 @@ import com.google.firebase.ktx.Firebase
 import android.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
+import java.security.SecureRandom
 
 class FirestoreHandler {
     private val db = Firebase.firestore
@@ -30,6 +31,8 @@ class FirestoreHandler {
     }
 
     fun cadastrarSenha(uid: String, login: String?, categoria: String, senha: String) {
+        val accessToken = GerarAccessToken()
+
         val docId = db.collection("users")
             .whereEqualTo("UID", uid)
             .get()
@@ -42,7 +45,8 @@ class FirestoreHandler {
                     val senhaData = hashMapOf(
                         "login" to login,
                         "categoria" to categoria,
-                        "senha" to senha
+                        "senha" to senha,
+                        "accessToken" to accessToken
                     )
 
                     userDocRef.collection("senhas")
@@ -76,6 +80,13 @@ class FirestoreHandler {
         val senhaCriptografada = encrypt(senha, chaveParaCriptografar)
 
         return senhaCriptografada
+    }
+
+    fun GerarAccessToken(length: Int = 256): String {
+        val byteLength = (length * 6) / 8
+        val randomBytes = ByteArray(byteLength)
+        SecureRandom().nextBytes(randomBytes)
+        return Base64.encodeToString(randomBytes, Base64.NO_WRAP).take(length)
     }
 }
 
