@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import br.edu.puc.superid.ui.screens.LoginScreen
 import br.edu.puc.superid.ui.screens.SignUpScreen
+import br.edu.puc.superid.ui.screens.MainScreen
 import br.edu.puc.superid.ui.theme.SuperIdTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -44,11 +45,12 @@ class MainActivity : ComponentActivity() {
 
               NavHost(
                   navController = navController,
-                  startDestination = startDestination
+                  startDestination = "mainScreen"
               ) {
                   composable("firstTime") { FirstTimeScreen(navController) }
                   composable("login") { LoginScreen(navController) }
                   composable("signup") { SignUpScreen(androidId, navController) }
+                  composable("mainScreen") { MainScreen(navController) }
               }
         }
     }
