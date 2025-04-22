@@ -17,6 +17,7 @@ import android.provider.Settings
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import br.edu.puc.superid.ui.screens.SignUpPasswordScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +50,8 @@ class MainActivity : ComponentActivity() {
                   composable("firstTime") { FirstTimeScreen(navController) }
                   composable("login") { LoginScreen(navController) }
                   composable("signup") { SignUpScreen(androidId, navController) }
+                  composable("signuppassword") { SignUpPasswordScreen() }
+
               }
         }
     }
