@@ -24,17 +24,35 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val navController = rememberNavController()
+              val PREFS_NAME = "MyPrefsFile"
+              val settings = getSharedPreferences(PREFS_NAME, 0)
 
-            NavHost(
-                navController = navController,
-                startDestination = "firstTime"
-            ) {
-                composable("firstTime") { FirstTimeScreen(navController) }
-                composable("login") { LoginScreen(navController) }
-                composable("signup") { SignUpScreen("",navController) }
-                composable("signuppassword") { SignUpPasswordScreen() }
-            }
+              // Verifica se é a primeira vez
+              val isFirstTime = settings.getBoolean("my_first_time", true)
+
+              // Se for a primeira vez, salva que o app já foi iniciado
+              if (isFirstTime) {
+                  settings.edit().putBoolean("my_first_time", false).apply()
+              }
+
+              // Define o startDestination com base na verificação
+              val startDestination = if (isFirstTime) "firstTime" else "signup"
+
+              // Se necessário, obtém o Android ID
+              val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+
+              val navController = rememberNavController()
+
+              NavHost(
+                  navController = navController,
+                  startDestination = startDestination
+              ) {
+                  composable("firstTime") { FirstTimeScreen(navController) }
+                  composable("login") { LoginScreen(navController) }
+                  composable("signup") { SignUpScreen(androidId, navController) }
+                  composable("signuppassword") { SignUpPasswordScreen() }
+
+              }
         }
     }
 }
