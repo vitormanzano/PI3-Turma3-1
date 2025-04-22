@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Base64
+import com.google.firebase.auth.FirebaseAuth
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 import java.security.SecureRandom
@@ -30,10 +31,14 @@ class FirestoreHandler {
             }
     }
 
-    fun cadastrarSenha(uid: String, login: String?, categoria: String, senha: String) {
-        val accessToken = GerarAccessToken()
+    fun cadastrarSenha(login: String?, categoria: String, senha: String) {
+        val user = FirebaseAuth.getInstance().currentUser
+        val uid = user!!.uid
 
-        val docId = db.collection("users")
+        val accessToken = gerarAccessToken()
+        var senhaCriptografada = criptografarSenha(senha)
+
+        db.collection("users")
             .whereEqualTo("UID", uid)
             .get()
             .addOnSuccessListener { documents ->
@@ -41,11 +46,10 @@ class FirestoreHandler {
                     val document = documents.documents[0]
                     val userDocRef = document.reference
 
-                    // Agora criamos a subcoleção "senhas"
                     val senhaData = hashMapOf(
                         "login" to login,
                         "categoria" to categoria,
-                        "senha" to senha,
+                        "senha" to senhaCriptografada,
                         "accessToken" to accessToken
                     )
 
@@ -63,26 +67,21 @@ class FirestoreHandler {
             }
     }
 
-    fun encrypt(senha: String, chave: String): String {
-        val keyBytes = chave.toByteArray(Charsets.UTF_8)
-        val secretKey = SecretKeySpec(keyBytes.copyOf(16), "AES")
-
+    fun criptografia(text: String, key: String): ByteArray {
         val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-
-        val encryptedBytes = cipher.doFinal(senha.toByteArray(Charsets.UTF_8))
-        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+        cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(key.toByteArray(), "AES"))
+        return cipher.doFinal(text.toByteArray())
     }
 
     fun criptografarSenha(senha: String): String {
         val chaveParaCriptografar = "chaveExemplo123"
 
-        val senhaCriptografada = encrypt(senha, chaveParaCriptografar)
+        val senhaCriptografada = criptografia(senha, chaveParaCriptografar)
 
-        return senhaCriptografada
+        return senhaCriptografada.toString()
     }
 
-    fun GerarAccessToken(length: Int = 256): String {
+    fun gerarAccessToken(length: Int = 256): String {
         val byteLength = (length * 6) / 8
         val randomBytes = ByteArray(byteLength)
         SecureRandom().nextBytes(randomBytes)
