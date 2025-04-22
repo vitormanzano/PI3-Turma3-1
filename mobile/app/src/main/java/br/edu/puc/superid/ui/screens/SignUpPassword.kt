@@ -11,30 +11,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.*
 import androidx.compose.ui.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import br.edu.puc.superid.auth.AuthHandler
+import br.edu.puc.superid.database.FirestoreHandler
 
 
-// TO DO fazer a parte de login utilizando o auth
 @Composable
-fun LoginScreen(navController: NavHostController) {
-    var email by remember { mutableStateOf("") }
+fun SignUpPasswordScreen() {
+    var login by remember { mutableStateOf("")}
     var senha by remember { mutableStateOf("") }
+    var categoria by remember { mutableStateOf("") }
+    val db = FirestoreHandler()
 
     val backgroundColor = Color(0xFF102952) // fundo azul escuro
     val iconsColor = Color(0xFF00D7FF)
@@ -74,13 +74,13 @@ fun LoginScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(40.dp))
 
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = login,
+                onValueChange = { login = it },
                 placeholder = { Text(
                     color = Color.Gray,
-                    text = "E-mail") },
+                    text = "Login(Opcional)") },
                 leadingIcon = {
-                    Icon(imageVector = Icons.Outlined.Email, contentDescription = null, tint = iconsColor)
+                    Icon(imageVector = Icons.Outlined.AccountCircle, contentDescription = null, tint = iconsColor)
                 },
                 textStyle = TextStyle(color = Color.White),
                 shape = RoundedCornerShape(10.dp),
@@ -101,8 +101,30 @@ fun LoginScreen(navController: NavHostController) {
                 onValueChange = { senha = it },
                 placeholder = { Text(
                     color = Color.Gray,
-                    text="Senha mestra") },
-                visualTransformation = PasswordVisualTransformation(),
+                    text = "Senha") },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Outlined.Email, contentDescription = null, tint = iconsColor)
+                },
+                textStyle = TextStyle(color = Color.White),
+                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = iconsColor,
+                    unfocusedBorderColor = Color.DarkGray,
+                    cursorColor = iconsColor
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = categoria,
+                onValueChange = { categoria = it },
+                placeholder = { Text(
+                    color = Color.Gray,
+                    text="Categoria") },
                 leadingIcon = {
                     Icon(imageVector = Icons.Outlined.Lock, contentDescription = null, tint = iconsColor)
                 },
@@ -118,15 +140,13 @@ fun LoginScreen(navController: NavHostController) {
                 )
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+
 
             Button(
                 onClick = {
-                    val auth = AuthHandler()
+                    db.cadastrarSenha(login, senha, categoria)
 
-                    auth.login(email, senha)
-
-                    navController.navigate("signuppassword")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                 shape = RoundedCornerShape(10.dp),
@@ -134,20 +154,14 @@ fun LoginScreen(navController: NavHostController) {
                     .fillMaxWidth()
                     .height(52.dp),
             ) {
-                Text("ENTRAR", fontWeight = FontWeight.Bold, color = backgroundColor)
+                Text("CRIAR SENHA", fontWeight = FontWeight.Bold, color = backgroundColor)
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Ainda não possui uma conta?",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White,
-                modifier = Modifier.clickable {
-                    navController.navigate("signup")
-                }
-            )
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewSignUpPasswordScreen() {
+    SignUpPasswordScreen()
 }
