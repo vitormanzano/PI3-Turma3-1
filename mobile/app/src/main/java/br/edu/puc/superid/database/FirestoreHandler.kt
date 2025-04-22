@@ -73,8 +73,14 @@ class FirestoreHandler {
         return cipher.doFinal(text.toByteArray())
     }
 
-    fun criptografarSenha(senha: String): String {
-        val chaveParaCriptografar = "chaveExemplo123"
+    fun descriptografia(encryptedData: ByteArray, key: String): String {
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key.toByteArray(), "AES"))
+        return String(cipher.doFinal(encryptedData))
+    }
+
+    fun cript   ografarSenha(senha: String): String {
+        val chaveParaCriptografar = "chaveExemplo1234"
 
         val senhaCriptografada = criptografia(senha, chaveParaCriptografar)
 

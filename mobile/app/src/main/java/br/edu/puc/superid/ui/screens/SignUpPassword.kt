@@ -125,7 +125,6 @@ fun SignUpPasswordScreen() {
                 placeholder = { Text(
                     color = Color.Gray,
                     text="Categoria") },
-                visualTransformation = PasswordVisualTransformation(),
                 leadingIcon = {
                     Icon(imageVector = Icons.Outlined.Lock, contentDescription = null, tint = iconsColor)
                 },
@@ -143,9 +142,6 @@ fun SignUpPasswordScreen() {
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
@@ -160,8 +156,7 @@ fun SignUpPasswordScreen() {
             ) {
                 Text("CRIAR SENHA", fontWeight = FontWeight.Bold, color = backgroundColor)
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
 

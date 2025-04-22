@@ -125,6 +125,8 @@ fun LoginScreen(navController: NavHostController) {
                     val auth = AuthHandler()
 
                     auth.login(email, senha)
+
+                    navController.navigate("signuppassword")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                 shape = RoundedCornerShape(10.dp),
