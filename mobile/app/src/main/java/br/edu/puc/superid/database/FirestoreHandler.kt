@@ -5,6 +5,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Base64
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 import java.security.SecureRandom
@@ -23,6 +24,11 @@ class FirestoreHandler {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("SUCCESS", "Usuário criado!")
+                    val user = FirebaseAuth.getInstance().currentUser
+
+                    val userUid = user!!.uid
+
+                    inserirCategoriasIniciais(userUid)
 
                 }
                 else {
@@ -36,7 +42,7 @@ class FirestoreHandler {
         val uid = user!!.uid
 
         val accessToken = gerarAccessToken()
-        var senhaCriptografada = criptografarSenha(senha)
+        val senhaCriptografada = criptografarSenha(senha)
 
         db.collection("users")
             .whereEqualTo("UID", uid)
@@ -46,6 +52,12 @@ class FirestoreHandler {
                     val document = documents.documents[0]
                     val userDocRef = document.reference
 
+                    val categoriaDocRef = buscarCategoria(categoria, userDocRef)
+
+                    if (categoriaDocRef == null) {
+                        Log.e("FAILURE", "Algo de errado aconteceu")
+                    }
+
                     val senhaData = hashMapOf(
                         "login" to login,
                         "categoria" to categoria,
@@ -53,7 +65,7 @@ class FirestoreHandler {
                         "accessToken" to accessToken
                     )
 
-                    userDocRef.collection("senhas")
+                    categoriaDocRef!!.collection("senhas")
                         .add(senhaData)
                         .addOnSuccessListener {
                             println("Senha cadastrada com sucesso!")
@@ -65,6 +77,62 @@ class FirestoreHandler {
                     println("Usuário com UID $uid não encontrado.")
                 }
             }
+    }
+
+    fun buscarCategoria(categoria: String, userDoc: DocumentReference): DocumentReference? {
+        var categoriaDocRef: DocumentReference? = null
+
+        db.collection("categorias")
+            .whereEqualTo("nome", categoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val document = documents.documents[0]
+                    categoriaDocRef = document.reference
+
+                }
+            }
+
+        return categoriaDocRef
+    }
+
+    fun inserirCategoriasIniciais(uid: String) {
+        val categoriaSitesWeb = "Sites da Web"
+        val categoriaAplicativos = "Aplicativos"
+        val categoriaTeclado = "Teclados de Acesso Físico"
+
+        db.collection("users")
+            .whereEqualTo("UID", uid)
+            .get()
+            .addOnSuccessListener { documents ->
+                val document = documents.documents[0]
+                val userDocRef = document.reference
+
+                val docSitesWeb = hashMapOf(
+                    "nome" to categoriaSitesWeb,
+                )
+
+                val docAplicativos = hashMapOf(
+                    "nome" to categoriaAplicativos
+                )
+
+                val docTeclado = hashMapOf(
+                    "nome" to categoriaTeclado
+                )
+                userDocRef.collection("categorias")
+                    .add(docSitesWeb)
+
+                userDocRef.collection("categorias")
+                    .add(docAplicativos)
+
+                userDocRef.collection("categorias")
+                    .add(docTeclado)
+
+            }
+    }
+
+    fun inserirCategoria(categoria: String) {
+        val categoriaExiste = db.collection("categorias")
     }
 
     fun criptografia(text: String, key: String): ByteArray {
