@@ -12,14 +12,15 @@ class AuthHandler {
     private val auth = Firebase.auth
     private val db = FirestoreHandler()
 
-    fun login(email: String, senha: String) {
+    fun login(email: String, senha: String, onResult: (Boolean) -> Unit) {
         auth.signInWithEmailAndPassword(email, senha)
-            .addOnCompleteListener{ task ->
-                task.addOnFailureListener { e ->
-                    Log.e("FAILURE", "Não foi possível fazer o login!")
-                }
-                task .addOnSuccessListener {
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
                     Log.i("SUCCESS", "Login feito!")
+                    onResult(true)
+                } else {
+                    Log.e("FAILURE", "Não foi possível fazer o login! ${task.exception}")
+                    onResult(false)
                 }
             }
     }
