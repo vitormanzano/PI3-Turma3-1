@@ -51,8 +51,8 @@ class MainActivity : ComponentActivity() {
                   composable("firstTime") { FirstTimeScreen(navController) }
                   composable("login") { LoginScreen(navController) }
                   composable("signup") { SignUpScreen(androidId, navController) }
-                  composable("mainScreen") { MainScreen(navController) }
-                  composable("signuppassword") { SignUpPasswordScreen() }
+                  composable("mainscreen") { MainScreen(navController) }
+                  composable("signuppassword") { SignUpPasswordScreen(navController) }
               }
         }
     }

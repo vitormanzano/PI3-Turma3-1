@@ -79,7 +79,7 @@ class FirestoreHandler {
         return String(cipher.doFinal(encryptedData))
     }
 
-    fun cript   ografarSenha(senha: String): String {
+    fun criptografarSenha(senha: String): String {
         val chaveParaCriptografar = "chaveExemplo1234"
 
         val senhaCriptografada = criptografia(senha, chaveParaCriptografar)

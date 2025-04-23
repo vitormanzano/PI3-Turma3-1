@@ -126,7 +126,7 @@ fun LoginScreen(navController: NavHostController) {
 
                     auth.login(email, senha)
 
-                    navController.navigate("signuppassword")
+                    navController.navigate("mainscreen")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                 shape = RoundedCornerShape(10.dp),

@@ -2,6 +2,8 @@ package br.edu.puc.superid.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,7 +33,7 @@ fun MainScreen(navController: NavHostController) {
     val backgroundColor = Color(0xFF102952)
     val iconColor = Color(0xFF00D7FF)
     val textColor = Color.White
-    val sections = listOf("Todas", "Favoritas", "Trabalho", "Pessoais")
+    val sections = listOf("Senhas Web", "Favoritas", "Trabalho", "Pessoais")
     var selectedSection by remember { mutableStateOf("Todas") }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -53,11 +55,25 @@ fun MainScreen(navController: NavHostController) {
                     fontSize = 20.sp
                 )
                 Divider(color = Color.White.copy(alpha = 0.2f))
+
                 NavigationDrawerItem(
-                    label = { Text("Minhas Senhas", color = textColor) },
+                    label = { Text("Minhas Senhas") },
                     selected = true,
-                    onClick = { /* Ação */ }
+                    onClick = { /* Ação */ },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Lock,
+                            contentDescription = "Ícone de senha",
+                            tint = iconColor
+                        )
+                    },
+                    colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = backgroundColor, // fundo quando selecionado
+                        selectedIconColor = iconColor,            // cor do ícone quando selecionado
+                        selectedTextColor = iconColor            // cor do texto quando selecionado
+                    )
                 )
+
                 NavigationDrawerItem(
                     label = { Text("Configurações", color = textColor) },
                     selected = false,
@@ -91,7 +107,7 @@ fun MainScreen(navController: NavHostController) {
             },
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = { /* ação para nova senha */ },
+                    onClick = { navController.navigate("signuppassword") },
                     containerColor = iconColor
                 ) {
                     Icon(Icons.Default.Add, contentDescription = "Nova senha")
@@ -104,20 +120,32 @@ fun MainScreen(navController: NavHostController) {
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                // Categorias horizontais
+                // Espaço inicial
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(
+
+                // Título da seção
+                Text(
+                    text = "Categorias",
+                    color = textColor,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                // Categorias horizontais
+                LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(horizontal = 0.dp), // padding lateral
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    sections.forEach { section ->
+                    items(sections) { section ->
                         Button(
                             onClick = { selectedSection = section },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (selectedSection == section) iconColor else backgroundColor,
-                                contentColor = Color.White
+                                contentColor = if (selectedSection == section) backgroundColor else textColor
                             ),
-                            shape = RoundedCornerShape(20)
+                            shape = RoundedCornerShape(20),
+                            modifier = Modifier.height(40.dp) // altura padrão dos botões (ajustável)
                         ) {
                             Text(section)
                         }

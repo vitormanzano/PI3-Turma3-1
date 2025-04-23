@@ -27,10 +27,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.edu.puc.superid.database.FirestoreHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.navigation.NavHostController
 
 
 @Composable
-fun SignUpPasswordScreen() {
+fun SignUpPasswordScreen(navController: NavHostController) {
     var login by remember { mutableStateOf("")}
     var senha by remember { mutableStateOf("") }
     var categoria by remember { mutableStateOf("") }
@@ -46,6 +49,18 @@ fun SignUpPasswordScreen() {
             .background(backgroundColor),
         contentAlignment = Alignment.Center
     ) {
+        IconButton(
+            onClick = { navController.navigate("mainscreen") },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = "Voltar",
+                tint = Color.White
+            )
+        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -141,8 +156,7 @@ fun SignUpPasswordScreen() {
             )
 
             Spacer(modifier = Modifier.width(8.dp))
-
-
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
                     db.cadastrarSenha(login, senha, categoria)
@@ -158,10 +172,4 @@ fun SignUpPasswordScreen() {
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewSignUpPasswordScreen() {
-    SignUpPasswordScreen()
 }
