@@ -47,7 +47,6 @@ fun MainScreen(navController: NavHostController) {
 
     // Variáveis para calcular a posição do menu
     val fabPosition = remember { mutableStateOf(Offset.Zero) }
-    val menuHeightPx = remember { mutableStateOf(0f) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -120,8 +119,9 @@ fun MainScreen(navController: NavHostController) {
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
-                        offset = DpOffset(x = (fabPosition.value.x - 160).dp, y = (fabPosition.value.y + 120).dp),  // Move mais para a esquerda
-                        modifier = Modifier.background(sectionBackground)  // Alterando a cor de fundo do DropdownMenu
+                        offset = DpOffset(x = (fabPosition.value.x).dp, y = (fabPosition.value.y).dp),  // Move mais para a esquerda
+                        modifier = Modifier
+                            .background(sectionBackground)
                     ) {
                         DropdownMenuItem(
                             text = { Text("Nova Senha", color = Color.White) },
