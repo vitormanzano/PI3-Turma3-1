@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -30,21 +32,52 @@ import br.edu.puc.superid.auth.AuthHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun SignUpScreen(imei: String, navController: NavHostController) {
-    var name by remember { mutableStateOf("")}
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
-    val auth = AuthHandler()
-    var showDialog by remember { mutableStateOf(false) }
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    val auth = AuthHandler()
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    var showDialog by remember { mutableStateOf(false) }
+    var nameError by remember { mutableStateOf<String?>(null) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var senhaError by remember { mutableStateOf<String?>(null) }
+    var termosError by remember { mutableStateOf<String?>(null) }
+    var wasAttempted by remember { mutableStateOf(false) }
 
     val backgroundColor = Color(0xFF102952)
     val iconsColor = Color(0xFF00D7FF)
     val buttonColor = Color(0xFF00D7FF)
+
+    fun validateFields(): Boolean {
+        nameError = if (name.isBlank()) "Nome não pode ser vazio." else null
+        emailError = when {
+            email.isBlank() -> "Email não pode ser vazio."
+            !email.contains("@") -> "Email inválido."
+            else -> null
+        }
+        senhaError = if (senha.length < 6) "Senha deve ter no mínimo 6 caracteres." else null
+        termosError = if (!checked) "Você deve aceitar os termos." else null
+        return nameError == null && emailError == null && senhaError == null && termosError == null
+    }
+
+    fun trySignUp() {
+        wasAttempted = true
+        if (validateFields()) {
+            auth.cadastrarCredencial(name, email, senha, imei)
+            scope.launch {
+                snackbarHostState.showSnackbar("Conta criada com sucesso!")
+                delay(2000)
+                navController.navigate("login")
+            }
+        }
+    }
 
     Scaffold(
         containerColor = backgroundColor,
@@ -57,22 +90,19 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
             contentAlignment = Alignment.Center
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(32.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Filled.Lock,
                         contentDescription = "Lock Icon",
                         tint = Color.White,
                         modifier = Modifier.size(55.dp)
                     )
-
                     Spacer(modifier = Modifier.width(4.dp))
-
                     Text(
                         text = "Super ID",
                         fontSize = 48.sp,
@@ -83,6 +113,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
 
                 Spacer(modifier = Modifier.height(40.dp))
 
+                // Nome
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -92,9 +123,11 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     },
                     textStyle = TextStyle(color = Color.White),
                     shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = wasAttempted && nameError != null,
+                    supportingText = {
+                        if (wasAttempted && nameError != null) Text(nameError!!, color = Color.Red)
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = iconsColor,
                         unfocusedBorderColor = Color.DarkGray,
@@ -102,8 +135,9 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
+                // Email
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -113,9 +147,11 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     },
                     textStyle = TextStyle(color = Color.White),
                     shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = wasAttempted && emailError != null,
+                    supportingText = {
+                        if (wasAttempted && emailError != null) Text(emailError!!, color = Color.Red)
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = iconsColor,
                         unfocusedBorderColor = Color.DarkGray,
@@ -123,8 +159,9 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
+                // Senha
                 OutlinedTextField(
                     value = senha,
                     onValueChange = { senha = it },
@@ -135,9 +172,11 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     },
                     textStyle = TextStyle(color = Color.White),
                     shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = wasAttempted && senhaError != null,
+                    supportingText = {
+                        if (wasAttempted && senhaError != null) Text(senhaError!!, color = Color.Red)
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = iconsColor,
                         unfocusedBorderColor = Color.DarkGray,
@@ -145,12 +184,10 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     )
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 16.dp),
-                ) {
+                // Termos
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = checked,
                         onCheckedChange = { checked = it },
@@ -161,7 +198,6 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-
                     val annotatedText = buildAnnotatedString {
                         append("Li e estou de acordo com o ")
                         pushStringAnnotation(tag = "TERMOS", annotation = "mostrar_dialog")
@@ -170,30 +206,26 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         }
                         pop()
                     }
-
                     ClickableText(
                         text = annotatedText,
                         onClick = { offset ->
-                            annotatedText.getStringAnnotations(tag = "TERMOS", start = offset, end = offset)
-                                .firstOrNull()?.let {
-                                    showDialog = true
-                                }
+                            annotatedText.getStringAnnotations("TERMOS", offset, offset).firstOrNull()?.let {
+                                showDialog = true
+                            }
                         },
                         style = TextStyle(color = Color.White)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                if (wasAttempted && termosError != null) {
+                    Text(termosError!!, color = Color.Red, modifier = Modifier.padding(top = 4.dp))
+                }
 
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Botão de criar conta
                 Button(
-                    onClick = {
-                        auth.cadastrarCredencial(name, email, senha, imei)
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Conta criada com sucesso!")
-                            delay(2000)
-                            navController.navigate("login")
-                        }
-                    },
+                    onClick = { trySignUp() },
                     colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
@@ -202,7 +234,6 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                 ) {
                     Text("CRIAR CONTA", fontWeight = FontWeight.Bold, color = backgroundColor)
                 }
-
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -225,12 +256,8 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                             Text("Fechar")
                         }
                     },
-                    title = {
-                        Text("Termos de Uso")
-                    },
-                    text = {
-                        Text("termos.")
-                    },
+                    title = { Text("Termos de Uso") },
+                    text = { Text("termos.") },
                     containerColor = Color.White
                 )
             }

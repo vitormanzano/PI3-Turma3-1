@@ -2,51 +2,60 @@ package br.edu.puc.superid.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.Dehaze
-import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavHostController) {
     val backgroundColor = Color(0xFF102952)
     val iconColor = Color(0xFF00D7FF)
+    val sectionBackground = Color(0xFF1C355E)
     val textColor = Color.White
-    val sections = listOf("Senhas Web", "Favoritas", "Trabalho", "Pessoais")
-    var selectedSection by remember { mutableStateOf("Todas") }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+
+    val tipos = listOf(
+        TipoItem("Sites da Web", Icons.Outlined.Dehaze, "0"),
+        TipoItem("Aplicativos", Icons.Outlined.Dehaze, "0"),
+        TipoItem("Teclados numéricos", Icons.Outlined.Dehaze, "0"),
+    )
+
+    var expanded by remember { mutableStateOf(false) }
+    var editMode by remember { mutableStateOf(false) }
+
+    val fabPosition = remember { mutableStateOf(Offset.Zero) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
                 drawerContainerColor = backgroundColor,
-                modifier = Modifier.width(280.dp) // Tamanho padrão de drawer
+                modifier = Modifier.width(280.dp)
             ) {
-                Spacer(Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = "Menu",
                     modifier = Modifier.padding(16.dp),
@@ -59,25 +68,19 @@ fun MainScreen(navController: NavHostController) {
                 NavigationDrawerItem(
                     label = { Text("Minhas Senhas") },
                     selected = true,
-                    onClick = { /* Ação */ },
+                    onClick = { },
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.Lock,
-                            contentDescription = "Ícone de senha",
+                            contentDescription = null,
                             tint = iconColor
                         )
                     },
                     colors = NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = backgroundColor, // fundo quando selecionado
-                        selectedIconColor = iconColor,            // cor do ícone quando selecionado
-                        selectedTextColor = iconColor            // cor do texto quando selecionado
+                        selectedContainerColor = backgroundColor,
+                        selectedIconColor = iconColor,
+                        selectedTextColor = iconColor
                     )
-                )
-
-                NavigationDrawerItem(
-                    label = { Text("Configurações", color = textColor) },
-                    selected = false,
-                    onClick = { /* Ação */ }
                 )
             }
         }
@@ -86,31 +89,50 @@ fun MainScreen(navController: NavHostController) {
             containerColor = backgroundColor,
             topBar = {
                 TopAppBar(
-                    title = {
-                        Text("Minhas Senhas", color = textColor)
-                    },
+                    title = { Text("Minhas senhas", color = textColor) },
                     navigationIcon = {
                         IconButton(onClick = {
                             coroutineScope.launch { drawerState.open() }
                         }) {
-                            Icon(
-                                imageVector = Icons.Outlined.Menu, // Substitua por Icons.Default.Menu se quiser o ícone real de menu
-                                contentDescription = "Menu",
-                                tint = textColor
-                            )
+                            Icon(Icons.Outlined.Menu, contentDescription = "Menu", tint = textColor)
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = backgroundColor
-                    )
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = sectionBackground)
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { navController.navigate("signuppassword") },
-                    containerColor = iconColor
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .onGloballyPositioned {
+                            fabPosition.value = it.positionInWindow()
+                        }
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Nova senha")
+                    FloatingActionButton(
+                        onClick = { expanded = !expanded },
+                        containerColor = iconColor
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Abrir Menu")
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        offset = DpOffset(x = fabPosition.value.x.dp, y = fabPosition.value.y.dp),
+                        modifier = Modifier.background(sectionBackground)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Nova Senha", color = Color.White) },
+                            onClick = {
+                                navController.navigate("signuppassword")
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Nova Categoria", color = Color.White) },
+                            onClick = { expanded = false }
+                        )
+                    }
                 }
             }
         ) { innerPadding ->
@@ -120,53 +142,104 @@ fun MainScreen(navController: NavHostController) {
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                // Espaço inicial
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Título da seção
-                Text(
-                    text = "Categorias",
-                    color = textColor,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                // Categorias horizontais
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(horizontal = 0.dp), // padding lateral
+                Spacer(modifier = Modifier.height(24.dp))
+                Surface(
+                    color = sectionBackground,
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(sections) { section ->
-                        Button(
-                            onClick = { selectedSection = section },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selectedSection == section) iconColor else backgroundColor,
-                                contentColor = if (selectedSection == section) backgroundColor else textColor
-                            ),
-                            shape = RoundedCornerShape(20),
-                            modifier = Modifier.height(40.dp) // altura padrão dos botões (ajustável)
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(section)
+                            SectionTitle("CATEGORIAS (${tipos.size})", textColor)
+                            TextButton(onClick = { editMode = !editMode }) {
+                                Text(
+                                    if (editMode) "Cancelar" else "Editar",
+                                    color = if(editMode) Color.Red else iconColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        tipos.forEach { item ->
+                            ItemRow(
+                                label = item.label,
+                                icon = item.icon,
+                                count = item.count,
+                                iconColor = iconColor,
+                                editMode = editMode,
+                                onEditClick = { /* Lógica de edição aqui */ },
+                                onDeleteClick = { /* Lógica de exclusão aqui */ }
+                            )
                         }
                     }
-                }
-
-                // Conteúdo central
-                Spacer(modifier = Modifier.height(48.dp))
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Nenhuma senha cadastrada em \"$selectedSection\"",
-                        color = Color.White.copy(alpha = 0.6f),
-                        fontSize = 16.sp
-                    )
                 }
             }
         }
     }
 }
 
+@Composable
+fun SectionTitle(title: String, color: Color) {
+    Text(
+        text = title,
+        color = color,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+}
 
+@Composable
+fun ItemRow(
+    label: String,
+    icon: ImageVector,
+    count: String,
+    iconColor: Color,
+    editMode: Boolean = false,
+    onEditClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = iconColor,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = label,
+            color = Color.White,
+            fontSize = 16.sp,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = count,
+            color = Color.Gray,
+            fontSize = 14.sp
+        )
+        if (editMode) {
+            IconButton(onClick = onEditClick) {
+                Icon(Icons.Filled.Edit, contentDescription = "Editar", tint = iconColor)
+            }
+            IconButton(onClick = onDeleteClick) {
+                Icon(Icons.Filled.Delete, contentDescription = "Excluir", tint = Color.Red)
+            }
+        }
+    }
+}
+
+data class TipoItem(
+    val label: String,
+    val icon: ImageVector,
+    val count: String
+)
