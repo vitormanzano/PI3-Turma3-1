@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.Dehaze
 import androidx.compose.material.icons.outlined.Menu
@@ -19,10 +21,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 
@@ -44,8 +44,8 @@ fun MainScreen(navController: NavHostController) {
     )
 
     var expanded by remember { mutableStateOf(false) }
+    var editMode by remember { mutableStateOf(false) }
 
-    // Variáveis para calcular a posição do menu
     val fabPosition = remember { mutableStateOf(Offset.Zero) }
 
     ModalNavigationDrawer(
@@ -115,13 +115,11 @@ fun MainScreen(navController: NavHostController) {
                         Icon(Icons.Default.Add, contentDescription = "Abrir Menu")
                     }
 
-                    // Usando DropdownMenu ao invés do Popup
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
-                        offset = DpOffset(x = (fabPosition.value.x).dp, y = (fabPosition.value.y).dp),  // Move mais para a esquerda
-                        modifier = Modifier
-                            .background(sectionBackground)
+                        offset = DpOffset(x = fabPosition.value.x.dp, y = fabPosition.value.y.dp),
+                        modifier = Modifier.background(sectionBackground)
                     ) {
                         DropdownMenuItem(
                             text = { Text("Nova Senha", color = Color.White) },
@@ -151,9 +149,31 @@ fun MainScreen(navController: NavHostController) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        SectionTitle("CATEGORIAS (${tipos.size})", textColor)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            SectionTitle("CATEGORIAS (${tipos.size})", textColor)
+                            TextButton(onClick = { editMode = !editMode }) {
+                                Text(
+                                    if (editMode) "Cancelar" else "Editar",
+                                    color = if(editMode) Color.Red else iconColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
                         tipos.forEach { item ->
-                            ItemRow(item.label, item.icon, item.count, iconColor)
+                            ItemRow(
+                                label = item.label,
+                                icon = item.icon,
+                                count = item.count,
+                                iconColor = iconColor,
+                                editMode = editMode,
+                                onEditClick = { /* Lógica de edição aqui */ },
+                                onDeleteClick = { /* Lógica de exclusão aqui */ }
+                            )
                         }
                     }
                 }
@@ -174,7 +194,15 @@ fun SectionTitle(title: String, color: Color) {
 }
 
 @Composable
-fun ItemRow(label: String, icon: ImageVector, count: String, iconColor: Color) {
+fun ItemRow(
+    label: String,
+    icon: ImageVector,
+    count: String,
+    iconColor: Color,
+    editMode: Boolean = false,
+    onEditClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -199,6 +227,14 @@ fun ItemRow(label: String, icon: ImageVector, count: String, iconColor: Color) {
             color = Color.Gray,
             fontSize = 14.sp
         )
+        if (editMode) {
+            IconButton(onClick = onEditClick) {
+                Icon(Icons.Filled.Edit, contentDescription = "Editar", tint = iconColor)
+            }
+            IconButton(onClick = onDeleteClick) {
+                Icon(Icons.Filled.Delete, contentDescription = "Excluir", tint = Color.Red)
+            }
+        }
     }
 }
 
