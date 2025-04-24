@@ -5,11 +5,15 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Base64
 import br.edu.puc.superid.Models.Senha
+import br.edu.puc.superid.auth.AuthHandler
 import com.google.firebase.auth.FirebaseAuth
+import com.google.rpc.context.AttributeContext.Auth
+import kotlinx.coroutines.tasks.await
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 import java.security.SecureRandom
 import java.util.UUID
+
 
 class FirestoreHandler {
     private val db = Firebase.firestore
@@ -154,21 +158,30 @@ class FirestoreHandler {
 
     }
 
-    fun buscarTodasCategorias(categoria: String, userUid: String): List<String> {
-        var listaDeCategorias: MutableList<String> = mutableListOf()
+    suspend fun buscarTodasCategorias(): List<String> {
+        val listaDeCategorias = mutableListOf<String>()
+        val auth = AuthHandler()
+        val userUid = auth.obterUidUsuario()
 
-        db.collection("categorias")
-            .whereEqualTo("uidUsuario", userUid)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val nomeCategoria = document.getString("nome").toString()
-                    listaDeCategorias.add(nomeCategoria)
-                }
+        try {
+            val documentos = db.collection("categorias")
+                .whereEqualTo("uidUsuario", userUid)
+                .get()
+                .await()
+
+            for (document in documentos) {
+                val nomeCategoria = document.getString("nome") ?: continue
+                listaDeCategorias.add(nomeCategoria)
             }
+
+            Log.i("CATEGORIAS", listaDeCategorias.toString())
+        } catch (e: Exception) {
+            Log.e("CATEGORIAS", "Erro ao buscar categorias", e)
+        }
 
         return listaDeCategorias
     }
+
 
     fun inserirCategoriasIniciais(userUid: String) {
         val categoriaSitesWeb = "Sites da Web"

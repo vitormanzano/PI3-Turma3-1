@@ -47,4 +47,9 @@ class AuthHandler {
                 }
             }
     }
+
+    fun obterUidUsuario(): String? {
+        val user = auth.currentUser
+        return user?.uid
+    }
 }

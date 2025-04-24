@@ -1,5 +1,6 @@
 package br.edu.puc.superid.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import br.edu.puc.superid.database.FirestoreHandler
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,11 +39,15 @@ fun MainScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    val tipos = listOf(
-        TipoItem("Sites da Web", Icons.Outlined.Dehaze, "0"),
-        TipoItem("Aplicativos", Icons.Outlined.Dehaze, "0"),
-        TipoItem("Teclados numéricos", Icons.Outlined.Dehaze, "0"),
-    )
+    val firestore = FirestoreHandler()
+    var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        val resultado = firestore.buscarTodasCategorias()
+        categorias = resultado
+    }
+
+    Log.i("CATEGORIAS", categorias.toString())
 
     var expanded by remember { mutableStateOf(false) }
     var editMode by remember { mutableStateOf(false) }
@@ -154,7 +160,7 @@ fun MainScreen(navController: NavHostController) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            SectionTitle("CATEGORIAS (${tipos.size})", textColor)
+                            SectionTitle("CATEGORIAS (${categorias.size})", textColor)
                             TextButton(onClick = { editMode = !editMode }) {
                                 Text(
                                     if (editMode) "Cancelar" else "Editar",
@@ -164,17 +170,18 @@ fun MainScreen(navController: NavHostController) {
                             }
                         }
 
-                        tipos.forEach { item ->
+                        categorias.forEach { nome ->
                             ItemRow(
-                                label = item.label,
-                                icon = item.icon,
-                                count = item.count,
+                                label = nome.toString(),
+                                icon = Icons.Filled.Lock, // Use um ícone padrão, ou escolha dinamicamente
+                                count = "0", // Pode trocar para a quantidade de senhas se quiser
                                 iconColor = iconColor,
                                 editMode = editMode,
-                                onEditClick = { /* Lógica de edição aqui */ },
-                                onDeleteClick = { /* Lógica de exclusão aqui */ }
+                                onEditClick = { /* Lógica de edição */ },
+                                onDeleteClick = { /* Lógica de exclusão */ }
                             )
                         }
+
                     }
                 }
             }
@@ -237,9 +244,3 @@ fun ItemRow(
         }
     }
 }
-
-data class TipoItem(
-    val label: String,
-    val icon: ImageVector,
-    val count: String
-)
