@@ -7,7 +7,6 @@ import android.util.Base64
 import br.edu.puc.superid.Models.Senha
 import br.edu.puc.superid.auth.AuthHandler
 import com.google.firebase.auth.FirebaseAuth
-import com.google.rpc.context.AttributeContext.Auth
 import kotlinx.coroutines.tasks.await
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
@@ -96,6 +95,33 @@ class FirestoreHandler {
             }
             .addOnFailureListener { e ->
                 println("Erro ao cadastrar senha: $e")
+            }
+    }
+
+    fun deletarSenha(guid: String) {
+        var senha = db
+            .collection("senhas")
+            .whereEqualTo("guid", guid)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val document = documents.documents[0]
+                    db.collection("senhas").document(document.id)
+                        .delete()
+                        .addOnSuccessListener {
+                            Log.d("FIREBASE", "Deletou")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FIREABSE", "Erro ao deletar")
+                        }
+
+                }
+                else {
+                    Log.e("FIREBASE", "SENHA NÃO encontrada")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIREBASE", "Erro ao buscar documento  ", e)
             }
     }
 
