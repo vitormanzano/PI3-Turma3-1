@@ -208,6 +208,34 @@ class FirestoreHandler {
         return listaDeCategorias
     }
 
+    fun deletarCategoria(userUid: String, nomeCategoria: String) {
+        db
+            .collection("categorias")
+            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("nome", nomeCategoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val document = documents.documents[0]
+                    db.collection("categorias").document(document.id)
+                        .delete()
+                        .addOnSuccessListener {
+                            Log.d("FIREBASE", "Deletou")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FIREABSE", "Erro ao deletar cat")
+                        }
+
+                }
+                else {
+                    Log.e("FIREBASE", "Categoria NÃO encontrada")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIREBASE", "Erro ao buscar documento  ", e)
+            }
+    }
+
 
     fun inserirCategoriasIniciais(userUid: String) {
         val categoriaSitesWeb = "Sites da Web"
