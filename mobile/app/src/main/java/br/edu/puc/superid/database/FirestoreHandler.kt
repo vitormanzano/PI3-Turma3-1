@@ -214,4 +214,35 @@ class FirestoreHandler {
 
     }
 
+    fun alterarCategoria(userUid: String, novoNomeCategoria: String) {
+        db.collection("categorias")
+            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("nome", novoNomeCategoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        val novosDados = hashMapOf<String, Any>(
+                            "nome" to novoNomeCategoria
+                        )
+
+                        val document = documents.documents[0]
+                        db.collection("categorias").document(document.id)
+                            .update(novosDados)
+                            .addOnSuccessListener {
+                                Log.d("FIRESTORE", "Senha alterou")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("FIRESTORE", "Erro ao alterar")
+                            }
+
+                    }
+                    else {
+                        Log.e("FIRESTORE", "SENHA NÃO encontrada")
+                    }
+                }
+            .addOnFailureListener { e ->
+                Log.e("FIRESTORE", "Não foi possível alterar a senha")
+            }
+    }
+
 }
