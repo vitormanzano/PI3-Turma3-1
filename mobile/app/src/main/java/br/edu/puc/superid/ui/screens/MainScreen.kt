@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(navController: NavHostController) {
     val backgroundColor = Color(0xFF102952)
-    val iconColor = Color(0xFF00D7FF)
+    val iconColor = Color(0xFF69B4FF)
     val sectionBackground = Color(0xFF1C355E)
     val textColor = Color.White
 
@@ -164,7 +164,7 @@ fun MainScreen(navController: NavHostController) {
                             TextButton(onClick = { editMode = !editMode }) {
                                 Text(
                                     if (editMode) "Cancelar" else "Editar",
-                                    color = if(editMode) Color.Red else iconColor,
+                                    color = if(editMode) Color(0xFFFF5858) else iconColor,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -239,7 +239,7 @@ fun ItemRow(
                 Icon(Icons.Filled.Edit, contentDescription = "Editar", tint = iconColor)
             }
             IconButton(onClick = onDeleteClick) {
-                Icon(Icons.Filled.Delete, contentDescription = "Excluir", tint = Color.Red)
+                Icon(Icons.Filled.Delete, contentDescription = "Excluir", tint = Color(0xFFFF5858))
             }
         }
     }
