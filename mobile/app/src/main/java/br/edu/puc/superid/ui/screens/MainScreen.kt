@@ -31,9 +31,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavHostController) {
-    val backgroundColor = Color(0xFF102952)
-    val iconColor = Color(0xFF69B4FF)
-    val sectionBackground = Color(0xFF1C355E)
+    val backgroundColor = Color.DarkGray
+    val iconColor = Color(0xFF3366FF)
+    val sectionBackground = Color.Black
     val textColor = Color.White
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)

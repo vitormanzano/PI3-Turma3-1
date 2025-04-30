@@ -19,6 +19,7 @@ import android.provider.Settings
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import br.edu.puc.superid.ui.screens.PasswordManagerScreen
 import br.edu.puc.superid.ui.screens.SignUpPasswordScreen
 
 class MainActivity : ComponentActivity() {
@@ -47,8 +48,9 @@ class MainActivity : ComponentActivity() {
 
               NavHost(
                   navController = navController,
-                  startDestination = "firstTime"
+                  startDestination = "telaTeste"
               ) {
+                  composable("telaTeste") { PasswordManagerScreen() }
                   composable("firstTime") { FirstTimeScreen(navController) }
                   composable("createAccount") { CreateAccountScreen(navController) }
                   composable("login") { LoginScreen(navController) }
