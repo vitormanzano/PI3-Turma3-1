@@ -1,156 +1,138 @@
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.outlined.Folder
-import androidx.compose.material.icons.outlined.Help
-import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import br.edu.puc.superid.R
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FirstTimeScreen(navController: NavHostController) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
-    val coroutineScope = rememberCoroutineScope()
-
-    val backgroundColor = Color(0xFF102952)
-    val iconColor = Color(0xFF00D7FF)
-    val buttonColor = Color(0xFF00D7FF)
-
     val pages = listOf(
-        Triple(Icons.Outlined.Help, "O que é o SuperID?", "O SuperID é uma forma inovadora e prática de fazer login em apps e sites, sem precisar digitar senhas."),
-        Triple(Icons.Outlined.Security, "Segurança em primeiro lugar", "Com o SuperID, você pode armazenar suas senhas tradicionais de maneira segura e criptografada, tudo em um só lugar."),
-        Triple(Icons.Outlined.Folder, "Mais rápido. Mais fácil.", "Esqueça a complicação de lembrar várias senhas. Use o SuperID para armazenar e acessar suas senhas com agilidade e segurança.")
+        "SuperID oferece uma solução prática e segura para login sem senhas em sites",
+        "Armazene suas senhas de forma criptografada e acessível em um único lugar",
+        "Esqueça a dificuldade de gerenciar várias senhas, use SuperID para maior segurança e agilidade"
     )
+
+    val images = listOf(
+        R.drawable.person,
+        R.drawable.lock,
+        R.drawable.thinking_person
+    )
+
+    val pagerState = rememberPagerState { pages.size }
+    val scope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor),
-        contentAlignment = Alignment.Center
+            .background(Color.Black)
+            .padding(24.dp)
+            .padding(bottom = 32.dp)
     ) {
+        // Contêiner principal com o conteúdo
         Column(
             modifier = Modifier
-                .padding(32.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+                .fillMaxHeight()
+                .padding(bottom = 72.dp), // Deixe espaço para o botão
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Logo
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Lock,
-                    contentDescription = "Logo",
-                    tint = Color.White,
-                    modifier = Modifier.size(48.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Super ID",
-                    color = Color.White,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
-                val (icon, title, description) = pages[page]
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f) // O conteúdo ocupa o restante do espaço
+            ) { page ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = iconColor,
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = title,
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = description,
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-            }
-
-            // Indicadores
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                repeat(pages.size) { index ->
-                    Box(
+                    Image(
+                        painter = painterResource(id = images[page]),
+                        contentDescription = "Imagem da página $page",
                         modifier = Modifier
-                            .padding(4.dp)
-                            .size(10.dp)
-                            .background(
-                                color = if (pagerState.currentPage == index) iconColor else Color.Gray,
-                                shape = CircleShape
-                            )
+                            .height(400.dp)
+                            .fillMaxWidth(),
+                        contentScale = ContentScale.Fit
+                    )
+
+                    Text(
+                        text = pages[page],
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 26.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            PagerIndicator(
+                size = pages.size,
+                currentPage = pagerState.currentPage
+            )
+        }
 
-            // Botões
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Button(
-                    onClick = {navController.navigate("signup")},
-                    colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                ) {
-                    Text("CRIAR CONTA", fontWeight = FontWeight.Bold, color = backgroundColor)
+        // Botão "Próximo" sempre na parte inferior, com um pequeno espaço
+        Button(
+            onClick = {
+                scope.launch {
+                    if (pagerState.currentPage < pages.lastIndex) {
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    } else {
+                        navController.navigate("createAccount")                    }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedButton(
-                    onClick = { navController.navigate("login") },
-                    border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
-                ) {
-                    Text("ENTRAR", fontWeight = FontWeight.Bold)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3366FF)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .align(Alignment.BottomCenter) // Fixando o botão na parte inferior
+        ) {
+            Text(text = "Próximo", fontSize = 16.sp)
         }
     }
 }
+
+@Composable
+fun PagerIndicator(
+    size: Int,
+    currentPage: Int
+) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(32.dp)
+    ) {
+        repeat(size) { index ->
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .height(8.dp)
+                    .width(if (index == currentPage) 16.dp else 32.dp) // Agora o inverso!
+                    .background(
+                        color = if (index == currentPage) Color(0xFF3366FF) else Color.White,
+                        shape = CircleShape
+                    )
+            )
+        }
+    }
+}
+
+
+
+
