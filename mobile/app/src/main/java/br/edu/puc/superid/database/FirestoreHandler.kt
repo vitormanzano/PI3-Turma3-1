@@ -207,7 +207,34 @@ class FirestoreHandler {
 
         return listaDeCategorias
     }
+    
+    fun criarCategoria(userUid: String, nomeCategoria: String) {
+        db
+            .collection("categorias")
+            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("nome", nomeCategoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    val docCategoria = hashMapOf(
+                        "nome" to nomeCategoria,
+                        "uidUsuario" to userUid
+                    )
 
+                    db.collection("categorias")
+                        .add(docCategoria)
+
+                    Log.i("FIRESTORE", "Categoria criada")
+                }
+                else {
+                    Log.e("FIRESTORE", "Já existe essa categoria")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIREBASE", "Erro ao criar categoria")
+            }
+    }
+    
     fun deletarCategoria(userUid: String, nomeCategoria: String) {
         db
             .collection("categorias")
@@ -235,7 +262,6 @@ class FirestoreHandler {
                 Log.e("FIREBASE", "Erro ao buscar documento  ", e)
             }
     }
-
 
     fun inserirCategoriasIniciais(userUid: String) {
         val categoriaSitesWeb = "Sites da Web"
@@ -266,6 +292,37 @@ class FirestoreHandler {
         db.collection("categorias")
             .add(docTeclado)
 
+    }
+
+    fun alterarCategoria(userUid: String, novoNomeCategoria: String) {
+        db.collection("categorias")
+            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("nome", novoNomeCategoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        val novosDados = hashMapOf<String, Any>(
+                            "nome" to novoNomeCategoria
+                        )
+
+                        val document = documents.documents[0]
+                        db.collection("categorias").document(document.id)
+                            .update(novosDados)
+                            .addOnSuccessListener {
+                                Log.d("FIRESTORE", "Senha alterou")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("FIRESTORE", "Erro ao alterar")
+                            }
+
+                    }
+                    else {
+                        Log.e("FIRESTORE", "SENHA NÃO encontrada")
+                    }
+                }
+            .addOnFailureListener { e ->
+                Log.e("FIRESTORE", "Não foi possível alterar a senha")
+            }
     }
 
 }
