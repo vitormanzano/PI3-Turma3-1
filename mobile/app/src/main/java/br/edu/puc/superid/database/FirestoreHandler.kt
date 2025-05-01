@@ -182,6 +182,33 @@ class FirestoreHandler {
         return listaDeCategorias
     }
 
+    fun criarCategoria(userUid: String, nomeCategoria: String) {
+        db
+            .collection("categorias")
+            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("nome", nomeCategoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    val docCategoria = hashMapOf(
+                        "nome" to nomeCategoria,
+                        "uidUsuario" to userUid
+                    )
+
+                    db.collection("categorias")
+                        .add(docCategoria)
+
+                    Log.i("FIRESTORE", "Categoria criada")
+                }
+                else {
+                    Log.e("FIRESTORE", "Já existe essa categoria")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIREBASE", "Erro ao criar categoria")
+            }
+    }
+
 
     fun inserirCategoriasIniciais(userUid: String) {
         val categoriaSitesWeb = "Sites da Web"
