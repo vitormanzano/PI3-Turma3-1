@@ -1,6 +1,7 @@
 package br.edu.puc.superid.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,10 +16,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import br.edu.puc.superid.database.FirestoreHandler
 
 @Composable
-fun PasswordManagerScreen() {
+fun PasswordManagerScreen(navController: NavHostController) {
     Scaffold(
         containerColor = Color.Black,
         bottomBar = { BottomNavigationBar() }
@@ -33,7 +35,7 @@ fun PasswordManagerScreen() {
             Spacer(modifier = Modifier.height(16.dp))
             EmailVerificationCard(isEmailVerified = false)
             Spacer(modifier = Modifier.height(16.dp))
-            QuickActionsBar()
+            QuickActionsBar(navController)
             Spacer(modifier = Modifier.height(16.dp))
             CategorySection()
         }
@@ -94,7 +96,7 @@ fun EmailVerificationCard(isEmailVerified: Boolean = false) {
 }
 
 @Composable
-fun QuickActionsBar() {
+fun QuickActionsBar(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -109,7 +111,8 @@ fun QuickActionsBar() {
             QuickActionItem(
                 title = "Nova Senha",
                 icon = Icons.Default.Password,
-                iconColor = Color.White
+                iconColor = Color.White,
+                onClick = { navController.navigate("signuppassword") }
             )
             DividerVertical()
             QuickActionItem(
@@ -128,9 +131,11 @@ fun QuickActionsBar() {
 }
 
 @Composable
-fun QuickActionItem(title: String, icon: ImageVector, iconColor: Color) {
+fun QuickActionItem(title: String, icon: ImageVector, iconColor: Color, onClick: (() -> Unit)? = null ){
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
     ) {
         Icon(
             icon,

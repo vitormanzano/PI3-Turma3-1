@@ -57,7 +57,7 @@ fun LoginScreen(navController: NavHostController) {
             auth.login(email, senha) { success ->
                 coroutineScope.launch {
                     if (success) {
-                        navController.navigate("mainscreen")
+                        navController.navigate("mainScreen")
                     } else {
                         snackbarHostState.showSnackbar("Email ou senha incorretos")
                     }
