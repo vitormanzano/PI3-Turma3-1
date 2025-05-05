@@ -71,7 +71,7 @@ class FirestoreHandler {
         return UUID.randomUUID().toString()
     }
 
-    fun cadastrarSenha(login: String?, categoria: String, senha: String) {
+    fun cadastrarSenha(login: String  , categoria: String, senha: String) {
         val guid = gerarGuid()
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -97,6 +97,40 @@ class FirestoreHandler {
             .addOnFailureListener { e ->
                 println("Erro ao cadastrar senha: $e")
             }
+    }
+
+    fun alterarSenha(guid: String, nome: String, login: String, nomeCategoria: String, senha: String) {
+        db.collection("senhas")
+            .whereEqualTo("guid", guid)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val novosDados = hashMapOf<String, Any>(
+                        "nome" to nome,
+                        "login" to login,
+                        "nomeCategoria" to nomeCategoria,
+                        "senha" to senha
+                    )
+
+                    val document = documents.documents[0]
+                    db.collection("senhas").document(document.id)
+                        .update(novosDados)
+                        .addOnSuccessListener {
+                            Log.d("FIRESTORE", "Senha alterou")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FIRESTORE", "Erro ao alterar")
+                        }
+
+                }
+                else {
+                    Log.e("FIRESTORE", "SENHA NÃO encontrada")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIRESTORE", "Não foi possível alterar a senha")
+            }
+
     }
 
     fun buscarTodasAsSenhas(userUid: String): List<Senha> {
@@ -181,7 +215,6 @@ class FirestoreHandler {
 
         return listaDeCategorias
     }
-
 
     fun inserirCategoriasIniciais(userUid: String) {
         val categoriaSitesWeb = "Sites da Web"
