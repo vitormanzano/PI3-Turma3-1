@@ -107,6 +107,39 @@ class FirestoreHandler {
             }
     }
 
+    fun alterarSenha(guid: String, nome: String, login: String, nomeCategoria: String, senha: String) {
+       db.collection("senhas")
+            .whereEqualTo("guid", guid)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val novosDados = hashMapOf<String, Any>(
+                        "nome" to nome,
+                        "login" to login,
+                        "nomeCategoria" to nomeCategoria,
+                        "senha" to senha
+                    )
+
+                    val document = documents.documents[0]
+                    db.collection("senhas").document(document.id)
+                        .update(novosDados)
+                        .addOnSuccessListener {
+                            Log.d("FIRESTORE", "Senha alterou")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FIRESTORE", "Erro ao alterar")
+                        }
+
+                }
+                else {
+                    Log.e("FIRESTORE", "SENHA NÃO encontrada")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIRESTORE", "Não foi possível alterar a senha")
+            }
+    }
+        
     fun deletarSenha(guid: String) {
         var senha = db
             .collection("senhas")
@@ -273,7 +306,7 @@ class FirestoreHandler {
                 Log.e("FIREBASE", "Erro ao buscar documento  ", e)
             }
     }
-
+    
     fun inserirCategoriasIniciais(userUid: String) {
         val categoriaSitesWeb = "Sites da Web"
         val categoriaAplicativos = "Aplicativos"
