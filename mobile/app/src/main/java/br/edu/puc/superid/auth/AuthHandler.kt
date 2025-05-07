@@ -25,25 +25,43 @@ class AuthHandler {
             }
     }
 
-    fun cadastrarCredencial(nome: String, email: String, senha: String, imei: String) {
+    fun cadastrarCredencial(
+        nome: String,
+        email: String,
+        senha: String,
+        imei: String,
+        onResult: (Boolean, String) -> Unit
+    )
+    {
         auth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Log.d("SUCCESS", "Credencial criado!")
+                    Log.d("SUCCESS", "Credencial criada!")
                     val uid = auth.currentUser!!.uid
-
                     db.cadastrarUsuario(nome, uid, imei)
-                }
-                else {
+
+                    val user = auth.currentUser
+                    user?.sendEmailVerification()
+                        ?.addOnCompleteListener { verificationTask ->
+                            if (verificationTask.isSuccessful) {
+                                Log.i("VERIFICATION", "Email enviado")
+                            }
+                            else {
+                                Log.e("VERIFICATION", "Email não enviado")
+                            }
+                        }
+
+                    onResult(true, "Conta criada com sucesso!")
+                } else {
                     val exceptionAuth = task.exception
-
-                    when (exceptionAuth) {
-                        is FirebaseAuthWeakPasswordException -> Log.e("FAILURE", "Senha deve ter no mínimo 6 caracteres!")
-                        is FirebaseAuthUserCollisionException -> Log.e("FAILURE", "Email Já em uso!")
-                        is FirebaseAuthInvalidCredentialsException -> Log.e("FAILURE", "Email mal formatado")
+                    val errorMessage = when (exceptionAuth) {
+                        is FirebaseAuthWeakPasswordException -> "Senha deve ter no mínimo 6 caracteres!"
+                        is FirebaseAuthUserCollisionException -> "O e-mail já está em uso!"
+                        is FirebaseAuthInvalidCredentialsException -> "E-mail inválido!"
+                        else -> "Erro ao criar conta."
                     }
-
                     Log.w("FAILURE", "${task.exception}")
+                    onResult(false, errorMessage)
                 }
             }
     }
@@ -51,5 +69,22 @@ class AuthHandler {
     fun obterUidUsuario(): String? {
         val user = auth.currentUser
         return user?.uid
+    }
+
+    fun emailFoiVerificado() {
+        val user = auth.currentUser
+        user?.reload()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                if (user.isEmailVerified) {
+                    Log.d("EMAIL", "Email verificado!")
+                }
+                else {
+                    Log.d("EMAIL", "Email ainda não verificado.")
+                }
+            }
+            else {
+                Log.e("EMAIL", "Erro ao recarregar usuário: ${task.exception}")
+            }
+        }
     }
 }

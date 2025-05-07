@@ -4,16 +4,23 @@ import android.util.Log
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Base64
-import br.edu.puc.superid.Models.Senha
 import br.edu.puc.superid.auth.AuthHandler
 import com.google.firebase.auth.FirebaseAuth
-import com.google.rpc.context.AttributeContext.Auth
 import kotlinx.coroutines.tasks.await
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 import java.security.SecureRandom
 import java.util.UUID
 
+data class Senha (
+    var nome: String,
+    var guid: String,
+    var login: String,
+    var nomeCategoria: String,
+    var senha: String,
+    var accessToken: String,
+    var uidUsuario: String
+)
 
 class FirestoreHandler {
     private val db = Firebase.firestore
@@ -71,7 +78,7 @@ class FirestoreHandler {
         return UUID.randomUUID().toString()
     }
 
-    fun cadastrarSenha(login: String  , categoria: String, senha: String) {
+    fun cadastrarSenha(nome: String, login: String?, categoria: String, senha: String) {
         val guid = gerarGuid()
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -81,6 +88,7 @@ class FirestoreHandler {
         val senhaCriptografada = criptografarSenha(senha)
 
         val senhaData = hashMapOf(
+            "nome" to nome,
             "guid" to guid,
             "login" to login,
             "nomeCategoria" to categoria,
@@ -100,7 +108,7 @@ class FirestoreHandler {
     }
 
     fun alterarSenha(guid: String, nome: String, login: String, nomeCategoria: String, senha: String) {
-        db.collection("senhas")
+       db.collection("senhas")
             .whereEqualTo("guid", guid)
             .get()
             .addOnSuccessListener { documents ->
@@ -130,7 +138,33 @@ class FirestoreHandler {
             .addOnFailureListener { e ->
                 Log.e("FIRESTORE", "Não foi possível alterar a senha")
             }
+    }
+        
+    fun deletarSenha(guid: String) {
+        var senha = db
+            .collection("senhas")
+            .whereEqualTo("guid", guid)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val document = documents.documents[0]
+                    db.collection("senhas").document(document.id)
+                        .delete()
+                        .addOnSuccessListener {
+                            Log.d("FIREBASE", "Deletou")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FIREABSE", "Erro ao deletar")
+                        }
 
+                }
+                else {
+                    Log.e("FIREBASE", "SENHA NÃO encontrada")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIREBASE", "Erro ao buscar documento  ", e)
+            }
     }
 
     fun buscarTodasAsSenhas(userUid: String): List<Senha> {
@@ -142,6 +176,7 @@ class FirestoreHandler {
             .addOnCompleteListener { task ->
                 task.addOnSuccessListener { documents ->
                     for (document in documents) {
+                        val nome = document.getString("nome").toString()
                         val guid = document.getString("guid").toString()
                         val login = document.getString("login").toString()
                         val nomeCategoria = document.getString("nomeCategoria").toString()
@@ -149,7 +184,7 @@ class FirestoreHandler {
                         val accessToken = document.getString("accessToken").toString()
                         val uidUsuario = document.getString("uidUsuario").toString()
 
-                        var senhaData = Senha(guid, login, nomeCategoria, senha, accessToken, uidUsuario)
+                        var senhaData = Senha(nome, guid, login, nomeCategoria, senha, accessToken, uidUsuario)
 
                         listaDeSenhas.add(senhaData)
                     }
@@ -171,6 +206,7 @@ class FirestoreHandler {
             .addOnCompleteListener { task ->
                 task.addOnSuccessListener { documents ->
                     for (document in documents) {
+                        val nome = document.getString("nome").toString()
                         val guid = document.getString("guid").toString()
                         val login = document.getString("login").toString()
                         val nomeCategoria = document.getString("nomeCategoria").toString()
@@ -178,7 +214,7 @@ class FirestoreHandler {
                         val accessToken = document.getString("accessToken").toString()
                         val uidUsuario = document.getString("uidUsuario").toString()
 
-                        var senhaData = Senha(guid, login, nomeCategoria, senha, accessToken, uidUsuario)
+                        var senhaData = Senha(nome, guid, login, nomeCategoria, senha, accessToken, uidUsuario)
 
                         listaDeSenhas.add(senhaData)
                     }
@@ -215,7 +251,62 @@ class FirestoreHandler {
 
         return listaDeCategorias
     }
+    
+    fun criarCategoria(userUid: String, nomeCategoria: String) {
+        db
+            .collection("categorias")
+            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("nome", nomeCategoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    val docCategoria = hashMapOf(
+                        "nome" to nomeCategoria,
+                        "uidUsuario" to userUid
+                    )
 
+                    db.collection("categorias")
+                        .add(docCategoria)
+
+                    Log.i("FIRESTORE", "Categoria criada")
+                }
+                else {
+                    Log.e("FIRESTORE", "Já existe essa categoria")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIREBASE", "Erro ao criar categoria")
+            }
+    }
+    
+    fun deletarCategoria(userUid: String, nomeCategoria: String) {
+        db
+            .collection("categorias")
+            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("nome", nomeCategoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val document = documents.documents[0]
+                    db.collection("categorias").document(document.id)
+                        .delete()
+                        .addOnSuccessListener {
+                            Log.d("FIREBASE", "Deletou")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FIREABSE", "Erro ao deletar cat")
+                        }
+
+                }
+                else {
+                    Log.e("FIREBASE", "Categoria NÃO encontrada")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FIREBASE", "Erro ao buscar documento  ", e)
+            }
+    }
+    
     fun inserirCategoriasIniciais(userUid: String) {
         val categoriaSitesWeb = "Sites da Web"
         val categoriaAplicativos = "Aplicativos"
@@ -245,6 +336,37 @@ class FirestoreHandler {
         db.collection("categorias")
             .add(docTeclado)
 
+    }
+
+    fun alterarCategoria(userUid: String, novoNomeCategoria: String) {
+        db.collection("categorias")
+            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("nome", novoNomeCategoria)
+            .get()
+            .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        val novosDados = hashMapOf<String, Any>(
+                            "nome" to novoNomeCategoria
+                        )
+
+                        val document = documents.documents[0]
+                        db.collection("categorias").document(document.id)
+                            .update(novosDados)
+                            .addOnSuccessListener {
+                                Log.d("FIRESTORE", "Senha alterou")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("FIRESTORE", "Erro ao alterar")
+                            }
+
+                    }
+                    else {
+                        Log.e("FIRESTORE", "SENHA NÃO encontrada")
+                    }
+                }
+            .addOnFailureListener { e ->
+                Log.e("FIRESTORE", "Não foi possível alterar a senha")
+            }
     }
 
 }
