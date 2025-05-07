@@ -48,14 +48,13 @@ class MainActivity : ComponentActivity() {
 
               NavHost(
                   navController = navController,
-                  startDestination = "telaTeste"
+                  startDestination = "mainScreen"
               ) {
-                  composable("telaTeste") { PasswordManagerScreen() }
+                  composable("mainScreen") { PasswordManagerScreen(navController) }
                   composable("firstTime") { FirstTimeScreen(navController) }
                   composable("createAccount") { CreateAccountScreen(navController) }
                   composable("login") { LoginScreen(navController) }
                   composable("signup") { SignUpScreen(androidId, navController) }
-                  composable("mainscreen") { MainScreen(navController) }
                   composable("signuppassword") { SignUpPasswordScreen(navController) }
               }
         }
