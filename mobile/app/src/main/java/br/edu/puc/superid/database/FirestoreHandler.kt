@@ -196,36 +196,35 @@ class FirestoreHandler {
         return listaDeSenhas
     }
 
-    fun buscarSenhaPorCategoria(categoria: String, userUid: String): List<Senha> {
-        var listaDeSenhas: MutableList<Senha> = mutableListOf()
+    suspend fun buscarSenhasPorCategoria(categoria: String): List<Senha> {
+        val listaDeSenhas = mutableListOf<Senha>()
+        val auth = AuthHandler()
+        val userUid = auth.obterUidUsuario()
 
-        db.collection("senhas")
-            .whereEqualTo("uidUsuario", userUid)
-            .whereEqualTo("nomeCategoria", categoria)
-            .get()
-            .addOnCompleteListener { task ->
-                task.addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        val nome = document.getString("nome").toString()
-                        val guid = document.getString("guid").toString()
-                        val login = document.getString("login").toString()
-                        val nomeCategoria = document.getString("nomeCategoria").toString()
-                        val senha = document.getString("senha").toString()
-                        val accessToken = document.getString("accessToken").toString()
-                        val uidUsuario = document.getString("uidUsuario").toString()
+        try {
+            val documentos = Firebase.firestore.collection("senhas")
+                .whereEqualTo("uidUsuario", userUid)
+                .whereEqualTo("nomeCategoria", categoria)
+                .get()
+                .await()
 
-                        var senhaData = Senha(nome, guid, login, nomeCategoria, senha, accessToken, uidUsuario)
+            for (document in documentos) {
+                val nome = document.getString("nome").orEmpty()
+                val guid = document.getString("guid").orEmpty()
+                val login = document.getString("login").orEmpty()
+                val nomeCategoria = document.getString("nomeCategoria").orEmpty()
+                val senha = document.getString("senha").orEmpty()
+                val accessToken = document.getString("accessToken").orEmpty()
+                val uidUsuario = document.getString("uidUsuario").orEmpty()
 
-                        listaDeSenhas.add(senhaData)
-                    }
-                }
-                task.addOnFailureListener { e ->
-                    Log.e("FAILURE", "${e.message}")
-                }
+                val senhaData = Senha(nome, guid, login, nomeCategoria, senha, accessToken, uidUsuario)
+                listaDeSenhas.add(senhaData)
             }
+        } catch (e: Exception) {
+            Log.e("FIRESTORE", "Erro ao buscar senhas: ${e.message}")
+        }
 
         return listaDeSenhas
-
     }
 
     suspend fun buscarTodasCategorias(): List<String> {

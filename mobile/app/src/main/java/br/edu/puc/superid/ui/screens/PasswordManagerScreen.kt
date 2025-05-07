@@ -37,7 +37,7 @@ fun PasswordManagerScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
             QuickActionsBar(navController)
             Spacer(modifier = Modifier.height(16.dp))
-            CategorySection()
+            CategorySection(navController)
         }
     }
 }
@@ -159,7 +159,7 @@ fun DividerVertical() {
 }
 
 @Composable
-fun CategorySection() {
+fun CategorySection(navController: NavHostController) {
     val firestore = FirestoreHandler()
     var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
 
@@ -185,8 +185,9 @@ fun CategorySection() {
                     .padding(vertical = 16.dp, horizontal = 12.dp)
             ) {
                 Column {
-                    categorias.forEachIndexed { index, categoria ->
-                        CategoryItem(name = categoria, count = 0)
+                    categorias.forEachIndexed { index, categoria ->CategoryItem(name = categoria, count = 0, onClick = {
+                        navController.navigate("senhas/${categoria}")
+                    })
                         if (index != categorias.lastIndex) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Divider(color = Color.Gray, thickness = 1.dp)
@@ -202,10 +203,11 @@ fun CategorySection() {
 }
 
 @Composable
-fun CategoryItem(name: String, count: Int) {
+fun CategoryItem(name: String, count: Int, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

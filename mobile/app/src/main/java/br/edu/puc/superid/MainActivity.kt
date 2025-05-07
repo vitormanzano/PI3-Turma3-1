@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import br.edu.puc.superid.ui.screens.PasswordManagerScreen
+import br.edu.puc.superid.ui.screens.PasswordsByCategoryScreen
 import br.edu.puc.superid.ui.screens.SignUpPasswordScreen
 
 class MainActivity : ComponentActivity() {
@@ -56,6 +57,10 @@ class MainActivity : ComponentActivity() {
                   composable("login") { LoginScreen(navController) }
                   composable("signup") { SignUpScreen(androidId, navController) }
                   composable("signuppassword") { SignUpPasswordScreen(navController) }
+                  composable("senhas/{categoria}") { backStackEntry ->
+                      val categoria = backStackEntry.arguments?.getString("categoria") ?: ""
+                      PasswordsByCategoryScreen(categoryName = categoria, navController = navController)
+                  }
               }
         }
     }
