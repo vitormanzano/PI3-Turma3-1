@@ -31,13 +31,26 @@ class AuthHandler {
         senha: String,
         imei: String,
         onResult: (Boolean, String) -> Unit
-    ) {
+    )
+    {
         auth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("SUCCESS", "Credencial criada!")
                     val uid = auth.currentUser!!.uid
                     db.cadastrarUsuario(nome, uid, imei)
+
+                    val user = auth.currentUser
+                    user?.sendEmailVerification()
+                        ?.addOnCompleteListener { verificationTask ->
+                            if (verificationTask.isSuccessful) {
+                                Log.i("VERIFICATION", "Email enviado")
+                            }
+                            else {
+                                Log.e("VERIFICATION", "Email não enviado")
+                            }
+                        }
+
                     onResult(true, "Conta criada com sucesso!")
                 } else {
                     val exceptionAuth = task.exception
@@ -56,5 +69,22 @@ class AuthHandler {
     fun obterUidUsuario(): String? {
         val user = auth.currentUser
         return user?.uid
+    }
+
+    fun emailFoiVerificado() {
+        val user = auth.currentUser
+        user?.reload()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                if (user.isEmailVerified) {
+                    Log.d("EMAIL", "Email verificado!")
+                }
+                else {
+                    Log.d("EMAIL", "Email ainda não verificado.")
+                }
+            }
+            else {
+                Log.e("EMAIL", "Erro ao recarregar usuário: ${task.exception}")
+            }
+        }
     }
 }
