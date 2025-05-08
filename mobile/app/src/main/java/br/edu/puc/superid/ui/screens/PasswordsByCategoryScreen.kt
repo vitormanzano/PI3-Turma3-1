@@ -41,7 +41,7 @@ fun PasswordsByCategoryScreen(
                     Text(
                         text = categoryName,
                         color = Color.White,
-                        fontSize = 20.sp
+                        fontSize = 28.sp
                     )
                 },
                 navigationIcon = {
@@ -102,18 +102,18 @@ fun PasswordItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(senha.nome, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(senha.login, color = Color.LightGray, fontSize = 13.sp)
-            Spacer(modifier = Modifier.height(2.dp))
+            Text(senha.nome, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(senha.login, color = Color.LightGray, fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     if (mostrarSenha) senha.senha else "••••••••",
                     color = Color.Gray,
-                    fontSize = 12.sp
+                    fontSize = 20.sp
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                IconButton(onClick = { mostrarSenha = !mostrarSenha }, modifier = Modifier.size(20.dp)) {
+                IconButton(onClick = { mostrarSenha = !mostrarSenha }, modifier = Modifier.size(28.dp)) {
                     Icon(
                         imageVector = if (mostrarSenha) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                         contentDescription = "Ver senha",
@@ -125,7 +125,7 @@ fun PasswordItem(
 
         Box {
             IconButton(onClick = { expanded = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = Color.White)
+                Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = Color.White, modifier = Modifier.size(28.dp))
             }
 
             DropdownMenu(

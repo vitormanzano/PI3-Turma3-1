@@ -46,40 +46,22 @@ import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import kotlinx.coroutines.launch
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpPasswordScreen(navController: NavHostController) {
-    var name by remember { mutableStateOf("") }
-    var login by remember { mutableStateOf("") }
-    var senha by remember { mutableStateOf("") }
-    var categoria by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
-
-    val senhaValid = senha.length >= 1
-    val firestore = FirestoreHandler()
-    var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
+fun SignUpCategoryScreen(navController: NavHostController) {
+    var nomeCategoria by remember { mutableStateOf("") }
     val iconsColor = Color(0xFF3366FF)
     val buttonColor = Color(0xFF3366FF)
-    val allFieldsValid = senhaValid && categoria.isNotBlank() && name.isNotBlank()
-
+    val allFieldsValid = nomeCategoria.isNotBlank()
+    val firestore = FirestoreHandler()
     val scope = rememberCoroutineScope()
 
-    // Estados do diálogo
     var showDialog by remember { mutableStateOf(false) }
     var dialogTitle by remember { mutableStateOf("") }
     var dialogMessage by remember { mutableStateOf("") }
     var dialogIcon by remember { mutableStateOf(Icons.Default.Check) }
     var dialogIconColor by remember { mutableStateOf(Color.Green) }
 
-    LaunchedEffect(Unit) {
-        val resultado = firestore.buscarTodasCategorias()
-        categorias = resultado
-    }
-
-    Scaffold(
-        containerColor = Color.Black
-    ) { padding ->
+    Scaffold(containerColor = Color.Black) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -121,8 +103,9 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                             .padding(bottom = 0.dp),
                         contentScale = ContentScale.Crop
                     )
+
                     Text(
-                        "Nova Senha",
+                        "Nova Categoria",
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         fontSize = 24.sp
@@ -131,108 +114,25 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(24.dp))
 
                     OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        placeholder = { Text("Nome da senha", color = Color.Gray) },
+                        value = nomeCategoria,
+                        onValueChange = { nomeCategoria = it },
+                        placeholder = { Text("Nome da categoria", color = Color.Gray) },
                         textStyle = TextStyle(color = Color.White),
-                        leadingIcon = { Icon(Icons.Outlined.Label, contentDescription = null, tint = iconsColor) },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
-                            cursorColor = iconsColor
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    OutlinedTextField(
-                        value = login,
-                        onValueChange = { login = it },
-                        placeholder = { Text("Login (opcional)", color = Color.Gray) },
-                        textStyle = TextStyle(color = Color.White),
-                        leadingIcon = { Icon(Icons.Outlined.AccountCircle, contentDescription = null, tint = iconsColor) },
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
-                            cursorColor = iconsColor
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    OutlinedTextField(
-                        value = senha,
-                        onValueChange = { senha = it },
-                        placeholder = { Text("Senha", color = Color.Gray) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null, tint = iconsColor) },
-                        textStyle = TextStyle(color = Color.White),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
-                            cursorColor = iconsColor
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { expanded = !expanded }
-                    ) {
-                        OutlinedTextField(
-                            readOnly = true,
-                            value = categoria,
-                            onValueChange = {},
-                            placeholder = { Text("Categoria", color = Color.Gray) },
-                            leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null, tint = iconsColor) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = iconsColor,
-                                unfocusedBorderColor = Color.DarkGray,
-                                cursorColor = iconsColor,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedPlaceholderColor = Color.Gray,
-                                unfocusedPlaceholderColor = Color.Gray
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Label,
+                                contentDescription = null,
+                                tint = iconsColor
                             )
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = iconsColor,
+                            unfocusedBorderColor = Color.DarkGray,
+                            cursorColor = iconsColor
                         )
-
-                        ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier.background(Color(0xFF2B2B2B))
-                        ) {
-                            if (categorias.isNotEmpty()) {
-                                categorias.forEach { option ->
-                                    DropdownMenuItem(
-                                        text = { Text(option, color = Color.White) },
-                                        onClick = {
-                                            categoria = option
-                                            expanded = false
-                                        },
-                                        modifier = Modifier.background(Color(0xFF2B2B2B))
-                                    )
-                                }
-                            } else {
-                                DropdownMenuItem(
-                                    text = { Text("Carregando categorias...", color = Color.LightGray) },
-                                    onClick = {},
-                                    enabled = false,
-                                    modifier = Modifier.background(Color(0xFF2B2B2B))
-                                )
-                            }
-                        }
-                    }
+                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -240,13 +140,14 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                         onClick = {
                             scope.launch {
                                 try {
-                                    firestore.cadastrarSenha(name, login, categoria, senha)
-                                    dialogTitle = "Senha salva!"
-                                    dialogMessage = "Sua senha foi cadastrada com sucesso."
+                                    firestore.criarCategoria(nomeCategoria)
+                                    dialogTitle = "Categoria salva!"
+                                    dialogMessage = "A categoria foi cadastrada com sucesso."
                                     dialogIcon = Icons.Default.Check
                                     dialogIconColor = Color(0xFF4CAF50)
+                                    nomeCategoria = "" // limpa o campo
                                 } catch (e: Exception) {
-                                    dialogTitle = "Erro ao salvar senha"
+                                    dialogTitle = "Erro ao salvar"
                                     dialogMessage = e.message ?: "Erro desconhecido"
                                     dialogIcon = Icons.Default.Warning
                                     dialogIconColor = Color(0xFFEC4D4D)
@@ -265,10 +166,10 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .height(56.dp)
                     ) {
-                        Text("Salvar senha", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Salvar Categoria", fontWeight = FontWeight.Bold, color = Color.White)
                     }
 
-                    Spacer(modifier = Modifier.height(100.dp))
+                    Spacer(modifier = Modifier.height(200.dp))
                 }
             }
         }

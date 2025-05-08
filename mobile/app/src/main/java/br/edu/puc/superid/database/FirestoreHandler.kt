@@ -181,10 +181,11 @@ class FirestoreHandler {
                         val login = document.getString("login").toString()
                         val nomeCategoria = document.getString("nomeCategoria").toString()
                         val senha = document.getString("senha").toString()
+                        val senhaDescritografada = descriptografia(senha.toByteArray(), "chaveExemplo1234")
                         val accessToken = document.getString("accessToken").toString()
                         val uidUsuario = document.getString("uidUsuario").toString()
 
-                        var senhaData = Senha(nome, guid, login, nomeCategoria, senha, accessToken, uidUsuario)
+                        var senhaData = Senha(nome, guid, login, nomeCategoria, senhaDescritografada, accessToken, uidUsuario)
 
                         listaDeSenhas.add(senhaData)
                     }
@@ -214,6 +215,7 @@ class FirestoreHandler {
                 val login = document.getString("login").orEmpty()
                 val nomeCategoria = document.getString("nomeCategoria").orEmpty()
                 val senha = document.getString("senha").orEmpty()
+               // val senhaDescritografada = descriptografia(senha.toByteArray(), "chaveExemplo1234")
                 val accessToken = document.getString("accessToken").orEmpty()
                 val uidUsuario = document.getString("uidUsuario").orEmpty()
 
@@ -251,7 +253,9 @@ class FirestoreHandler {
         return listaDeCategorias
     }
     
-    fun criarCategoria(userUid: String, nomeCategoria: String) {
+    fun criarCategoria(nomeCategoria: String) {
+        val auth = AuthHandler()
+        val userUid = auth.obterUidUsuario()
         db
             .collection("categorias")
             .whereEqualTo("uidUsuario", userUid)

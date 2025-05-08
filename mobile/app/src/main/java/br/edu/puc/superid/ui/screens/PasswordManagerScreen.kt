@@ -118,7 +118,8 @@ fun QuickActionsBar(navController: NavHostController) {
             QuickActionItem(
                 title = "Nova Categoria",
                 icon = Icons.Default.Category,
-                iconColor = Color.White
+                iconColor = Color.White,
+                onClick = { navController.navigate("signupcategory") }
             )
             DividerVertical()
             QuickActionItem(
