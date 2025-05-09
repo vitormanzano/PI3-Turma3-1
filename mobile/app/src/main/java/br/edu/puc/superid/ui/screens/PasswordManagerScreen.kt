@@ -1,10 +1,13 @@
 package br.edu.puc.superid.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -13,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,20 +28,20 @@ import br.edu.puc.superid.database.FirestoreHandler
 fun PasswordManagerScreen(navController: NavHostController) {
     Scaffold(
         containerColor = Color.Black,
+        topBar = { TopBar() }, // ← Barra azul no topo
         bottomBar = { BottomNavigationBar() }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
-            TopBar()
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp)) // Espaço abaixo da barra
             EmailVerificationCard(isEmailVerified = false)
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             QuickActionsBar(navController)
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             CategorySection(navController)
         }
     }
@@ -44,28 +49,39 @@ fun PasswordManagerScreen(navController: NavHostController) {
 
 @Composable
 fun TopBar(userName: String = "Usuário") {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .background(
+                color = Color(0xFF0E2159),
+                shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+            )
+            .padding(vertical = 20.dp, horizontal = 16.dp)
     ) {
-        Icon(Icons.Default.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Olá, $userName",
-            color = Color.White,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.Person,
+                contentDescription = null,
+                tint = Color(0xFF3366FF),
+                modifier = Modifier.size(30.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Olá, $userName",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
+
 @Composable
 fun EmailVerificationCard(isEmailVerified: Boolean = false) {
-    val backgroundColor = if (isEmailVerified) Color(0xFF4CAF50) else Color(0xFFEC4D4D)
+    val backgroundColor = if (isEmailVerified) Color(0xFF4CAF50) else Color(0xFF3366FF)
     val statusText = if (isEmailVerified) "E-mail verificado!" else "E-mail não verificado, você não poderá recuperar sua senha mestra!"
     val actionText = if (isEmailVerified) "Tudo certo!" else "Verificar agora"
 
@@ -100,8 +116,10 @@ fun QuickActionsBar(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF2B2B2B), shape = RoundedCornerShape(24.dp))
             .padding(vertical = 24.dp, horizontal = 16.dp)
+            .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp)) // Borda azul
+            .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp)) // Fundo escuro com transparência
+            .padding(16.dp) // Padding interno do container
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -111,21 +129,21 @@ fun QuickActionsBar(navController: NavHostController) {
             QuickActionItem(
                 title = "Nova Senha",
                 icon = Icons.Default.Password,
-                iconColor = Color.White,
+                iconColor = Color(0xFF3366FF),
                 onClick = { navController.navigate("signuppassword") }
             )
             DividerVertical()
             QuickActionItem(
                 title = "Nova Categoria",
                 icon = Icons.Default.Category,
-                iconColor = Color.White,
+                iconColor = Color(0xFF3366FF),
                 onClick = { navController.navigate("signupcategory") }
             )
             DividerVertical()
             QuickActionItem(
                 title = "Editar",
                 icon = Icons.Default.Edit,
-                iconColor = Color.White
+                iconColor = Color(0xFF3366FF)
             )
         }
     }
@@ -145,7 +163,7 @@ fun QuickActionItem(title: String, icon: ImageVector, iconColor: Color, onClick:
             modifier = Modifier.size(32.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(title, color = Color.White)
+        Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -165,13 +183,20 @@ fun CategorySection(navController: NavHostController) {
     var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
 
     LaunchedEffect(Unit) {
-        val resultado = firestore.buscarTodasCategorias()
-        categorias = resultado
+        categorias = firestore.buscarTodasCategorias()
     }
 
-    Column {
+    val scrollState = rememberScrollState()
+    var containerHeightPx by remember { mutableStateOf(0f) }
+    val density = LocalDensity.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp)
+    ) {
         Text(
-            text = "Categorias",
+            text = "CATEGORIAS" ,
             color = Color.White,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
@@ -182,18 +207,56 @@ fun CategorySection(navController: NavHostController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF2B2B2B), shape = RoundedCornerShape(16.dp))
-                    .padding(vertical = 16.dp, horizontal = 12.dp)
+                    .heightIn(max = 400.dp)
+                    .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
+                    .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
+                    .padding(16.dp)
+                    .onGloballyPositioned { coordinates ->
+                        containerHeightPx = coordinates.size.height.toFloat()
+                    }
             ) {
-                Column {
-                    categorias.forEachIndexed { index, categoria ->CategoryItem(name = categoria, count = 0, onClick = {
-                        navController.navigate("senhas/${categoria}")
-                    })
-                        if (index != categorias.lastIndex) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Divider(color = Color.Gray, thickness = 1.dp)
-                            Spacer(modifier = Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Conteúdo rolável
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(scrollState)
+                            .fillMaxWidth()
+                    ) {
+                        categorias.forEachIndexed { index, categoria ->
+                            CategoryItem(
+                                name = categoria,
+                                count = 0,
+                                onClick = { navController.navigate("senhas/${categoria}") }
+                            )
+                            if (index != categorias.lastIndex) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Divider(color = Color(0xFF3366FF), thickness = 1.dp)
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                         }
+                    }
+
+                    // Scrollbar
+                    val indicatorHeight = 40.dp
+                    val scrollMax = scrollState.maxValue
+                    val scrollProgress = if (scrollMax > 0) scrollState.value.toFloat() / scrollMax else 0f
+                    val offsetPx = (containerHeightPx - with(density) { indicatorHeight.toPx() }) * scrollProgress
+
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .width(6.dp)
+                            .fillMaxHeight()
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .offset(y = with(density) { offsetPx.toDp() })
+                                .height(indicatorHeight)
+                                .width(4.dp)
+                                .background(Color(0xFF5E5E60), shape = RoundedCornerShape(3.dp))
+                        )
                     }
                 }
             }
@@ -202,6 +265,7 @@ fun CategorySection(navController: NavHostController) {
         }
     }
 }
+
 
 @Composable
 fun CategoryItem(name: String, count: Int, onClick: () -> Unit) {
@@ -223,13 +287,14 @@ fun CategoryItem(name: String, count: Int, onClick: () -> Unit) {
 
 @Composable
 fun BottomNavigationBar(
+
     selectedIndex: Int = 0,
     onItemSelected: (Int) -> Unit = {}
 ) {
     Column {
         // Linha de separação acima da BottomBar
         Divider(
-            color = Color.Gray.copy(alpha = 0.3f),
+            color = Color(0xFF3366FF),
             thickness = 0.8.dp
         )
 
