@@ -1,16 +1,27 @@
 package br.edu.puc.superid.database
 
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.util.Log
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Base64
 import br.edu.puc.superid.auth.AuthHandler
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 import java.security.SecureRandom
 import java.util.UUID
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.IvParameterSpec
+import kotlin.random.Random
 
 data class Senha (
     var nome: String,
@@ -47,22 +58,52 @@ class FirestoreHandler {
             }
     }
 
-    fun criptografia(text: String, key: String): ByteArray {
-        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-        cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(key.toByteArray(), "AES"))
-        return cipher.doFinal(text.toByteArray())
+    fun generateRandomIV(): ByteArray {
+        return Random.Default.nextBytes(16)
     }
 
-    fun descriptografia(encryptedData: ByteArray, key: String): String {
-        val cipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key.toByteArray(), "AES"))
-        return String(cipher.doFinal(encryptedData))
+    fun criptografar(text: String, key: String): String {
+        val keyBytes = key.toByteArray().copyOf(16)
+        val secretKey = SecretKeySpec(keyBytes, "AES")
+        val iv = generateRandomIV()
+        val ivSpec = IvParameterSpec(iv)
+
+        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec)
+
+        val encrypted = cipher.doFinal(text.toByteArray())
+        val encryptedWithIV = iv + encrypted
+
+        return Base64.encodeToString(encryptedWithIV, Base64.DEFAULT)
+    }
+
+    fun descriptografar(encryptedBase64: String, key: String): String {
+        val encryptedWithIV = Base64.decode(encryptedBase64, Base64.DEFAULT)
+        val iv = encryptedWithIV.sliceArray(0 until 16)
+        val encrypted = encryptedWithIV.sliceArray(16 until encryptedWithIV.size)
+
+        val keyBytes = key.toByteArray().copyOf(16)
+        val secretKey = SecretKeySpec(keyBytes, "AES")
+        val ivSpec = IvParameterSpec(iv)
+
+        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec)
+
+        return String(cipher.doFinal(encrypted))
+    }
+
+    fun descriptografarSenha(senha: String): String {
+        val chaveParaCriptografar = "chaveExemplo1234"
+
+        val senhaDesriptografada = descriptografar(senha, chaveParaCriptografar)
+
+        return senhaDesriptografada.toString()
     }
 
     fun criptografarSenha(senha: String): String {
         val chaveParaCriptografar = "chaveExemplo1234"
 
-        val senhaCriptografada = criptografia(senha, chaveParaCriptografar)
+        val senhaCriptografada = criptografar(senha, chaveParaCriptografar)
 
         return senhaCriptografada.toString()
     }
@@ -181,7 +222,7 @@ class FirestoreHandler {
                         val login = document.getString("login").toString()
                         val nomeCategoria = document.getString("nomeCategoria").toString()
                         val senha = document.getString("senha").toString()
-                        val senhaDescritografada = descriptografia(senha.toByteArray(), "chaveExemplo1234")
+                        val senhaDescritografada = descriptografar(senha, "chaveExemplo1234")
                         val accessToken = document.getString("accessToken").toString()
                         val uidUsuario = document.getString("uidUsuario").toString()
 
@@ -215,11 +256,11 @@ class FirestoreHandler {
                 val login = document.getString("login").orEmpty()
                 val nomeCategoria = document.getString("nomeCategoria").orEmpty()
                 val senha = document.getString("senha").orEmpty()
-               // val senhaDescritografada = descriptografia(senha.toByteArray(), "chaveExemplo1234")
+               val senhaDescritografada = descriptografarSenha(senha)
                 val accessToken = document.getString("accessToken").orEmpty()
                 val uidUsuario = document.getString("uidUsuario").orEmpty()
 
-                val senhaData = Senha(nome, guid, login, nomeCategoria, senha, accessToken, uidUsuario)
+                val senhaData = Senha(nome, guid, login, nomeCategoria, senhaDescritografada, accessToken, uidUsuario)
                 listaDeSenhas.add(senhaData)
             }
         } catch (e: Exception) {
@@ -291,15 +332,26 @@ class FirestoreHandler {
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val document = documents.documents[0]
-                    db.collection("categorias").document(document.id)
-                        .delete()
-                        .addOnSuccessListener {
-                            Log.d("FIREBASE", "Deletou")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("FIREABSE", "Erro ao deletar cat")
-                        }
 
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val senhasNaCategoria = buscarSenhasPorCategoria("trabalho")
+
+                        if (senhasNaCategoria.isEmpty())
+                        {
+                            db.collection("categorias").document(document.id)
+                                .delete()
+                                .addOnSuccessListener {
+                                    Log.d("FIREBASE", "Deletou")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("FIREABSE", "Erro ao deletar cat")
+                                }
+                        }
+                        else {
+                            Log.e("FIREBASE", "Existem senhas na categoria")
+
+                        }
+                    }
                 }
                 else {
                     Log.e("FIREBASE", "Categoria NÃO encontrada")
@@ -372,4 +424,21 @@ class FirestoreHandler {
             }
     }
 
+    fun obterNomeUsuario(): String {
+        val auth = AuthHandler()
+        val userUid = auth.obterUidUsuario()
+        var nome = ""
+
+        db.collection("users")
+            .whereEqualTo("uidUsuario", userUid)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val document = documents.documents[0]
+                    nome = document.getString("nome").toString()
+                }
+            }
+
+        return nome
+    }
 }
