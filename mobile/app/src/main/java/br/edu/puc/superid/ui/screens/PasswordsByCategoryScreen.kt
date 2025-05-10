@@ -65,7 +65,9 @@ fun PasswordsByCategoryScreen(
                         PasswordItem(
                             senha = senha,
                             onEditClick = {
-                                // TODO: Navegar para tela de edição
+                                navController.navigate(
+                                    "editar_senha/${senha.guid}/${senha.nome}/${senha.login}/${senha.nomeCategoria}/${senha.senha}"
+                                )
                             },
                             onDeleteClick = {
                                 // TODO: Implementar exclusão no Firestore

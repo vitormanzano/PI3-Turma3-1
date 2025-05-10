@@ -16,9 +16,12 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import android.provider.Settings
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import br.edu.puc.superid.ui.screens.EditPasswordScreen
 import br.edu.puc.superid.ui.screens.PasswordManagerScreen
 import br.edu.puc.superid.ui.screens.PasswordsByCategoryScreen
 import br.edu.puc.superid.ui.screens.SignUpCategoryScreen
@@ -63,6 +66,26 @@ class MainActivity : ComponentActivity() {
                       val categoria = backStackEntry.arguments?.getString("categoria") ?: ""
                       PasswordsByCategoryScreen(categoryName = categoria, navController = navController)
                   }
+                  composable(
+                      "editar_senha/{guid}/{nome}/{login}/{categoria}/{senha}",
+                      arguments = listOf(
+                          navArgument("guid") { type = NavType.StringType },
+                          navArgument("nome") { type = NavType.StringType },
+                          navArgument("login") { type = NavType.StringType },
+                          navArgument("categoria") { type = NavType.StringType },
+                          navArgument("senha") { type = NavType.StringType }
+                      )
+                  ) { backStackEntry ->
+                      EditPasswordScreen(
+                          guid = backStackEntry.arguments?.getString("guid") ?: "",
+                          nomeInicial = backStackEntry.arguments?.getString("nome") ?: "",
+                          loginInicial = backStackEntry.arguments?.getString("login") ?: "",
+                          categoriaInicial = backStackEntry.arguments?.getString("categoria") ?: "",
+                          senhaInicial = backStackEntry.arguments?.getString("senha") ?: "",
+                          navController = navController
+                      )
+                  }
+
               }
         }
     }
