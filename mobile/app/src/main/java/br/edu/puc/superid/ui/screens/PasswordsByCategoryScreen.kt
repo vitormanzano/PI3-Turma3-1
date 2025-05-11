@@ -1,7 +1,7 @@
 package br.edu.puc.superid.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.database.FirestoreHandler
 import br.edu.puc.superid.database.Senha
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,22 +30,29 @@ fun PasswordsByCategoryScreen(
 ) {
     val firestore = FirestoreHandler()
     var senhas by remember { mutableStateOf<List<Senha>>(emptyList()) }
+    var senhaSelecionada by remember { mutableStateOf<Senha?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
+    // Carrega senhas inicialmente
     LaunchedEffect(categoryName) {
-        val resultado = firestore.buscarSenhasPorCategoria(categoryName)
-        senhas = resultado
+        senhas = firestore.buscarSenhasPorCategoria(categoryName)
     }
+
+    suspend fun excluirSenha(senha: Senha): Boolean =
+        suspendCancellableCoroutine { continuation ->
+            firestore.deletarSenha(senha.guid) { sucesso ->
+                continuation.resume(sucesso)
+            }
+        }
 
     Scaffold(
         containerColor = Color.Black,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = categoryName,
-                        color = Color.White,
-                        fontSize = 28.sp
-                    )
+                    Text(text = categoryName, color = Color.White, fontSize = 28.sp)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -51,6 +61,16 @@ fun PasswordsByCategoryScreen(
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Black)
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                val isError = data.visuals.message.contains("erro", ignoreCase = true)
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = if (isError) Color.Red else Color(0xFF4CAF50),
+                    contentColor = Color.White
+                )
+            }
         }
     ) { innerPadding ->
         Column(
@@ -60,30 +80,82 @@ fun PasswordsByCategoryScreen(
                 .fillMaxSize()
         ) {
             if (senhas.isNotEmpty()) {
-                Column {
-                    senhas.forEachIndexed { index, senha ->
-                        PasswordItem(
-                            senha = senha,
-                            onEditClick = {
-                                navController.navigate(
-                                    "editar_senha/${senha.guid}/${senha.nome}/${senha.login}/${senha.nomeCategoria}/${senha.senha}"
-                                )
-                            },
-                            onDeleteClick = {
-                                // TODO: Implementar exclusão no Firestore
-                            }
-                        )
-                        if (index != senhas.lastIndex) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Divider(color = Color.Gray.copy(alpha = 0.3f), thickness = 1.dp)
-                            Spacer(modifier = Modifier.height(12.dp))
+                senhas.forEachIndexed { index, senha ->
+                    PasswordItem(
+                        senha = senha,
+                        onEditClick = {
+                            navController.navigate(
+                                "editar_senha/${senha.guid}/${senha.nome}/${senha.login}/${senha.nomeCategoria}/${senha.senha}"
+                            )
+                        },
+                        onDeleteClick = {
+                            senhaSelecionada = senha
                         }
+                    )
+                    if (index != senhas.lastIndex) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Divider(color = Color.Gray.copy(alpha = 0.3f), thickness = 1.dp)
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             } else {
                 Text("Nenhuma senha cadastrada.", color = Color.LightGray)
             }
         }
+    }
+
+    // Diálogo de confirmação
+    senhaSelecionada?.let { senha ->
+        AlertDialog(
+            onDismissRequest = { senhaSelecionada = null },
+            confirmButton = {
+                TextButton(onClick = {
+                    coroutineScope.launch {
+                        isLoading = true
+                        val sucesso = excluirSenha(senha)
+                        senhaSelecionada = null
+                        if (sucesso) {
+                            isLoading = false
+                            senhas = firestore.buscarSenhasPorCategoria(categoryName)
+                            snackbarHostState.showSnackbar("Senha excluída com sucesso")
+                        } else {
+                            isLoading = false
+                            snackbarHostState.showSnackbar("Erro ao excluir senha")
+                        }
+                    }
+                }) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { senhaSelecionada = null }) {
+                    Text("Cancelar")
+                }
+            },
+            title = { Text("Excluir senha") },
+            text = { Text("Tem certeza que deseja excluir a senha \"${senha.nome}\"?") },
+            containerColor = Color.White
+        )
+    }
+
+    // Diálogo de loading
+    if (isLoading) {
+        AlertDialog(
+            onDismissRequest = { /* impede fechamento */ },
+            confirmButton = {},
+            title = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text("Excluindo...", color = Color.Black)
+                }
+            },
+            containerColor = Color.White
+        )
     }
 }
 

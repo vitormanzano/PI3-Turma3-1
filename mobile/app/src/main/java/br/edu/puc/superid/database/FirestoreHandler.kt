@@ -1,5 +1,7 @@
 package br.edu.puc.superid.database
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -139,33 +141,49 @@ class FirestoreHandler {
                 Log.e("FIRESTORE", "Não foi possível alterar a senha")
             }
     }
-        
-    fun deletarSenha(guid: String) {
-        var senha = db
-            .collection("senhas")
+
+    fun deletarSenha(guid: String, onComplete: (Boolean) -> Unit) {
+        db.collection("senhas")
             .whereEqualTo("guid", guid)
             .get()
             .addOnSuccessListener { documents ->
+                Log.d("FIREBASE", "Resultado da busca: ${documents.size()}")
                 if (!documents.isEmpty) {
                     val document = documents.documents[0]
-                    db.collection("senhas").document(document.id)
-                        .delete()
+                    Log.d("FIREBASE", "Deletando senha com ID: ${document.id}")
+
+                    val docRef = db.collection("senhas").document(document.id)
+                    val deleteTask = docRef.delete()
+
+                    // Força a resposta depois de 2 segundos se o Firestore travar
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (!deleteTask.isComplete) {
+                            Log.w("FIREBASE", "Timeout no delete, assumindo sucesso local")
+                            onComplete(true)
+                        }
+                    }, 2000)
+
+                    deleteTask
                         .addOnSuccessListener {
-                            Log.d("FIREBASE", "Deletou")
+                            Log.d("FIREBASE", "Senha deletada com sucesso")
+                            onComplete(true)
                         }
                         .addOnFailureListener { e ->
-                            Log.e("FIREABSE", "Erro ao deletar")
+                            Log.e("FIREBASE", "Erro ao deletar senha", e)
+                            onComplete(false)
                         }
 
-                }
-                else {
-                    Log.e("FIREBASE", "SENHA NÃO encontrada")
+                } else {
+                    Log.e("FIREBASE", "Senha não encontrada")
+                    onComplete(false)
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("FIREBASE", "Erro ao buscar documento  ", e)
+                Log.e("FIREBASE", "Erro ao buscar senha", e)
+                onComplete(false)
             }
     }
+
 
     fun buscarTodasAsSenhas(userUid: String): List<Senha> {
         var listaDeSenhas: MutableList<Senha> = mutableListOf()
