@@ -26,9 +26,11 @@ import br.edu.puc.superid.database.FirestoreHandler
 
 @Composable
 fun PasswordManagerScreen(navController: NavHostController) {
+    var isEditMode by remember { mutableStateOf(false) }
+
     Scaffold(
         containerColor = Color.Black,
-        topBar = { TopBar() }, // ← Barra azul no topo
+        topBar = { TopBar() },
         bottomBar = { BottomNavigationBar() }
     ) { innerPadding ->
         Column(
@@ -37,12 +39,12 @@ fun PasswordManagerScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
-            Spacer(modifier = Modifier.height(16.dp)) // Espaço abaixo da barra
+            Spacer(modifier = Modifier.height(16.dp))
             EmailVerificationCard(isEmailVerified = false)
             Spacer(modifier = Modifier.height(24.dp))
-            QuickActionsBar(navController)
+            QuickActionsBar(navController) { isEditMode = it }
             Spacer(modifier = Modifier.height(24.dp))
-            CategorySection(navController)
+            CategorySection(navController, isEditMode) // Passa o estado de edição
         }
     }
 }
@@ -112,14 +114,16 @@ fun EmailVerificationCard(isEmailVerified: Boolean = false) {
 }
 
 @Composable
-fun QuickActionsBar(navController: NavHostController) {
+fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolean) -> Unit) {
+    var isEditMode by remember { mutableStateOf(false) }  // Estado local de edição
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 24.dp, horizontal = 16.dp)
-            .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp)) // Borda azul
-            .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp)) // Fundo escuro com transparência
-            .padding(16.dp) // Padding interno do container
+            .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
+            .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
+            .padding(16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -141,9 +145,13 @@ fun QuickActionsBar(navController: NavHostController) {
             )
             DividerVertical()
             QuickActionItem(
-                title = "Editar",
+                title = if (isEditMode) "Cancelar" else "Editar",
                 icon = Icons.Default.Edit,
-                iconColor = Color(0xFF3366FF)
+                iconColor = Color(0xFF3366FF),
+                onClick = {
+                    isEditMode = !isEditMode
+                    onEditModeChanged(isEditMode) // Chama a função passada para alterar o estado do modo de edição
+                }
             )
         }
     }
@@ -178,7 +186,7 @@ fun DividerVertical() {
 }
 
 @Composable
-fun CategorySection(navController: NavHostController) {
+fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
     val firestore = FirestoreHandler()
     var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
 
@@ -187,8 +195,6 @@ fun CategorySection(navController: NavHostController) {
     }
 
     val scrollState = rememberScrollState()
-    var containerHeightPx by remember { mutableStateOf(0f) }
-    val density = LocalDensity.current
 
     Column(
         modifier = Modifier
@@ -196,7 +202,7 @@ fun CategorySection(navController: NavHostController) {
             .padding(vertical = 24.dp)
     ) {
         Text(
-            text = "CATEGORIAS" ,
+            text = "CATEGORIAS",
             color = Color.White,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
@@ -211,52 +217,39 @@ fun CategorySection(navController: NavHostController) {
                     .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
                     .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
                     .padding(16.dp)
-                    .onGloballyPositioned { coordinates ->
-                        containerHeightPx = coordinates.size.height.toFloat()
-                    }
             ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(scrollState)
+                        .fillMaxWidth()
                 ) {
-                    // Conteúdo rolável
-                    Column(
-                        modifier = Modifier
-                            .verticalScroll(scrollState)
-                            .fillMaxWidth()
-                    ) {
-                        categorias.forEachIndexed { index, categoria ->
+                    categorias.forEachIndexed { index, categoria ->
+                        if (categoria != "Sites da Web") {
                             CategoryItem(
                                 name = categoria,
                                 count = 0,
-                                onClick = { navController.navigate("senhas/${categoria}") }
+                                onClick = { navController.navigate("senhas/${categoria}") },
+                                isEditMode = isEditMode, // Passa o estado de edição
+                                onDeleteClick = {
+                                    // Ação de exclusão da categoria
+                                    // Você pode chamar a função para excluir a categoria do Firestore
+                                }
                             )
-                            if (index != categorias.lastIndex) {
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Divider(color = Color(0xFF3366FF), thickness = 1.dp)
-                                Spacer(modifier = Modifier.height(12.dp))
-                            }
+                        } else {
+                            CategoryItem(
+                                name = categoria,
+                                count = 0,
+                                onClick = { navController.navigate("senhas/${categoria}") },
+                                isEditMode = false, // Não permite edição para "Sites da Web"
+                                onDeleteClick = {}
+                            )
                         }
-                    }
 
-                    // Scrollbar
-                    val indicatorHeight = 40.dp
-                    val scrollMax = scrollState.maxValue
-                    val scrollProgress = if (scrollMax > 0) scrollState.value.toFloat() / scrollMax else 0f
-                    val offsetPx = (containerHeightPx - with(density) { indicatorHeight.toPx() }) * scrollProgress
-
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .width(6.dp)
-                            .fillMaxHeight()
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .offset(y = with(density) { offsetPx.toDp() })
-                                .height(indicatorHeight)
-                                .width(4.dp)
-                                .background(Color(0xFF5E5E60), shape = RoundedCornerShape(3.dp))
-                        )
+                        if (index != categorias.lastIndex) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Divider(color = Color(0xFF3366FF), thickness = 1.dp)
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
                 }
             }
@@ -266,9 +259,14 @@ fun CategorySection(navController: NavHostController) {
     }
 }
 
-
 @Composable
-fun CategoryItem(name: String, count: Int, onClick: () -> Unit) {
+fun CategoryItem(
+    name: String,
+    count: Int,
+    onClick: () -> Unit,
+    isEditMode: Boolean, // Recebe o estado de edição
+    onDeleteClick: () -> Unit // Ação de excluir
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -281,9 +279,27 @@ fun CategoryItem(name: String, count: Int, onClick: () -> Unit) {
             Text(name, color = Color.White, fontSize = 16.sp)
             Text("$count senhas", color = Color.LightGray, fontSize = 12.sp)
         }
+
+        // Mostrar o ícone de lixeira apenas se o modo de edição estiver ativado
+        if (isEditMode) {
+            IconButton(
+                onClick = { onDeleteClick() },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Excluir Categoria",
+                    tint = Color.Red
+                )
+            }
+        } else {
+            Spacer(modifier = Modifier.width(32.dp)) // Espaço onde o ícone de excluir estaria
+        }
+
         Icon(Icons.Default.ArrowForward, contentDescription = "Ver mais", tint = Color.White)
     }
 }
+
 
 @Composable
 fun BottomNavigationBar(
