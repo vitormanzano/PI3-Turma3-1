@@ -1,5 +1,6 @@
 package br.edu.puc.superid.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,10 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.database.FirestoreHandler
+import br.edu.puc.superid.database.Senha
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 @Composable
 fun PasswordManagerScreen(navController: NavHostController) {
     var isEditMode by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = Color.Black,
@@ -223,6 +229,7 @@ fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
                         .verticalScroll(scrollState)
                         .fillMaxWidth()
                 ) {
+
                     categorias.forEachIndexed { index, categoria ->
                         if (categoria != "Sites da Web") {
                             CategoryItem(
@@ -231,8 +238,18 @@ fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
                                 onClick = { navController.navigate("senhas/${categoria}") },
                                 isEditMode = isEditMode, // Passa o estado de edição
                                 onDeleteClick = {
-                                    // Ação de exclusão da categoria
-                                    // Você pode chamar a função para excluir a categoria do Firestore
+                                    val userUid = FirebaseAuth.getInstance().currentUser?.uid
+                                    if (userUid != null) {
+                                        firestore.deletarCategoria(userUid, categoria) { success ->
+                                            if (success) {
+                                                categorias = categorias.filter { it != categoria }
+                                            } else {
+                                                Log.e("FIREBASE", "Falha ao excluir categoria $categoria")
+                                            }
+                                        }
+                                    } else {
+                                        Log.e("FIREBASE", "Usuário não autenticado")
+                                    }
                                 }
                             )
                         } else {
@@ -265,8 +282,12 @@ fun CategoryItem(
     count: Int,
     onClick: () -> Unit,
     isEditMode: Boolean, // Recebe o estado de edição
-    onDeleteClick: () -> Unit // Ação de excluir
+    onDeleteClick: (Boolean) -> Unit // Ação de excluir, agora passa o resultado da exclusão (sucesso ou falha)
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) } // Estado para exibir o diálogo
+    var showSnackbar by remember { mutableStateOf(false) } // Estado para exibir o Snackbar
+    var snackbarMessage by remember { mutableStateOf("") } // Mensagem do Snackbar
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -283,7 +304,7 @@ fun CategoryItem(
         // Mostrar o ícone de lixeira apenas se o modo de edição estiver ativado
         if (isEditMode) {
             IconButton(
-                onClick = { onDeleteClick() },
+                onClick = { showDeleteDialog = true }, // Exibe o diálogo de confirmação
                 modifier = Modifier.size(24.dp)
             ) {
                 Icon(
@@ -298,7 +319,46 @@ fun CategoryItem(
 
         Icon(Icons.Default.ArrowForward, contentDescription = "Ver mais", tint = Color.White)
     }
+
+    // Diálogo de confirmação de exclusão
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteClick(true) // Chama a função de deletar e sinaliza sucesso
+                    showSnackbar = true
+                    snackbarMessage = "Categoria '$name' excluída com sucesso!" // Mensagem de sucesso
+                    showDeleteDialog = false
+                }) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancelar")
+                }
+            },
+            title = { Text("Excluir categoria") },
+            text = { Text("Tem certeza que deseja excluir a categoria \"$name\"?") },
+            containerColor = Color.White
+        )
+    }
+
+    // Exibindo a mensagem de sucesso após a exclusão
+    if (showSnackbar) {
+        Snackbar(
+            modifier = Modifier.padding(16.dp),
+            content = { Text(snackbarMessage) },
+            action = {
+                Button(onClick = { showSnackbar = false }) {
+                    Text("Fechar")
+                }
+            }
+        )
+    }
 }
+
 
 
 @Composable

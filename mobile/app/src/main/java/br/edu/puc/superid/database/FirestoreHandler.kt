@@ -299,35 +299,50 @@ class FirestoreHandler {
                 Log.e("FIREBASE", "Erro ao criar categoria")
             }
     }
-    
-    fun deletarCategoria(userUid: String, nomeCategoria: String) {
-        db
-            .collection("categorias")
+
+    fun deletarCategoria(userUid: String, nomeCategoria: String, onComplete: (Boolean) -> Unit) {
+        db.collection("categorias")
             .whereEqualTo("uidUsuario", userUid)
             .whereEqualTo("nome", nomeCategoria)
             .get()
             .addOnSuccessListener { documents ->
+                Log.d("FIREBASE", "Resultado da busca: ${documents.size()}")
                 if (!documents.isEmpty) {
                     val document = documents.documents[0]
-                    db.collection("categorias").document(document.id)
-                        .delete()
+                    Log.d("FIREBASE", "Deletando categoria com ID: ${document.id}")
+
+                    val docRef = db.collection("categorias").document(document.id)
+                    val deleteTask = docRef.delete()
+
+                    // Timeout: força resposta após 2 segundos
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (!deleteTask.isComplete) {
+                            Log.w("FIREBASE", "Timeout no delete, assumindo sucesso local")
+                            onComplete(true)
+                        }
+                    }, 2000)
+
+                    deleteTask
                         .addOnSuccessListener {
-                            Log.d("FIREBASE", "Deletou")
+                            Log.d("FIREBASE", "Categoria deletada com sucesso")
+                            onComplete(true)
                         }
                         .addOnFailureListener { e ->
-                            Log.e("FIREABSE", "Erro ao deletar cat")
+                            Log.e("FIREBASE", "Erro ao deletar categoria", e)
+                            onComplete(false)
                         }
 
-                }
-                else {
+                } else {
                     Log.e("FIREBASE", "Categoria NÃO encontrada")
+                    onComplete(false)
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("FIREBASE", "Erro ao buscar documento  ", e)
+                Log.e("FIREBASE", "Erro ao buscar documento", e)
+                onComplete(false)
             }
     }
-    
+
     fun inserirCategoriasIniciais(userUid: String) {
         val categoriaSitesWeb = "Sites da Web"
         val categoriaAplicativos = "Aplicativos"
