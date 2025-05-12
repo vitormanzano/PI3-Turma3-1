@@ -71,19 +71,16 @@ class AuthHandler {
         return user?.uid
     }
 
-    fun emailFoiVerificado() {
+    fun emailFoiVerificado(onResult: (Boolean) -> Unit) {
         val user = auth.currentUser
         user?.reload()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                if (user.isEmailVerified) {
-                    Log.d("EMAIL", "Email verificado!")
-                }
-                else {
-                    Log.d("EMAIL", "Email ainda não verificado.")
-                }
-            }
-            else {
+                val verificado = user.isEmailVerified
+                Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
+                onResult(verificado)
+            } else {
                 Log.e("EMAIL", "Erro ao recarregar usuário: ${task.exception}")
+                onResult(false) // ou trate como desejar
             }
         }
     }

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import br.edu.puc.superid.auth.AuthHandler
 import br.edu.puc.superid.database.FirestoreHandler
 import br.edu.puc.superid.database.Senha
 import com.google.firebase.auth.FirebaseAuth
@@ -34,9 +35,26 @@ fun PasswordManagerScreen(navController: NavHostController) {
     var isEditMode by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
 
+    val isEmailVerified = remember { mutableStateOf(false) }
+    val auth = AuthHandler()
+    val firestore = FirestoreHandler()
+    val userName = remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        auth.emailFoiVerificado() { verificado ->
+            isEmailVerified.value = verificado
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        firestore.obterNomeUsuario() {nome ->
+            userName.value = nome
+        }
+    }
+
     Scaffold(
         containerColor = Color.Black,
-        topBar = { TopBar() },
+        topBar = { TopBar("${userName.value}") },
         bottomBar = { BottomNavigationBar() }
     ) { innerPadding ->
         Column(
@@ -46,7 +64,7 @@ fun PasswordManagerScreen(navController: NavHostController) {
                 .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            EmailVerificationCard(isEmailVerified = false)
+            EmailVerificationCard(isEmailVerified = isEmailVerified.value)
             Spacer(modifier = Modifier.height(24.dp))
             QuickActionsBar(navController) { isEditMode = it }
             Spacer(modifier = Modifier.height(24.dp))

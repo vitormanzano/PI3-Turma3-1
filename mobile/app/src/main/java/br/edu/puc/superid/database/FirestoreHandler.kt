@@ -395,10 +395,9 @@ class FirestoreHandler {
             }
     }
 
-    fun obterNomeUsuario(): String {
+    fun obterNomeUsuario(onResult: (String) -> Unit) {
         val auth = AuthHandler()
         val userUid = auth.obterUidUsuario()
-        var nome = ""
 
         db.collection("users")
             .whereEqualTo("UID", userUid)
@@ -406,10 +405,14 @@ class FirestoreHandler {
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val document = documents.documents[0]
-                    nome = document.getString("Nome").toString()
+                    val nome = document.getString("Nome") ?: ""
+                    onResult(nome)
+                } else {
+                    onResult("") // Se não encontrar
                 }
             }
-
-        return nome
+            .addOnFailureListener {
+                onResult("") // Em caso de erro
+            }
     }
 }
