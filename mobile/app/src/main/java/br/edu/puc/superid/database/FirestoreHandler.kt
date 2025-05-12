@@ -1,26 +1,28 @@
 package br.edu.puc.superid.database
 
+import android.os.Handler
+import android.os.Looper
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Log
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import android.util.Base64
+import android.util.Log
 import br.edu.puc.superid.auth.AuthHandler
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.security.KeyStore
-import javax.crypto.Cipher
-import javax.crypto.spec.SecretKeySpec
 import java.security.SecureRandom
 import java.util.UUID
+import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import kotlin.random.Random
 
 data class Senha (
@@ -48,11 +50,9 @@ class FirestoreHandler {
                 if (task.isSuccessful) {
                     Log.d("SUCCESS", "Usuário criado!")
                     val user = FirebaseAuth.getInstance().currentUser
-
                     val userUid = user!!.uid
                     inserirCategoriasIniciais(userUid)
-                }
-                else {
+                } else {
                     Log.w("FAILURE", "${task.exception}")
                 }
             }
@@ -94,18 +94,12 @@ class FirestoreHandler {
 
     fun descriptografarSenha(senha: String): String {
         val chaveParaCriptografar = "chaveExemplo1234"
-
-        val senhaDesriptografada = descriptografar(senha, chaveParaCriptografar)
-
-        return senhaDesriptografada.toString()
+        return descriptografar(senha, chaveParaCriptografar)
     }
 
     fun criptografarSenha(senha: String): String {
         val chaveParaCriptografar = "chaveExemplo1234"
-
-        val senhaCriptografada = criptografar(senha, chaveParaCriptografar)
-
-        return senhaCriptografada.toString()
+        return criptografar(senha, chaveParaCriptografar)
     }
 
     fun gerarAccessToken(length: Int = 256): String {
@@ -121,7 +115,6 @@ class FirestoreHandler {
 
     fun cadastrarSenha(nome: String, login: String?, categoria: String, senha: String) {
         val guid = gerarGuid()
-
         val user = FirebaseAuth.getInstance().currentUser
         val userUid = user!!.uid
 
@@ -149,7 +142,7 @@ class FirestoreHandler {
     }
 
     fun alterarSenha(guid: String, nome: String, login: String, nomeCategoria: String, senha: String) {
-       db.collection("senhas")
+        db.collection("senhas")
             .whereEqualTo("guid", guid)
             .get()
             .addOnSuccessListener { documents ->
@@ -165,76 +158,82 @@ class FirestoreHandler {
                     db.collection("senhas").document(document.id)
                         .update(novosDados)
                         .addOnSuccessListener {
-                            Log.d("FIRESTORE", "Senha alterou")
+                            Log.d("FIRESTORE", "Senha alterada")
                         }
-                        .addOnFailureListener { e ->
+                        .addOnFailureListener {
                             Log.e("FIRESTORE", "Erro ao alterar")
                         }
-
-                }
-                else {
+                } else {
                     Log.e("FIRESTORE", "SENHA NÃO encontrada")
                 }
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener {
                 Log.e("FIRESTORE", "Não foi possível alterar a senha")
             }
     }
-        
-    fun deletarSenha(guid: String) {
-        var senha = db
-            .collection("senhas")
+
+    fun deletarSenha(guid: String, onComplete: (Boolean) -> Unit) {
+        db.collection("senhas")
             .whereEqualTo("guid", guid)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val document = documents.documents[0]
-                    db.collection("senhas").document(document.id)
-                        .delete()
+                    val docRef = db.collection("senhas").document(document.id)
+                    val deleteTask = docRef.delete()
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (!deleteTask.isComplete) {
+                            Log.w("FIREBASE", "Timeout no delete, assumindo sucesso local")
+                            onComplete(true)
+                        }
+                    }, 2000)
+
+                    deleteTask
                         .addOnSuccessListener {
-                            Log.d("FIREBASE", "Deletou")
+                            Log.d("FIREBASE", "Senha deletada com sucesso")
+                            onComplete(true)
                         }
                         .addOnFailureListener { e ->
-                            Log.e("FIREABSE", "Erro ao deletar")
+                            Log.e("FIREBASE", "Erro ao deletar senha", e)
+                            onComplete(false)
                         }
-
-                }
-                else {
-                    Log.e("FIREBASE", "SENHA NÃO encontrada")
+                } else {
+                    Log.e("FIREBASE", "Senha não encontrada")
+                    onComplete(false)
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("FIREBASE", "Erro ao buscar documento  ", e)
+                Log.e("FIREBASE", "Erro ao buscar senha", e)
+                onComplete(false)
             }
     }
 
     fun buscarTodasAsSenhas(userUid: String): List<Senha> {
-        var listaDeSenhas: MutableList<Senha> = mutableListOf()
+        val listaDeSenhas: MutableList<Senha> = mutableListOf()
 
         db.collection("senhas")
             .whereEqualTo("uidUsuario", userUid)
             .get()
-            .addOnCompleteListener { task ->
-                task.addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        val nome = document.getString("nome").toString()
-                        val guid = document.getString("guid").toString()
-                        val login = document.getString("login").toString()
-                        val nomeCategoria = document.getString("nomeCategoria").toString()
-                        val senha = document.getString("senha").toString()
-                        val senhaDescritografada = descriptografar(senha, "chaveExemplo1234")
-                        val accessToken = document.getString("accessToken").toString()
-                        val uidUsuario = document.getString("uidUsuario").toString()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val nome = document.getString("nome").toString()
+                    val guid = document.getString("guid").toString()
+                    val login = document.getString("login").toString()
+                    val nomeCategoria = document.getString("nomeCategoria").toString()
+                    val senha = document.getString("senha").toString()
+                    val senhaDescriptografada = descriptografarSenha(senha)
+                    val accessToken = document.getString("accessToken").toString()
+                    val uidUsuario = document.getString("uidUsuario").toString()
 
-                        var senhaData = Senha(nome, guid, login, nomeCategoria, senhaDescritografada, accessToken, uidUsuario)
-
-                        listaDeSenhas.add(senhaData)
-                    }
-                }
-                task.addOnFailureListener { e ->
-                    Log.e("FAILURE", "${e.message}")
+                    val senhaData = Senha(nome, guid, login, nomeCategoria, senhaDescriptografada, accessToken, uidUsuario)
+                    listaDeSenhas.add(senhaData)
                 }
             }
+            .addOnFailureListener { e ->
+                Log.e("FAILURE", "${e.message}")
+            }
+
         return listaDeSenhas
     }
 
@@ -244,7 +243,7 @@ class FirestoreHandler {
         val userUid = auth.obterUidUsuario()
 
         try {
-            val documentos = Firebase.firestore.collection("senhas")
+            val documentos = db.collection("senhas")
                 .whereEqualTo("uidUsuario", userUid)
                 .whereEqualTo("nomeCategoria", categoria)
                 .get()
@@ -256,12 +255,11 @@ class FirestoreHandler {
                 val login = document.getString("login").orEmpty()
                 val nomeCategoria = document.getString("nomeCategoria").orEmpty()
                 val senha = document.getString("senha").orEmpty()
-               val senhaDescritografada = descriptografarSenha(senha)
+                val senhaDescriptografada = descriptografarSenha(senha)
                 val accessToken = document.getString("accessToken").orEmpty()
                 val uidUsuario = document.getString("uidUsuario").orEmpty()
 
-                val senhaData = Senha(nome, guid, login, nomeCategoria, senhaDescritografada, accessToken, uidUsuario)
-                listaDeSenhas.add(senhaData)
+                listaDeSenhas.add(Senha(nome, guid, login, nomeCategoria, senhaDescriptografada, accessToken, uidUsuario))
             }
         } catch (e: Exception) {
             Log.e("FIRESTORE", "Erro ao buscar senhas: ${e.message}")
@@ -293,12 +291,12 @@ class FirestoreHandler {
 
         return listaDeCategorias
     }
-    
+
     fun criarCategoria(nomeCategoria: String) {
         val auth = AuthHandler()
         val userUid = auth.obterUidUsuario()
-        db
-            .collection("categorias")
+
+        db.collection("categorias")
             .whereEqualTo("uidUsuario", userUid)
             .whereEqualTo("nome", nomeCategoria)
             .get()
@@ -313,19 +311,17 @@ class FirestoreHandler {
                         .add(docCategoria)
 
                     Log.i("FIRESTORE", "Categoria criada")
-                }
-                else {
+                } else {
                     Log.e("FIRESTORE", "Já existe essa categoria")
                 }
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener {
                 Log.e("FIREBASE", "Erro ao criar categoria")
             }
     }
-    
-    fun deletarCategoria(userUid: String, nomeCategoria: String) {
-        db
-            .collection("categorias")
+
+    fun deletarCategoria(userUid: String, nomeCategoria: String, onComplete: (Boolean) -> Unit) {
+        db.collection("categorias")
             .whereEqualTo("uidUsuario", userUid)
             .whereEqualTo("nome", nomeCategoria)
             .get()
@@ -334,63 +330,43 @@ class FirestoreHandler {
                     val document = documents.documents[0]
 
                     CoroutineScope(Dispatchers.IO).launch {
-                        val senhasNaCategoria = buscarSenhasPorCategoria("trabalho")
-
-                        if (senhasNaCategoria.isEmpty())
-                        {
+                        val senhasNaCategoria = buscarSenhasPorCategoria(nomeCategoria)
+                        if (senhasNaCategoria.isEmpty()) {
                             db.collection("categorias").document(document.id)
                                 .delete()
                                 .addOnSuccessListener {
-                                    Log.d("FIREBASE", "Deletou")
+                                    Log.d("FIREBASE", "Categoria deletada com sucesso")
+                                    onComplete(true)
                                 }
                                 .addOnFailureListener { e ->
-                                    Log.e("FIREABSE", "Erro ao deletar cat")
+                                    Log.e("FIREBASE", "Erro ao deletar categoria", e)
+                                    onComplete(false)
                                 }
-                        }
-                        else {
+                        } else {
                             Log.e("FIREBASE", "Existem senhas na categoria")
-
+                            onComplete(false)
                         }
                     }
-                }
-                else {
+                } else {
                     Log.e("FIREBASE", "Categoria NÃO encontrada")
+                    onComplete(false)
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("FIREBASE", "Erro ao buscar documento  ", e)
+                Log.e("FIREBASE", "Erro ao buscar documento", e)
+                onComplete(false)
             }
     }
-    
+
     fun inserirCategoriasIniciais(userUid: String) {
-        val categoriaSitesWeb = "Sites da Web"
-        val categoriaAplicativos = "Aplicativos"
-        val categoriaTeclado = "Teclados de Acesso Físico"
-
-        val docSitesWeb = hashMapOf(
-            "nome" to categoriaSitesWeb,
-            "uidUsuario" to userUid
-        )
-
-        val docAplicativos = hashMapOf(
-            "nome" to categoriaAplicativos,
-            "uidUsuario" to userUid
-        )
-
-        val docTeclado = hashMapOf(
-            "nome" to categoriaTeclado,
-            "uidUsuario" to userUid
-        )
-
-        db.collection("categorias")
-            .add(docSitesWeb)
-
-        db.collection("categorias")
-            .add(docAplicativos)
-
-        db.collection("categorias")
-            .add(docTeclado)
-
+        val categorias = listOf("Sites da Web", "Aplicativos", "Teclados de Acesso Físico")
+        categorias.forEach { nome ->
+            val docCategoria = hashMapOf(
+                "nome" to nome,
+                "uidUsuario" to userUid
+            )
+            db.collection("categorias").add(docCategoria)
+        }
     }
 
     fun alterarCategoria(userUid: String, novoNomeCategoria: String) {
@@ -399,28 +375,23 @@ class FirestoreHandler {
             .whereEqualTo("nome", novoNomeCategoria)
             .get()
             .addOnSuccessListener { documents ->
-                    if (!documents.isEmpty) {
-                        val novosDados = hashMapOf<String, Any>(
-                            "nome" to novoNomeCategoria
-                        )
-
-                        val document = documents.documents[0]
-                        db.collection("categorias").document(document.id)
-                            .update(novosDados)
-                            .addOnSuccessListener {
-                                Log.d("FIRESTORE", "Senha alterou")
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("FIRESTORE", "Erro ao alterar")
-                            }
-
-                    }
-                    else {
-                        Log.e("FIRESTORE", "SENHA NÃO encontrada")
-                    }
+                if (!documents.isEmpty) {
+                    val document = documents.documents[0]
+                    val novosDados = hashMapOf<String, Any>("nome" to novoNomeCategoria)
+                    db.collection("categorias").document(document.id)
+                        .update(novosDados)
+                        .addOnSuccessListener {
+                            Log.d("FIRESTORE", "Categoria alterada")
+                        }
+                        .addOnFailureListener {
+                            Log.e("FIRESTORE", "Erro ao alterar")
+                        }
+                } else {
+                    Log.e("FIRESTORE", "Categoria NÃO encontrada")
                 }
-            .addOnFailureListener { e ->
-                Log.e("FIRESTORE", "Não foi possível alterar a senha")
+            }
+            .addOnFailureListener {
+                Log.e("FIRESTORE", "Erro ao buscar categoria")
             }
     }
 
@@ -430,12 +401,12 @@ class FirestoreHandler {
         var nome = ""
 
         db.collection("users")
-            .whereEqualTo("uidUsuario", userUid)
+            .whereEqualTo("UID", userUid)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val document = documents.documents[0]
-                    nome = document.getString("nome").toString()
+                    nome = document.getString("Nome").toString()
                 }
             }
 

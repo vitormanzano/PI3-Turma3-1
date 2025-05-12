@@ -50,6 +50,7 @@ fun SuperIdTheme(
         else -> LightColorScheme
     }
 
+
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,

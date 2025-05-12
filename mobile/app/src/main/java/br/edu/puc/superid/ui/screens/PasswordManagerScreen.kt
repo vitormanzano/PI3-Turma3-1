@@ -1,10 +1,14 @@
 package br.edu.puc.superid.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -13,59 +17,79 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.database.FirestoreHandler
+import br.edu.puc.superid.database.Senha
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 @Composable
 fun PasswordManagerScreen(navController: NavHostController) {
+    var isEditMode by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+
     Scaffold(
         containerColor = Color.Black,
+        topBar = { TopBar() },
         bottomBar = { BottomNavigationBar() }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
-            TopBar()
             Spacer(modifier = Modifier.height(16.dp))
             EmailVerificationCard(isEmailVerified = false)
-            Spacer(modifier = Modifier.height(16.dp))
-            QuickActionsBar(navController)
-            Spacer(modifier = Modifier.height(16.dp))
-            CategorySection(navController)
+            Spacer(modifier = Modifier.height(24.dp))
+            QuickActionsBar(navController) { isEditMode = it }
+            Spacer(modifier = Modifier.height(24.dp))
+            CategorySection(navController, isEditMode) // Passa o estado de edição
         }
     }
 }
 
 @Composable
 fun TopBar(userName: String = "Usuário") {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .background(
+                color = Color(0xFF0E2159),
+                shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+            )
+            .padding(vertical = 20.dp, horizontal = 16.dp)
     ) {
-        Icon(Icons.Default.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Olá, $userName",
-            color = Color.White,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.weight(1f)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.Person,
+                contentDescription = null,
+                tint = Color(0xFF3366FF),
+                modifier = Modifier.size(30.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Olá, $userName",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
+
 @Composable
 fun EmailVerificationCard(isEmailVerified: Boolean = false) {
-    val backgroundColor = if (isEmailVerified) Color(0xFF4CAF50) else Color(0xFFEC4D4D)
+    val backgroundColor = if (isEmailVerified) Color(0xFF4CAF50) else Color(0xFF3366FF)
     val statusText = if (isEmailVerified) "E-mail verificado!" else "E-mail não verificado, você não poderá recuperar sua senha mestra!"
     val actionText = if (isEmailVerified) "Tudo certo!" else "Verificar agora"
 
@@ -96,12 +120,16 @@ fun EmailVerificationCard(isEmailVerified: Boolean = false) {
 }
 
 @Composable
-fun QuickActionsBar(navController: NavHostController) {
+fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolean) -> Unit) {
+    var isEditMode by remember { mutableStateOf(false) }  // Estado local de edição
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF2B2B2B), shape = RoundedCornerShape(24.dp))
             .padding(vertical = 24.dp, horizontal = 16.dp)
+            .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
+            .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
+            .padding(16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -111,21 +139,25 @@ fun QuickActionsBar(navController: NavHostController) {
             QuickActionItem(
                 title = "Nova Senha",
                 icon = Icons.Default.Password,
-                iconColor = Color.White,
+                iconColor = Color(0xFF3366FF),
                 onClick = { navController.navigate("signuppassword") }
             )
             DividerVertical()
             QuickActionItem(
                 title = "Nova Categoria",
                 icon = Icons.Default.Category,
-                iconColor = Color.White,
+                iconColor = Color(0xFF3366FF),
                 onClick = { navController.navigate("signupcategory") }
             )
             DividerVertical()
             QuickActionItem(
-                title = "Editar",
+                title = if (isEditMode) "Cancelar" else "Editar",
                 icon = Icons.Default.Edit,
-                iconColor = Color.White
+                iconColor = Color(0xFF3366FF),
+                onClick = {
+                    isEditMode = !isEditMode
+                    onEditModeChanged(isEditMode) // Chama a função passada para alterar o estado do modo de edição
+                }
             )
         }
     }
@@ -145,7 +177,7 @@ fun QuickActionItem(title: String, icon: ImageVector, iconColor: Color, onClick:
             modifier = Modifier.size(32.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(title, color = Color.White)
+        Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -160,18 +192,23 @@ fun DividerVertical() {
 }
 
 @Composable
-fun CategorySection(navController: NavHostController) {
+fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
     val firestore = FirestoreHandler()
     var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
 
     LaunchedEffect(Unit) {
-        val resultado = firestore.buscarTodasCategorias()
-        categorias = resultado
+        categorias = firestore.buscarTodasCategorias()
     }
 
-    Column {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp)
+    ) {
         Text(
-            text = "Categorias",
+            text = "CATEGORIAS",
             color = Color.White,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
@@ -182,16 +219,52 @@ fun CategorySection(navController: NavHostController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF2B2B2B), shape = RoundedCornerShape(16.dp))
-                    .padding(vertical = 16.dp, horizontal = 12.dp)
+                    .heightIn(max = 400.dp)
+                    .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
+                    .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
+                    .padding(16.dp)
             ) {
-                Column {
-                    categorias.forEachIndexed { index, categoria ->CategoryItem(name = categoria, count = 0, onClick = {
-                        navController.navigate("senhas/${categoria}")
-                    })
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(scrollState)
+                        .fillMaxWidth()
+                ) {
+
+                    categorias.forEachIndexed { index, categoria ->
+                        if (categoria != "Sites da Web") {
+                            CategoryItem(
+                                name = categoria,
+                                count = 0,
+                                onClick = { navController.navigate("senhas/${categoria}") },
+                                isEditMode = isEditMode, // Passa o estado de edição
+                                onDeleteClick = {
+                                    val userUid = FirebaseAuth.getInstance().currentUser?.uid
+                                    if (userUid != null) {
+                                        firestore.deletarCategoria(userUid, categoria) { success ->
+                                            if (success) {
+                                                categorias = categorias.filter { it != categoria }
+                                            } else {
+                                                Log.e("FIREBASE", "Falha ao excluir categoria $categoria")
+                                            }
+                                        }
+                                    } else {
+                                        Log.e("FIREBASE", "Usuário não autenticado")
+                                    }
+                                }
+                            )
+                        } else {
+                            CategoryItem(
+                                name = categoria,
+                                count = 0,
+                                onClick = { navController.navigate("senhas/${categoria}") },
+                                isEditMode = false, // Não permite edição para "Sites da Web"
+                                onDeleteClick = {}
+                            )
+                        }
+
                         if (index != categorias.lastIndex) {
                             Spacer(modifier = Modifier.height(12.dp))
-                            Divider(color = Color.Gray, thickness = 1.dp)
+                            Divider(color = Color(0xFF3366FF), thickness = 1.dp)
                             Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
@@ -204,7 +277,17 @@ fun CategorySection(navController: NavHostController) {
 }
 
 @Composable
-fun CategoryItem(name: String, count: Int, onClick: () -> Unit) {
+fun CategoryItem(
+    name: String,
+    count: Int,
+    onClick: () -> Unit,
+    isEditMode: Boolean, // Recebe o estado de edição
+    onDeleteClick: (Boolean) -> Unit // Ação de excluir, agora passa o resultado da exclusão (sucesso ou falha)
+) {
+    var showDeleteDialog by remember { mutableStateOf(false) } // Estado para exibir o diálogo
+    var showSnackbar by remember { mutableStateOf(false) } // Estado para exibir o Snackbar
+    var snackbarMessage by remember { mutableStateOf("") } // Mensagem do Snackbar
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -217,19 +300,77 @@ fun CategoryItem(name: String, count: Int, onClick: () -> Unit) {
             Text(name, color = Color.White, fontSize = 16.sp)
             Text("$count senhas", color = Color.LightGray, fontSize = 12.sp)
         }
+
+        // Mostrar o ícone de lixeira apenas se o modo de edição estiver ativado
+        if (isEditMode) {
+            IconButton(
+                onClick = { showDeleteDialog = true }, // Exibe o diálogo de confirmação
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Excluir Categoria",
+                    tint = Color.Red
+                )
+            }
+        } else {
+            Spacer(modifier = Modifier.width(32.dp)) // Espaço onde o ícone de excluir estaria
+        }
+
         Icon(Icons.Default.ArrowForward, contentDescription = "Ver mais", tint = Color.White)
+    }
+
+    // Diálogo de confirmação de exclusão
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteClick(true) // Chama a função de deletar e sinaliza sucesso
+                    showSnackbar = true
+                    snackbarMessage = "Categoria '$name' excluída com sucesso!" // Mensagem de sucesso
+                    showDeleteDialog = false
+                }) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancelar")
+                }
+            },
+            title = { Text("Excluir categoria") },
+            text = { Text("Tem certeza que deseja excluir a categoria \"$name\"?") },
+            containerColor = Color.White
+        )
+    }
+
+    // Exibindo a mensagem de sucesso após a exclusão
+    if (showSnackbar) {
+        Snackbar(
+            modifier = Modifier.padding(16.dp),
+            content = { Text(snackbarMessage) },
+            action = {
+                Button(onClick = { showSnackbar = false }) {
+                    Text("Fechar")
+                }
+            }
+        )
     }
 }
 
+
+
 @Composable
 fun BottomNavigationBar(
+
     selectedIndex: Int = 0,
     onItemSelected: (Int) -> Unit = {}
 ) {
     Column {
         // Linha de separação acima da BottomBar
         Divider(
-            color = Color.Gray.copy(alpha = 0.3f),
+            color = Color(0xFF3366FF),
             thickness = 0.8.dp
         )
 
