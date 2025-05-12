@@ -48,6 +48,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
     val snackbarHostState = remember { SnackbarHostState() }
     var showDialog by remember { mutableStateOf(false) }
     var showSuccessDialog by remember { mutableStateOf(false) }
+    var showTermsDialog by remember { mutableStateOf(false) }
 
     val iconsColor = Color(0xFF3366FF)
     val buttonColor = Color(0xFF3366FF)
@@ -96,6 +97,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                 .fillMaxSize()
                 .background(Color.Black)
         ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -235,7 +237,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                             text = annotatedText,
                             onClick = { offset ->
                                 annotatedText.getStringAnnotations("TERMOS", offset, offset).firstOrNull()?.let {
-                                    showDialog = true
+                                    showTermsDialog = true
                                 }
                             },
                             style = TextStyle(color = Color.White)
@@ -288,6 +290,9 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         containerColor = Color.White
                     )
                 }
+            }
+            if (showTermsDialog) {
+                TermsDialog(onDismiss = { showTermsDialog = false })
             }
 
             if (showDialog) {
@@ -372,3 +377,64 @@ fun CustomDialog(
     }
 }
 
+@Composable
+fun TermsDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Fechar", color = Color(0xFF3366FF))
+            }
+        },
+        title = {
+            Text(
+                text = "Termos de Uso",
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Box(
+                modifier = Modifier
+                    .height(300.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = """
+                            Bem-vindo ao SuperID. Ao utilizar nosso serviço, você concorda com estes Termos de Uso. Por favor, leia-os atentamente.
+
+                            1. Aceitação dos Termos
+                            Ao acessar ou utilizar o Aplicativo, você concorda em cumprir estes Termos de Uso e a nossa Política de Privacidade. Se você não concordar com qualquer parte dos termos, não utilize o Aplicativo.
+
+                            2. Uso do Aplicativo
+                            O SuperId permite que você armazene e gerencie suas senhas de forma segura. Ao utilizar o Aplicativo, você concorda em:
+                            • Fornecer informações verdadeiras e atualizadas.
+                            • Utilizar o Aplicativo apenas para fins legais e pessoais.
+                            • Não compartilhar ou revender o Aplicativo.
+
+                            3. Segurança
+                            Adotamos práticas como criptografia de dados e autenticação. Ainda assim, você reconhece que o uso é por sua conta e risco.
+
+                            4. Responsabilidades do Usuário
+                            Você é responsável por manter a confidencialidade do seu login e senha.
+
+                            5. Propriedade Intelectual
+                            Todos os direitos são do Desenvolvedor. Não copie ou modifique sem autorização.
+
+                            6. Modificações e Encerramento
+                            Podemos modificar ou descontinuar o Aplicativo a qualquer momento. O uso contínuo implica aceitação das mudanças.
+
+                            7. Limitação de Responsabilidade
+                            Não nos responsabilizamos por danos resultantes do uso ou da incapacidade de usar o Aplicativo.
+
+                            9. Contato
+                            Dúvidas? vitor.mvd@puccampinas.edu.br
+                    """.trimIndent(),
+                    fontSize = 14.sp,
+                    color = Color.Black
+                )
+            }
+        },
+        containerColor = Color.White,
+        shape = RoundedCornerShape(16.dp)
+    )
+}

@@ -4,11 +4,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +29,8 @@ import br.edu.puc.superid.R
 
 @Composable
 fun CreateAccountScreen(navController: NavHostController) {
+    var showTerms by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -137,10 +145,66 @@ fun CreateAccountScreen(navController: NavHostController) {
                         text = "Termos de Uso",
                         color = Color(0xFF3A5BFF),
                         fontSize = 15.sp,
-                        modifier = Modifier.clickable { /* Navigate to Terms */ }
+                        modifier = Modifier.clickable { showTerms = true }
                     )
                 }
             }
         }
+    }
+
+    if (showTerms) {
+        AlertDialog(
+            onDismissRequest = { showTerms = false },
+            confirmButton = {
+                TextButton(onClick = { showTerms = false }) {
+                    Text("Fechar")
+                }
+            },
+            title = { Text("Termos de Uso") },
+            text = {
+                Box(
+                    modifier = Modifier
+                        .height(300.dp) // Altura reduzida
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = """
+                            Bem-vindo ao SuperID. Ao utilizar nosso serviço, você concorda com estes Termos de Uso. Por favor, leia-os atentamente.
+
+                            1. Aceitação dos Termos
+                            Ao acessar ou utilizar o Aplicativo, você concorda em cumprir estes Termos de Uso e a nossa Política de Privacidade. Se você não concordar com qualquer parte dos termos, não utilize o Aplicativo.
+
+                            2. Uso do Aplicativo
+                            O SuperId permite que você armazene e gerencie suas senhas de forma segura. Ao utilizar o Aplicativo, você concorda em:
+                            • Fornecer informações verdadeiras e atualizadas.
+                            • Utilizar o Aplicativo apenas para fins legais e pessoais.
+                            • Não compartilhar ou revender o Aplicativo.
+
+                            3. Segurança
+                            Adotamos práticas como criptografia de dados e autenticação. Ainda assim, você reconhece que o uso é por sua conta e risco.
+
+                            4. Responsabilidades do Usuário
+                            Você é responsável por manter a confidencialidade do seu login e senha.
+
+                            5. Propriedade Intelectual
+                            Todos os direitos são do Desenvolvedor. Não copie ou modifique sem autorização.
+
+                            6. Modificações e Encerramento
+                            Podemos modificar ou descontinuar o Aplicativo a qualquer momento. O uso contínuo implica aceitação das mudanças.
+
+                            7. Limitação de Responsabilidade
+                            Não nos responsabilizamos por danos resultantes do uso ou da incapacidade de usar o Aplicativo.
+
+                            9. Contato
+                            Dúvidas? vitor.mvd@puccampinas.edu.br
+                        """.trimIndent(),
+                        fontSize = 12.sp,
+                        color = Color.Black
+                    )
+                }
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(16.dp)
+        )
     }
 }
