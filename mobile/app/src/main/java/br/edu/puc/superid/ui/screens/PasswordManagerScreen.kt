@@ -299,85 +299,126 @@ fun CategoryItem(
     name: String,
     count: Int,
     onClick: () -> Unit,
-    isEditMode: Boolean, // Recebe o estado de edição
-    onDeleteClick: (Boolean) -> Unit // Ação de excluir, agora passa o resultado da exclusão (sucesso ou falha)
+    isEditMode: Boolean,
+    onDeleteClick: (Boolean) -> Unit
 ) {
-    var showDeleteDialog by remember { mutableStateOf(false) } // Estado para exibir o diálogo
-    var showSnackbar by remember { mutableStateOf(false) } // Estado para exibir o Snackbar
-    var snackbarMessage by remember { mutableStateOf("") } // Mensagem do Snackbar
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showSnackbar by remember { mutableStateOf(false) }
+    var snackbarMessage by remember { mutableStateOf("") }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            Text(name, color = Color.White, fontSize = 16.sp)
-            Text("$count senhas", color = Color.LightGray, fontSize = 12.sp)
-        }
-
-        // Mostrar o ícone de lixeira apenas se o modo de edição estiver ativado
-        if (isEditMode) {
-            IconButton(
-                onClick = { showDeleteDialog = true }, // Exibe o diálogo de confirmação
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Excluir Categoria",
-                    tint = Color.Red
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White
+                )
+                Text(
+                    text = "$count senhas",
+                    color = Color.LightGray,
+                    fontSize = 12.sp
                 )
             }
-        } else {
-            Spacer(modifier = Modifier.width(32.dp)) // Espaço onde o ícone de excluir estaria
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isEditMode) {
+                    IconButton(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Excluir Categoria",
+                            tint = Color.Red
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "Ver mais",
+                    tint = Color.White
+                )
+            }
         }
 
-        Icon(Icons.Default.ArrowForward, contentDescription = "Ver mais", tint = Color.White)
-    }
+        // Diálogo de confirmação
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                confirmButton = {
+                    TextButton(onClick = {
+                        onDeleteClick(true)
+                        showSnackbar = true
+                        snackbarMessage = "Categoria '$name' excluída com sucesso!"
+                        showDeleteDialog = false
+                    }) {
+                        Text("Confirmar", color = Color(0xFF3366FF), fontSize = 17.sp)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) {
+                        Text("Cancelar", color = Color.Gray, fontSize = 17.sp)
+                    }
+                },
+                title = {
+                    Text(
+                        "Excluir categoria",
+                        color = Color(0xFF3366FF),
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        "Tem certeza que deseja excluir a categoria \"$name\"?",
+                        color = Color.LightGray,
+                        fontSize = 18.sp
+                    )
+                },
+                containerColor = Color(0xFF000000), // Cor de fundo escura personalizada
+                shape = RoundedCornerShape(15.dp), // Borda arredondada
+                modifier = Modifier.border(
+                    width = 2.dp,
+                    color = Color(0xFF3366FF), // Cor da borda
+                    shape = RoundedCornerShape(15.dp)
+                )
+            )
+        }
 
-    // Diálogo de confirmação de exclusão
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    onDeleteClick(true) // Chama a função de deletar e sinaliza sucesso
-                    showSnackbar = true
-                    snackbarMessage = "Categoria '$name' excluída com sucesso!" // Mensagem de sucesso
-                    showDeleteDialog = false
-                }) {
-                    Text("Confirmar")
+        // Snackbar de sucesso
+        if (showSnackbar) {
+            Snackbar(
+                modifier = Modifier.padding(16.dp),
+                containerColor = Color(0xFF1E1E1E),
+                contentColor = Color.White,
+                content = { Text(snackbarMessage) },
+                action = {
+                    Button(
+                        onClick = { showSnackbar = false },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF3366FF),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        Text("Fechar")
+                    }
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancelar")
-                }
-            },
-            title = { Text("Excluir categoria") },
-            text = { Text("Tem certeza que deseja excluir a categoria \"$name\"?") },
-            containerColor = Color.White
-        )
-    }
+            )
+        }
 
-    // Exibindo a mensagem de sucesso após a exclusão
-    if (showSnackbar) {
-        Snackbar(
-            modifier = Modifier.padding(16.dp),
-            content = { Text(snackbarMessage) },
-            action = {
-                Button(onClick = { showSnackbar = false }) {
-                    Text("Fechar")
-                }
-            }
-        )
     }
 }
-
-
 
 @Composable
 fun BottomNavigationBar(

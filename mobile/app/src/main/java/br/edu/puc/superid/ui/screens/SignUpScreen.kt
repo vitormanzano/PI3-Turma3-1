@@ -382,13 +382,20 @@ fun TermsDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Fechar", color = Color(0xFF3366FF))
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF3366FF), // Cor de fundo
+                    contentColor = Color.White // Cor do texto
+                )
+            ) {
+                Text("Fechar")
             }
         },
         title = {
             Text(
                 text = "Termos de Uso",
+                color = Color(0xFF3366FF),
                 fontWeight = FontWeight.Bold
             )
         },
@@ -430,11 +437,17 @@ fun TermsDialog(onDismiss: () -> Unit) {
                             Dúvidas? vitor.mvd@puccampinas.edu.br
                     """.trimIndent(),
                     fontSize = 14.sp,
-                    color = Color.Black
+                    color = Color.White
                 )
             }
         },
-        containerColor = Color.White,
+        modifier = Modifier
+            .border(
+                width = 2.dp,
+                color = Color (0xFF3366FF),
+                shape = RoundedCornerShape(16.dp)
+            ),
+        containerColor = Color.DarkGray,
         shape = RoundedCornerShape(16.dp)
     )
 }

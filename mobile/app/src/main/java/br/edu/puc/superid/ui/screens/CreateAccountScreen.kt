@@ -2,6 +2,7 @@ package br.edu.puc.superid.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -156,11 +157,23 @@ fun CreateAccountScreen(navController: NavHostController) {
         AlertDialog(
             onDismissRequest = { showTerms = false },
             confirmButton = {
-                TextButton(onClick = { showTerms = false }) {
+                Button(
+                    onClick = { showTerms = false },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF3366FF), // Cor de fundo
+                        contentColor = Color.White // Cor do texto
+                    )
+                ) {
                     Text("Fechar")
                 }
             },
-            title = { Text("Termos de Uso") },
+            title = {
+                Text(
+                    text = "Termos de Uso",
+                    color = Color(0xFF3366FF),
+                    fontWeight = FontWeight.Bold
+                )
+            },
             text = {
                 Box(
                     modifier = Modifier
@@ -198,12 +211,18 @@ fun CreateAccountScreen(navController: NavHostController) {
                             9. Contato
                             Dúvidas? vitor.mvd@puccampinas.edu.br
                         """.trimIndent(),
-                        fontSize = 12.sp,
-                        color = Color.Black
+                        fontSize = 14.sp,
+                        color = Color.White
                     )
                 }
             },
-            containerColor = Color.White,
+            modifier = Modifier
+                .border(
+                    width = 2.dp,
+                    color = Color (0xFF3366FF),
+                    shape = RoundedCornerShape(16.dp)
+                ),
+            containerColor = Color.DarkGray,
             shape = RoundedCornerShape(16.dp)
         )
     }
