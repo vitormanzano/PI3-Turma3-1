@@ -6,7 +6,7 @@ export function createApp() {
 
     app.use(express.json()); //Diz que vai usar json
 
-    app.use("/", router)
+    app.use(router) //Usa as rotas do router
 
     return app;
 }
