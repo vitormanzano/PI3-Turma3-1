@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.auth.AuthHandler
 import br.edu.puc.superid.database.FirestoreHandler
@@ -55,7 +56,7 @@ fun PasswordManagerScreen(navController: NavHostController) {
     Scaffold(
         containerColor = Color.Black,
         topBar = { TopBar("${userName.value}") },
-        bottomBar = { BottomNavigationBar() }
+        bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -422,12 +423,17 @@ fun CategoryItem(
 
 @Composable
 fun BottomNavigationBar(
-
+    navController: NavController,
     selectedIndex: Int = 0,
     onItemSelected: (Int) -> Unit = {}
 ) {
+    val items = listOf(
+        NavigationItem(Icons.Default.Home, "mainScreen"),
+        NavigationItem(Icons.Default.QrCodeScanner, "qrcode"),
+        NavigationItem(Icons.Default.Settings, "settings")
+    )
+
     Column {
-        // Linha de separação acima da BottomBar
         Divider(
             color = Color(0xFF3366FF),
             thickness = 0.8.dp
@@ -437,24 +443,27 @@ fun BottomNavigationBar(
             containerColor = Color.Black,
             contentColor = Color.White
         ) {
-            val items = listOf(
-                Icons.Default.Home,
-                Icons.Default.QrCodeScanner,
-                Icons.Default.Settings
-            )
-
-            items.forEachIndexed { index, icon ->
+            items.forEachIndexed { index, item ->
                 NavigationBarItem(
                     selected = selectedIndex == index,
-                    onClick = { onItemSelected(index) },
+                    onClick = {
+                        onItemSelected(index)
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
                     icon = {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(
-                                imageVector = icon,
+                                imageVector = item.icon,
                                 contentDescription = null,
                                 tint = if (selectedIndex == index) Color(0xFF3366FF) else Color.White,
                                 modifier = Modifier.size(
-                                    if (icon == Icons.Default.QrCodeScanner) 36.dp else 30.dp
+                                    if (item.icon == Icons.Default.QrCodeScanner) 36.dp else 30.dp
                                 )
                             )
                             Spacer(modifier = Modifier.height(4.dp))
@@ -477,5 +486,8 @@ fun BottomNavigationBar(
         }
     }
 }
+
+data class NavigationItem(val icon: ImageVector, val route: String)
+
 
 
