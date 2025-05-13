@@ -33,12 +33,12 @@ export const loginUser = async (req: Request, res: Response) => {
 
         httpResponse = await loginUserService.execute(user);
 
-        return res.status(httpResponse.statusCode).json(httpResponse.body);
+        res.status(httpResponse.statusCode).json(httpResponse.body);
     }
 
     catch (error) {
         console.log(error);
 
-        return res.status(400).json(error)
+        res.status(400).json(error)
     }
 }

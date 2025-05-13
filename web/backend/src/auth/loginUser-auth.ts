@@ -6,7 +6,7 @@ export async function loginUserAuth(userData: IUserLoginModel): Promise<Boolean>
     const auth = getAuth(app);
     var hasCreated: Boolean = false;
 
-    signInWithEmailAndPassword(auth, userData.email, userData.password) 
+    await signInWithEmailAndPassword(auth, userData.email, userData.password) 
         .then((userCredential) => {
             const user = userCredential.user;
             hasCreated = true;
