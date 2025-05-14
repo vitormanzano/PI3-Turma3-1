@@ -65,6 +65,11 @@ class AuthHandler {
         return user?.uid
     }
 
+    fun obterUser(): FirebaseUser? {
+        val user = auth.currentUser
+        return user
+    }
+
     fun enviarEmailParaVerificacao(user: FirebaseUser) {
         user.sendEmailVerification()
             .addOnCompleteListener { verificationTask ->
@@ -78,10 +83,9 @@ class AuthHandler {
             }
     }
 
-    fun emailFoiVerificado(onResult: (Boolean) -> Unit) {
-        val user = auth.currentUser
+    fun emailFoiVerificado(user: FirebaseUser, onResult: (Boolean) -> Unit) {
 
-        user?.reload()?.addOnCompleteListener { task ->
+        user.reload().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val verificado = user.isEmailVerified
                 Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
