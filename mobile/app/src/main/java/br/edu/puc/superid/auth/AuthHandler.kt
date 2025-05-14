@@ -5,6 +5,7 @@ import br.edu.puc.superid.database.FirestoreHandler
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -41,18 +42,11 @@ class AuthHandler {
                     db.cadastrarUsuario(nome, uid, imei)
 
                     val user = auth.currentUser
-                    user?.sendEmailVerification()
-                        ?.addOnCompleteListener { verificationTask ->
-                            if (verificationTask.isSuccessful) {
-                                Log.i("VERIFICATION", "Email enviado")
-                            }
-                            else {
-                                Log.e("VERIFICATION", "Email não enviado")
-                            }
-                        }
+                    enviarEmailParaVerificacao(user!!)
 
                     onResult(true, "Conta criada com sucesso!")
-                } else {
+                }
+                else {
                     val exceptionAuth = task.exception
                     val errorMessage = when (exceptionAuth) {
                         is FirebaseAuthWeakPasswordException -> "Senha deve ter no mínimo 6 caracteres!"
@@ -71,14 +65,30 @@ class AuthHandler {
         return user?.uid
     }
 
+    fun enviarEmailParaVerificacao(user: FirebaseUser) {
+        user.sendEmailVerification()
+            .addOnCompleteListener { verificationTask ->
+                if (verificationTask.isSuccessful) {
+                    Log.i("VERIFICATION", "Email enviado")
+                }
+
+                else {
+                    Log.e("VERIFICATION", "Email não enviado")
+                }
+            }
+    }
+
     fun emailFoiVerificado(onResult: (Boolean) -> Unit) {
         val user = auth.currentUser
+
         user?.reload()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val verificado = user.isEmailVerified
                 Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
                 onResult(verificado)
-            } else {
+
+            }
+            else {
                 Log.e("EMAIL", "Erro ao recarregar usuário: ${task.exception}")
                 onResult(false) // ou trate como desejar
             }
