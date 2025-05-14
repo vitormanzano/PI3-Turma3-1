@@ -84,7 +84,6 @@ class AuthHandler {
     }
 
     fun emailFoiVerificado(user: FirebaseUser, onResult: (Boolean) -> Unit) {
-
         user.reload().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val verificado = user.isEmailVerified
@@ -95,6 +94,20 @@ class AuthHandler {
             else {
                 Log.e("EMAIL", "Erro ao recarregar usuário: ${task.exception}")
                 onResult(false) // ou trate como desejar
+            }
+        }
+    }
+
+    fun enviarEmailParaRedefinirSenha(email: String) {
+        auth.sendPasswordResetEmail(email).continueWith { task ->
+            if (task.isCanceled) {
+                Log.e("RecuperarSenha", "Não foi possível mandar a recuperação de senha")
+            }
+            else if (task.isSuccessful) {
+                Log.e("RecuperarSenha", "recuperação de senha enviada com sucesso!")
+            }
+            else {
+                Log.e("RecuperarSenha", "Algo deu errado: " + task.exception)
             }
         }
     }
