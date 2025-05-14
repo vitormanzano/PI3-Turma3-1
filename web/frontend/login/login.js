@@ -46,7 +46,7 @@ async function performSignIn() {
 
     if (isValid(email, password)) {
         try {
-            const response = await fetch("http://localhost:3000/login", {
+            const response = await fetch("http://localhost:3000/user/login", {
                 method: 'GET',
                 headers: {
                     'email': email,

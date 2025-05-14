@@ -52,8 +52,8 @@ async function performSignUp() {
 
     if (isValidSignUp(completeName, email, password)) {
         try {
-            const response = await fetch("http://localhost:3000/signUp", {
-                method: 'PUT', // Usando POST para criar o cadastro
+            const response = await fetch("http://localhost:3333/user/signUp", {
+                method: 'POST', // Usando POST para criar o cadastro
                 headers: {
                     'name': completeName,
                     'email': email,
