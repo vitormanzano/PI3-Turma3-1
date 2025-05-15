@@ -53,33 +53,35 @@ async function performSignUp() {
     if (isValidSignUp(completeName, email, password)) {
         try {
             const response = await fetch("http://localhost:3000/signUp", {
-                method: 'PUT', // Usando POST para criar o cadastro
+                method: 'PUT',
                 headers: {
-                    'name': completeName,
-                    'email': email,
-                    'password': password,
-                }
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    completeName: completeName,
+                    email: email,
+                    password: password
+                })
             });
 
             if (!response.ok) {
-                const errorText = await response.text(); // Lê como texto
+                const errorText = await response.text();
                 showErrorMessage(errorText);
                 throw new Error(`Erro HTTP! Status: ${response.status}, Mensagem: ${errorText}`);
             }
 
-            // Exibe a mensagem de sucesso após o cadastro
             showSucessMessage("Cadastro realizado com sucesso!");
-
-            // Após um tempo, você pode redirecionar o usuário para a página de login ou outra
             setTimeout(() => {
-                window.location.href = "../signIn/"; // Redireciona para a página de login
-            }, 3000); // Aguarda 3 segundos para mostrar a mensagem de sucesso
+                window.location.href = "../login/login.html";
+            }, 3000);
 
         } catch (error) {
             console.error('Erro ao realizar cadastro:', error);
         }
     }
 }
+
+
 
 function togglePasswordVisibility() {
     const passwordInput = document.getElementById('password');
