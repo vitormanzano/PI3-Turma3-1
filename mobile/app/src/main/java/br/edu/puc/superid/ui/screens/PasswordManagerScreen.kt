@@ -97,6 +97,7 @@ fun TopBar(userName: String = "Usuário") {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "Olá, $userName",
+                style = MaterialTheme.typography.titleLarge,
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Medium
@@ -386,11 +387,11 @@ fun CategoryItem(
                         fontSize = 18.sp
                     )
                 },
-                containerColor = Color(0xFF000000), // Cor de fundo escura personalizada
-                shape = RoundedCornerShape(15.dp), // Borda arredondada
+                containerColor = Color(0xFF000000),
+                shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.border(
                     width = 2.dp,
-                    color = Color(0xFF3366FF), // Cor da borda
+                    color = Color(0xFF3366FF),
                     shape = RoundedCornerShape(15.dp)
                 )
             )

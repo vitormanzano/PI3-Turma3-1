@@ -11,10 +11,29 @@ import br.edu.puc.superid.R
 
 val BebasNeue = FontFamily(
     Font(R.font.bebas_neue_regular)
-
 )
-// Set of Material typography styles to start with
+
 val Typography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Normal,
+        fontSize = 48.sp
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp
+    ),
     bodyLarge = TextStyle(
         fontFamily = BebasNeue,
         fontWeight = FontWeight.Normal,
@@ -22,10 +41,15 @@ val Typography = Typography(
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
-    titleLarge = TextStyle(
+    bodyMedium = TextStyle(
         fontFamily = BebasNeue,
-        fontWeight = FontWeight.Bold,
-        fontSize = 28.sp
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
     )
 )
 

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,10 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import kotlinx.coroutines.launch
@@ -44,17 +41,16 @@ fun FirstTimeScreen(navController: NavHostController) {
             .padding(24.dp)
             .padding(bottom = 32.dp)
     ) {
-        // Contêiner principal com o conteúdo
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(bottom = 72.dp), // Deixe espaço para o botão
+                .padding(bottom = 72.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.weight(1f) // O conteúdo ocupa o restante do espaço
+                modifier = Modifier.weight(1f)
             ) { page ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -72,11 +68,12 @@ fun FirstTimeScreen(navController: NavHostController) {
 
                     Text(
                         text = pages[page],
+                        style = MaterialTheme.typography.titleLarge,
                         color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 26.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
                     )
                 }
             }
@@ -87,23 +84,27 @@ fun FirstTimeScreen(navController: NavHostController) {
             )
         }
 
-        // Botão "Próximo" sempre na parte inferior, com um pequeno espaço
         Button(
             onClick = {
                 scope.launch {
                     if (pagerState.currentPage < pages.lastIndex) {
                         pagerState.animateScrollToPage(pagerState.currentPage + 1)
                     } else {
-                        navController.navigate("createAccount")                    }
+                        navController.navigate("createAccount")
+                    }
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3366FF)),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .align(Alignment.BottomCenter) // Fixando o botão na parte inferior
+                .align(Alignment.BottomCenter)
         ) {
-            Text(text = "Próximo", fontSize = 16.sp)
+            Text(
+                text = "Próximo",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White
+            )
         }
     }
 }
@@ -123,7 +124,7 @@ fun PagerIndicator(
                 modifier = Modifier
                     .padding(horizontal = 4.dp)
                     .height(8.dp)
-                    .width(if (index == currentPage) 16.dp else 32.dp) // Agora o inverso!
+                    .width(if (index == currentPage) 16.dp else 32.dp)
                     .background(
                         color = if (index == currentPage) Color(0xFF3366FF) else Color.White,
                         shape = CircleShape
@@ -132,7 +133,3 @@ fun PagerIndicator(
         }
     }
 }
-
-
-
-

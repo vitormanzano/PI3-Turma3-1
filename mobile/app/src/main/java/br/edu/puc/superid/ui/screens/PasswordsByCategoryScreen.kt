@@ -1,7 +1,9 @@
 package br.edu.puc.superid.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -124,17 +126,31 @@ fun PasswordsByCategoryScreen(
                         }
                     }
                 }) {
-                    Text("Confirmar")
+                    Text("Confirmar", color = Color(0xFF3366FF), fontSize = 17.sp)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { senhaSelecionada = null }) {
-                    Text("Cancelar")
+                    Text("Cancelar", color = Color.Gray, fontSize = 17.sp)
                 }
             },
-            title = { Text("Excluir senha") },
-            text = { Text("Tem certeza que deseja excluir a senha \"${senha.nome}\"?") },
-            containerColor = Color.White
+            title = { Text("Excluir senha",
+                color = Color(0xFF3366FF),
+                fontSize = 23.sp,
+                fontWeight = FontWeight.Bold
+            )
+            },
+            text = { Text("Tem certeza que deseja excluir a senha \"${senha.nome}\"?",
+                color = Color.LightGray,
+                fontSize = 18.sp
+            ) },
+            containerColor = Color(0xFF000000),
+            shape = RoundedCornerShape(15.dp),
+            modifier = Modifier.border(
+                width = 2.dp,
+                color = Color(0xFF3366FF),
+                shape = RoundedCornerShape(15.dp)
+            )
         )
     }
 
