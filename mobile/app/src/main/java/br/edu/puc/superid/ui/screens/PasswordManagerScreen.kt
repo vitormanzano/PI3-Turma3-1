@@ -41,8 +41,10 @@ fun PasswordManagerScreen(navController: NavHostController) {
     val firestore = FirestoreHandler()
     val userName = remember { mutableStateOf("") }
 
+    val user = auth.obterUser()
+
     LaunchedEffect(Unit) {
-        auth.emailFoiVerificado() { verificado ->
+        auth.emailFoiVerificado(user!!) { verificado ->
             isEmailVerified.value = verificado
         }
     }
