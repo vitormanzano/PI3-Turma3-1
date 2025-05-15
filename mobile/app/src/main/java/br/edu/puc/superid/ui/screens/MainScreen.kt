@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import br.edu.puc.superid.database.FirestoreHandler
 import kotlinx.coroutines.launch
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavHostController) {
@@ -47,11 +48,8 @@ fun MainScreen(navController: NavHostController) {
         categorias = resultado
     }
 
-    Log.i("CATEGORIAS", categorias.toString())
-
     var expanded by remember { mutableStateOf(false) }
     var editMode by remember { mutableStateOf(false) }
-
     val fabPosition = remember { mutableStateOf(Offset.Zero) }
 
     ModalNavigationDrawer(
@@ -65,14 +63,13 @@ fun MainScreen(navController: NavHostController) {
                 Text(
                     text = "Menu",
                     modifier = Modifier.padding(16.dp),
-                    fontWeight = FontWeight.Bold,
-                    color = textColor,
-                    fontSize = 20.sp
+                    style = MaterialTheme.typography.titleMedium,
+                    color = textColor
                 )
                 Divider(color = Color.White.copy(alpha = 0.2f))
 
                 NavigationDrawerItem(
-                    label = { Text("Minhas Senhas") },
+                    label = { Text("Minhas Senhas", style = MaterialTheme.typography.bodyMedium) },
                     selected = true,
                     onClick = { },
                     icon = {
@@ -95,7 +92,13 @@ fun MainScreen(navController: NavHostController) {
             containerColor = backgroundColor,
             topBar = {
                 TopAppBar(
-                    title = { Text("Minhas senhas", color = textColor) },
+                    title = {
+                        Text(
+                            "Minhas senhas",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = textColor
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = {
                             coroutineScope.launch { drawerState.open() }
@@ -128,14 +131,14 @@ fun MainScreen(navController: NavHostController) {
                         modifier = Modifier.background(sectionBackground)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Nova Senha", color = Color.White) },
+                            text = { Text("Nova Senha", style = MaterialTheme.typography.bodyMedium, color = Color.White) },
                             onClick = {
                                 navController.navigate("signuppassword")
                                 expanded = false
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Nova Categoria", color = Color.White) },
+                            text = { Text("Nova Categoria", style = MaterialTheme.typography.bodyMedium, color = Color.White) },
                             onClick = { expanded = false }
                         )
                     }
@@ -164,8 +167,8 @@ fun MainScreen(navController: NavHostController) {
                             TextButton(onClick = { editMode = !editMode }) {
                                 Text(
                                     if (editMode) "Cancelar" else "Editar",
-                                    color = if(editMode) Color(0xFFFF5858) else iconColor,
-                                    fontWeight = FontWeight.Bold
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (editMode) Color(0xFFFF5858) else iconColor
                                 )
                             }
                         }
@@ -173,15 +176,14 @@ fun MainScreen(navController: NavHostController) {
                         categorias.forEach { nome ->
                             ItemRow(
                                 label = nome.toString(),
-                                icon = Icons.Filled.Lock, // Use um ícone padrão, ou escolha dinamicamente
-                                count = "0", // Pode trocar para a quantidade de senhas se quiser
+                                icon = Icons.Filled.Lock,
+                                count = "0",
                                 iconColor = iconColor,
                                 editMode = editMode,
                                 onEditClick = { /* Lógica de edição */ },
                                 onDeleteClick = { /* Lógica de exclusão */ }
                             )
                         }
-
                     }
                 }
             }
@@ -194,8 +196,7 @@ fun SectionTitle(title: String, color: Color) {
     Text(
         text = title,
         color = color,
-        fontSize = 14.sp,
-        fontWeight = FontWeight.SemiBold,
+        style = MaterialTheme.typography.bodySmall,
         modifier = Modifier.padding(bottom = 8.dp)
     )
 }
@@ -225,14 +226,14 @@ fun ItemRow(
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = label,
+            style = MaterialTheme.typography.bodyLarge,
             color = Color.White,
-            fontSize = 16.sp,
             modifier = Modifier.weight(1f)
         )
         Text(
             text = count,
-            color = Color.Gray,
-            fontSize = 14.sp
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray
         )
         if (editMode) {
             IconButton(onClick = onEditClick) {

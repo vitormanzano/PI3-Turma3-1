@@ -23,9 +23,11 @@
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/CreateAccountScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/CreateAccountScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/FirstTimeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/FirstTimeScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/MainScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/MainScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/PasswordManagerScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/PasswordManagerScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/SignUpScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/SignUpScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/PasswordsByCategoryScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/screens/PasswordsByCategoryScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/theme/Type.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/br/edu/puc/superid/ui/theme/Type.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

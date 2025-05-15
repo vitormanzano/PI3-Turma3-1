@@ -1,7 +1,9 @@
-import { Request, Response, NextFunction} from "express";
+import { Request, Response, NextFunction } from "express";
 import { IUserModel } from "../models/user-model";
-import { SignUpUserService } from "../services/user/signup-service";
+import { IUserLoginModel } from "../models/userLogin-model";
 import { IHttpResponseModel } from "../models/httpResponse-model";
+import { SignUpUserService } from "../services/user/signUpUser-service";
+import { LoginUserService } from "../services/user/loginUser-service";
 
 export const signUpUser = async (
   req: Request,
@@ -15,6 +17,22 @@ export const signUpUser = async (
 
     res.status(httpResponse.statusCode).json(httpResponse.body);
   } catch (error) {
-    next(error);  // Use next para repassar erro para o middleware de erro do express
+    next(error);  // repassa erro para o middleware de tratamento de erro
+  }
+};
+
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const user = req.body as IUserLoginModel;
+    const loginUserService = new LoginUserService();
+    const httpResponse = await loginUserService.execute(user);
+
+    res.status(httpResponse.statusCode).json(httpResponse.body);
+  } catch (error) {
+    next(error);
   }
 };

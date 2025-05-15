@@ -54,6 +54,7 @@ async function performSignUp() {
         try {
             const response = await fetch("http://localhost:3000/signUp", {
                 method: 'PUT',
+
                 headers: {
                     'Content-Type': 'application/json'
                 },
