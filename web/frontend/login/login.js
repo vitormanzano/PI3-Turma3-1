@@ -46,44 +46,45 @@ async function performSignIn() {
 
     if (isValid(email, password)) {
         try {
-            const response = await fetch("http://localhost:3000/user/login", {
-                method: 'GET',
+            const response = await fetch("http://localhost:3000/login", {
+                method: 'POST', // corrigido para POST
                 headers: {
-                    'email': email,
-                    'password': password,
-                }
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
             });
 
             if (!response.ok) {
-                const errorText = await response.text(); // Lê como texto
+                const errorText = await response.text();
                 showErrorMessage(errorText);
                 throw new Error(`Erro HTTP! Status: ${response.status}, Mensagem: ${errorText}`);
             }
 
-            const resultText = await response.text(); // Lê a resposta como texto
+            const result = await response.json(); // resposta JSON esperada
 
-            // Extrai o token da resposta
-            const tokenMatch = resultText.match(/Token\s*:\s*(\w+)/); // Corrigido para corresponder ao formato da resposta
-            if (tokenMatch) {
-                const token = tokenMatch[1]; // O token será a primeira captura
+            const token = result.token;
 
-                // Armazena o token no localStorage (ou sessionStorage)
-                localStorage.setItem('authToken', token); // ou sessionStorage.setItem('authToken', token);
-
-                showSucessMessage("Login realizado com sucesso!")
-
+            if (token) {
+                localStorage.setItem('authToken', token);
+                showSucessMessage("Login realizado com sucesso!");
                 setTimeout(() => {
                     window.location.href = "../home_page/";
                 }, 2000);
             } else {
-                console.error("Token não encontrado na resposta.");
+                showErrorMessage("Token não recebido do servidor.");
+                console.error("Token não encontrado na resposta:", result);
             }
 
         } catch (error) {
             console.error('Erro ao realizar login:', error);
+            showErrorMessage("Erro ao realizar login.");
         }
     }
 }
+
 
 function togglePasswordVisibility() {
     const passwordInput = document.getElementById('password');

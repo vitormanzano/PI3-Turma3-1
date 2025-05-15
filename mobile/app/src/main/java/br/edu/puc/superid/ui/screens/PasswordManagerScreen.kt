@@ -28,6 +28,7 @@ import br.edu.puc.superid.auth.AuthHandler
 import br.edu.puc.superid.database.FirestoreHandler
 import br.edu.puc.superid.database.Senha
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -67,7 +68,9 @@ fun PasswordManagerScreen(navController: NavHostController) {
                 .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            EmailVerificationCard(isEmailVerified = isEmailVerified.value)
+            if (user != null) {
+                EmailVerificationCard(isEmailVerified = isEmailVerified.value, user, auth)
+            }
             Spacer(modifier = Modifier.height(24.dp))
             QuickActionsBar(navController) { isEditMode = it }
             Spacer(modifier = Modifier.height(24.dp))
@@ -110,7 +113,11 @@ fun TopBar(userName: String = "Usuário") {
 
 
 @Composable
-fun EmailVerificationCard(isEmailVerified: Boolean = false) {
+fun EmailVerificationCard(
+    isEmailVerified: Boolean = false,
+    user: FirebaseUser,
+    auth: AuthHandler
+) {
     val backgroundColor = if (isEmailVerified) Color(0xFF4CAF50) else Color(0xFF3366FF)
     val statusText = if (isEmailVerified) "E-mail verificado!" else "E-mail não verificado, você não poderá recuperar sua senha mestra!"
     val actionText = if (isEmailVerified) "Tudo certo!" else "Verificar agora"
@@ -128,7 +135,9 @@ fun EmailVerificationCard(isEmailVerified: Boolean = false) {
             Spacer(modifier = Modifier.height(12.dp))
             if (!isEmailVerified) {
                 Button(
-                    onClick = { /* Acionar envio de verificação */ },
+                    onClick = {
+                        auth.enviarEmailParaVerificacao(user)
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     shape = RoundedCornerShape(50)
                 ) {
