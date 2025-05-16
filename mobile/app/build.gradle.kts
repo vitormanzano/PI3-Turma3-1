@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "br.edu.puc.superid"
-        minSdk = 33
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -64,6 +64,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+
+
     //Dependências do firebase
     implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
     implementation("com.google.firebase:firebase-analytics")
@@ -94,5 +96,7 @@ dependencies {
 
 // Permissões
     implementation ("androidx.activity:activity-compose:1.7.2")
+
+    
 
 }

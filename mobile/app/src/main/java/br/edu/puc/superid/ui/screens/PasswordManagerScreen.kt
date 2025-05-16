@@ -1,6 +1,7 @@
 package br.edu.puc.superid.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,11 +20,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import br.edu.puc.superid.R
 import br.edu.puc.superid.auth.AuthHandler
 import br.edu.puc.superid.database.FirestoreHandler
 import br.edu.puc.superid.database.Senha
@@ -31,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+
 
 @Composable
 fun PasswordManagerScreen(navController: NavHostController) {
@@ -51,66 +55,49 @@ fun PasswordManagerScreen(navController: NavHostController) {
     }
 
     LaunchedEffect(Unit) {
-        firestore.obterNomeUsuario() {nome ->
+        firestore.obterNomeUsuario() { nome ->
             userName.value = nome
         }
     }
 
     Scaffold(
         containerColor = Color.Black,
-        topBar = { TopBar("${userName.value}") },
+        topBar = { TopBar() },
         bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 24.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             if (user != null) {
                 EmailVerificationCard(isEmailVerified = isEmailVerified.value, user, auth)
             }
             Spacer(modifier = Modifier.height(24.dp))
             QuickActionsBar(navController) { isEditMode = it }
             Spacer(modifier = Modifier.height(24.dp))
-            CategorySection(navController, isEditMode) // Passa o estado de edição
+            CategorySection(navController, isEditMode)
         }
     }
 }
 
 @Composable
-fun TopBar(userName: String = "Usuário") {
+fun TopBar() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = Color(0xFF0E2159),
-                shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
-            )
-            .padding(vertical = 20.dp, horizontal = 16.dp)
+            .padding(top = 8.dp, bottom = 8.dp),
+        contentAlignment = Alignment.TopCenter
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Default.Person,
-                contentDescription = null,
-                tint = Color(0xFF3366FF),
-                modifier = Modifier.size(30.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Olá, $userName",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
+        Image(
+            painter = painterResource(id = R.drawable.logo_png),
+            contentDescription = "Logo do App",
+            modifier = Modifier.size(150.dp)
+        )
     }
 }
-
 
 @Composable
 fun EmailVerificationCard(
@@ -118,37 +105,55 @@ fun EmailVerificationCard(
     user: FirebaseUser,
     auth: AuthHandler
 ) {
-    val backgroundColor = if (isEmailVerified) Color(0xFF4CAF50) else Color(0xFF3366FF)
-    val statusText = if (isEmailVerified) "E-mail verificado!" else "E-mail não verificado, você não poderá recuperar sua senha mestra!"
-    val actionText = if (isEmailVerified) "Tudo certo!" else "Verificar agora"
+    var showCard by remember { mutableStateOf(true) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(backgroundColor, shape = RoundedCornerShape(16.dp))
-            .padding(24.dp)
-    ) {
-        Column {
-            Text("Status do e-mail", color = Color.White.copy(alpha = 0.7f), fontSize = 16.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(statusText, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Spacer(modifier = Modifier.height(12.dp))
-            if (!isEmailVerified) {
-                Button(
-                    onClick = {
-                        auth.enviarEmailParaVerificacao(user)
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Icon(Icons.Default.Email, contentDescription = null, tint = Color.Black)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(actionText, color = Color.Black)
+    val backgroundColor = Color(0xFF3366FF)
+    val statusText = if (isEmailVerified) "E-mail verificado!" else "E-mail não verificado, você não poderá recuperar sua senha mestra!"
+    val actionText = if (isEmailVerified) "OK" else "Verificar agora"
+
+    if (showCard) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(backgroundColor, shape = RoundedCornerShape(16.dp))
+                .padding(24.dp)
+        ) {
+            Column {
+                Text("Status do e-mail", color = Color.White.copy(alpha = 0.7f), fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(statusText, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (isEmailVerified) {
+                    Button(
+                        onClick = {
+                            showCard = false // fecha a box
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.Black)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(actionText, color = Color.Black)
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            auth.enviarEmailParaVerificacao(user)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        Icon(Icons.Default.Email, contentDescription = null, tint = Color.Black)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(actionText, color = Color.Black)
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolean) -> Unit) {
@@ -442,7 +447,7 @@ fun BottomNavigationBar(
     val items = listOf(
         NavigationItem(Icons.Default.Home, "mainScreen"),
         NavigationItem(Icons.Default.QrCodeScanner, "qrcode"),
-        NavigationItem(Icons.Default.Settings, "settings")
+        NavigationItem(Icons.Default.Settings, "perfil")
     )
 
     Column {

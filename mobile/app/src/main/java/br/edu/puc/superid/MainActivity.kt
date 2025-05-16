@@ -24,6 +24,7 @@ import androidx.navigation.navArgument
 import br.edu.puc.superid.ui.screens.EditPasswordScreen
 import br.edu.puc.superid.ui.screens.PasswordManagerScreen
 import br.edu.puc.superid.ui.screens.PasswordsByCategoryScreen
+import br.edu.puc.superid.ui.screens.ProfileScreen
 import br.edu.puc.superid.ui.screens.QRCodeScannerScreen
 import br.edu.puc.superid.ui.screens.SignUpCategoryScreen
 import br.edu.puc.superid.ui.screens.SignUpPasswordScreen
@@ -60,6 +61,7 @@ class MainActivity : ComponentActivity() {
                   composable("firstTime") { FirstTimeScreen(navController) }
                   composable("createAccount") { CreateAccountScreen(navController) }
                   composable("login") { LoginScreen(navController) }
+                  composable("perfil") { ProfileScreen(navController) }
                   composable("signup") { SignUpScreen(androidId, navController) }
                   composable("signuppassword") { SignUpPasswordScreen(navController) }
                   composable("signupcategory") { SignUpCategoryScreen(navController) }

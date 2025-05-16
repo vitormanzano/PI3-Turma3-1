@@ -70,6 +70,12 @@ class AuthHandler {
         return user
     }
 
+    fun deslogarUsuario() {
+        auth.signOut()
+        Log.i("AUTH", "Usuário deslogado com sucesso.")
+    }
+
+
     fun enviarEmailParaVerificacao(user: FirebaseUser) {
         user.sendEmailVerification()
             .addOnCompleteListener { verificationTask ->
