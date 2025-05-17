@@ -447,7 +447,7 @@ fun BottomNavigationBar(
     val items = listOf(
         NavigationItem(Icons.Default.Home, "mainScreen"),
         NavigationItem(Icons.Default.QrCodeScanner, "qrcode"),
-        NavigationItem(Icons.Default.Settings, "perfil")
+        NavigationItem(Icons.Default.Person, "perfil")
     )
 
     Column {
@@ -465,12 +465,15 @@ fun BottomNavigationBar(
                     selected = selectedIndex == index,
                     onClick = {
                         onItemSelected(index)
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                        val currentRoute = navController.currentBackStackEntry?.destination?.route
+                        if (currentRoute != item.route) {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
                     },
                     icon = {

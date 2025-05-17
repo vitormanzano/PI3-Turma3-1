@@ -3,7 +3,6 @@ package br.edu.puc.superid.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,10 +24,6 @@ import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import br.edu.puc.superid.auth.AuthHandler
 import br.edu.puc.superid.database.FirestoreHandler
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-
-
 
 @Composable
 fun ProfileScreen(navController: NavHostController) {
@@ -40,7 +35,7 @@ fun ProfileScreen(navController: NavHostController) {
     val user = auth.obterUser()
 
     LaunchedEffect(Unit) {
-        firestore.obterNomeUsuario() {nome ->
+        firestore.obterNomeUsuario { nome ->
             userName.value = nome
         }
     }
@@ -51,17 +46,23 @@ fun ProfileScreen(navController: NavHostController) {
             .background(Color.Black)
             .padding(24.dp)
     ) {
+
         // Botão de Voltar
         IconButton(
-            onClick = { navController.popBackStack() },
+            onClick = {
+                navController.navigate("mainScreen") {
+                    popUpTo(0) { inclusive = true }  // limpa tudo
+                    launchSingleTop = true
+                }
+            },
             modifier = Modifier.align(Alignment.TopStart)
         ) {
             Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
         }
 
-        // Logo centralizada no topo
+        // Logo
         Image(
-            painter = painterResource(id = R.drawable.logo_png), // sua logo
+            painter = painterResource(id = R.drawable.logo_png),
             contentDescription = "Logo",
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -75,14 +76,13 @@ fun ProfileScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(80.dp)) // espaço para não sobrepor com a logo
+            Spacer(modifier = Modifier.height(80.dp))
 
-            // Ícone de usuário (imagem enviada)
+            // Ícone de usuário
             Image(
                 painter = painterResource(id = R.drawable.profile_icon1),
                 contentDescription = "Ícone de Usuário",
-                modifier = Modifier
-                    .size(250.dp) // AUMENTADO
+                modifier = Modifier.size(250.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -135,4 +135,3 @@ fun ProfileScreen(navController: NavHostController) {
         }
     }
 }
-

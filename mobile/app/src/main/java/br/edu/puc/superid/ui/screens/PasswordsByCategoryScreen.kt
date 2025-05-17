@@ -54,7 +54,7 @@ fun PasswordsByCategoryScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = categoryName, color = Color.White, fontSize = 28.sp)
+                    Text(text = categoryName, color = Color(0xFF3366FF), fontSize = 28.sp)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -96,7 +96,7 @@ fun PasswordsByCategoryScreen(
                     )
                     if (index != senhas.lastIndex) {
                         Spacer(modifier = Modifier.height(12.dp))
-                        Divider(color = Color.Gray.copy(alpha = 0.3f), thickness = 1.dp)
+                        Divider(color = Color(0xFF3366FF).copy(alpha = 0.3f), thickness = 1.dp)
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
@@ -192,7 +192,7 @@ fun PasswordItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(senha.nome, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Text(senha.nome, color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(4.dp))
             Text(senha.login, color = Color.LightGray, fontSize = 20.sp)
             Spacer(modifier = Modifier.height(4.dp))
@@ -207,7 +207,7 @@ fun PasswordItem(
                     Icon(
                         imageVector = if (mostrarSenha) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                         contentDescription = "Ver senha",
-                        tint = Color.White
+                        tint = Color(0xFF3366FF)
                     )
                 }
             }
