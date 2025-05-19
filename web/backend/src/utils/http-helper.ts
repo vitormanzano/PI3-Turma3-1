@@ -37,7 +37,7 @@ export const notFound = async (data: any): Promise<IHttpResponseModel> => {
     };
 };
 
-export const serverError = async (error: Error): Promise<IHttpResponseModel> => {
+export const serverError = async (error: any): Promise<IHttpResponseModel> => {
     return  {
         statusCode: 500,
         body: error
