@@ -9,29 +9,27 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavHostController
+import br.edu.puc.superid.confirmLogin
+import br.edu.puc.superid.validQRCode
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
-import androidx.navigation.NavHostController
 import java.util.concurrent.Executors
 
 @Composable
@@ -42,7 +40,11 @@ fun QRCodeScannerScreen(navController: NavHostController) {
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
     var hasCameraPermission by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(1) } // index do scanner
+    var selectedIndex by remember { mutableStateOf(1) }
+
+    var lastScannedCode by remember { mutableStateOf("") }
+    var showMessage by remember { mutableStateOf(false) }
+    var messageText by remember { mutableStateOf("") }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -70,7 +72,7 @@ fun QRCodeScannerScreen(navController: NavHostController) {
 
         val barcodeScanner = BarcodeScanning.getClient()
         val imageAnalysis = ImageAnalysis.Builder()
-            .setTargetResolution(Size(640, 480)) // ou até menor se necessário
+            .setTargetResolution(Size(640, 480))
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
 
@@ -79,7 +81,7 @@ fun QRCodeScannerScreen(navController: NavHostController) {
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(context)) { imageProxy ->
             try {
                 val currentTime = System.currentTimeMillis()
-                if (currentTime - lastAnalyzedTime >= 1000L) {
+                if (currentTime - lastAnalyzedTime >= 2000L) {
                     lastAnalyzedTime = currentTime
 
                     val mediaImage = imageProxy.image
@@ -89,8 +91,23 @@ fun QRCodeScannerScreen(navController: NavHostController) {
                             .addOnSuccessListener { barcodes ->
                                 for (barcode in barcodes) {
                                     barcode.rawValue?.let { value ->
-                                        Log.d("QRCodeScanner", "QR Code lido: $value")
-                                        // Você pode navegar ou parar a análise aqui, se quiser.
+                                        if (value.length == 256 && value != lastScannedCode) {
+                                            lastScannedCode = value
+                                            Log.d("QRCodeScanner", "QR Code lido: $value")
+
+                                            validQRCode(
+                                                loginToken = value,
+                                                onSuccess = {
+                                                    confirmLogin(value)
+                                                    messageText = "Login confirmado com sucesso!"
+                                                    showMessage = true
+                                                },
+                                                onFailure = {
+                                                    messageText = "QR Code inválido ou já utilizado."
+                                                    showMessage = true
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -112,7 +129,6 @@ fun QRCodeScannerScreen(navController: NavHostController) {
         }
 
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
         try {
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
@@ -129,11 +145,7 @@ fun QRCodeScannerScreen(navController: NavHostController) {
                 BottomNavigationBar(
                     navController = navController,
                     selectedIndex = selectedIndex,
-                    onItemSelected = { index ->
-                        if (selectedIndex != index) {
-                            selectedIndex = index
-                        }
-                    }
+                    onItemSelected = { index -> selectedIndex = index }
                 )
             }
         ) { innerPadding ->
@@ -147,11 +159,25 @@ fun QRCodeScannerScreen(navController: NavHostController) {
                     modifier = Modifier.fillMaxSize()
                 )
                 ScannerOverlay()
+
+                if (showMessage) {
+                    Snackbar(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.BottomCenter),
+                        action = {
+                            TextButton(onClick = { showMessage = false }) {
+                                Text("OK")
+                            }
+                        }
+                    ) {
+                        Text(messageText)
+                    }
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun ScannerOverlay() {
@@ -161,17 +187,14 @@ fun ScannerOverlay() {
             .drawWithContent {
                 drawContent()
 
-                // Tamanho da área visível central
                 val rectSize = size.width * 0.7f
                 val left = (size.width - rectSize) / 2
                 val top = (size.height - rectSize) / 2
                 val right = left + rectSize
                 val bottom = top + rectSize
 
-                // Desenha o fundo escuro
                 drawRect(color = Color(0xAA000000))
 
-                // "Recorta" o centro visível (janela do scanner)
                 drawRect(
                     color = Color.Transparent,
                     topLeft = Offset(left, top),
@@ -179,7 +202,6 @@ fun ScannerOverlay() {
                     blendMode = BlendMode.Clear
                 )
 
-                // (Opcional) linhas nos cantos
                 drawLine(Color.White, Offset(left, top), Offset(left + 40f, top), strokeWidth = 5f)
                 drawLine(Color.White, Offset(left, top), Offset(left, top + 40f), strokeWidth = 5f)
                 drawLine(Color.White, Offset(right, top), Offset(right - 40f, top), strokeWidth = 5f)
@@ -191,4 +213,3 @@ fun ScannerOverlay() {
             }
     )
 }
-

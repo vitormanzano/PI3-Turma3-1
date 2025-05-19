@@ -17,6 +17,10 @@ export function createApp() {
         res.sendFile(path.resolve(__dirname, "../../frontend/login/login.html"));
     });
 
+    app.get('/qrCode', (req: Request, res: Response) => {
+        res.sendFile(path.resolve(__dirname, "../../frontend/qrCode/qrCode.html"));
+    });
+
     app.use("/", router);
     return app;
 }

@@ -6,3 +6,4 @@ export const router = Router();
 // Rota de cadastro
 router.put("/signUp", signUpUser);
 router.put("/login", loginUser);
+router.put("/qrCode");
