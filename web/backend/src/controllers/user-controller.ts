@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { IUserModel } from "../models/user-model";
 import { IUserLoginModel } from "../models/userLogin-model";
-import { IHttpResponseModel } from "../models/httpResponse-model";
 import { SignUpUserService } from "../services/user/signUpUser-service";
 import { LoginUserService } from "../services/user/loginUser-service";
 
@@ -16,7 +15,8 @@ export const signUpUser = async (
     const httpResponse = await signUpUserService.execute(user);
 
     res.status(httpResponse.statusCode).json(httpResponse.body);
-  } catch (error) {
+  } 
+  catch (error) {
     next(error);  // repassa erro para o middleware de tratamento de erro
   }
 };
