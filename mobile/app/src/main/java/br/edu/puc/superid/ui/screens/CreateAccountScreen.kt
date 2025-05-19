@@ -208,7 +208,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                             7. Limitação de Responsabilidade
                             Não nos responsabilizamos por danos resultantes do uso ou da incapacidade de usar o Aplicativo.
 
-                            9. Contato
+                            8. Contato
                             Dúvidas? vitor.mvd@puccampinas.edu.br
                         """.trimIndent(),
                         fontSize = 14.sp,
