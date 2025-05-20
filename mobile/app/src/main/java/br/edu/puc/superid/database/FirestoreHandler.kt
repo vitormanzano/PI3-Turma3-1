@@ -368,33 +368,7 @@ class FirestoreHandler {
             db.collection("categorias").add(docCategoria)
         }
     }
-
-    fun alterarCategoria(userUid: String, novoNomeCategoria: String) {
-        db.collection("categorias")
-            .whereEqualTo("uidUsuario", userUid)
-            .whereEqualTo("nome", novoNomeCategoria)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val document = documents.documents[0]
-                    val novosDados = hashMapOf<String, Any>("nome" to novoNomeCategoria)
-                    db.collection("categorias").document(document.id)
-                        .update(novosDados)
-                        .addOnSuccessListener {
-                            Log.d("FIRESTORE", "Categoria alterada")
-                        }
-                        .addOnFailureListener {
-                            Log.e("FIRESTORE", "Erro ao alterar")
-                        }
-                } else {
-                    Log.e("FIRESTORE", "Categoria NÃO encontrada")
-                }
-            }
-            .addOnFailureListener {
-                Log.e("FIRESTORE", "Erro ao buscar categoria")
-            }
-    }
-
+    
     fun obterNomeUsuario(onResult: (String) -> Unit) {
         val auth = AuthHandler()
         val userUid = auth.obterUidUsuario()
