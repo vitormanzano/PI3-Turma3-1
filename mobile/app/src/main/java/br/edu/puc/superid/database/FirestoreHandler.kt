@@ -26,7 +26,7 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.random.Random
 
 data class Senha (
-    var nome: String,
+    var descricao: String,
     var guid: String,
     var login: String,
     var nomeCategoria: String,
@@ -113,7 +113,7 @@ class FirestoreHandler {
         return UUID.randomUUID().toString()
     }
 
-    fun cadastrarSenha(nome: String, login: String?, categoria: String, senha: String) {
+    fun cadastrarSenha(descricao: String, login: String?, categoria: String, senha: String) {
         val guid = gerarGuid()
         val user = FirebaseAuth.getInstance().currentUser
         val userUid = user!!.uid
@@ -122,7 +122,7 @@ class FirestoreHandler {
         val senhaCriptografada = criptografarSenha(senha)
 
         val senhaData = hashMapOf(
-            "nome" to nome,
+            "descricao" to descricao,
             "guid" to guid,
             "login" to login,
             "nomeCategoria" to categoria,
@@ -141,14 +141,14 @@ class FirestoreHandler {
             }
     }
 
-    fun alterarSenha(guid: String, nome: String, login: String, nomeCategoria: String, senha: String) {
+    fun alterarSenha(guid: String, descricao: String, login: String, nomeCategoria: String, senha: String) {
         db.collection("senhas")
             .whereEqualTo("guid", guid)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val novosDados = hashMapOf<String, Any>(
-                        "nome" to nome,
+                        "descricao" to descricao,
                         "login" to login,
                         "nomeCategoria" to nomeCategoria,
                         "senha" to senha
@@ -217,7 +217,7 @@ class FirestoreHandler {
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
-                    val nome = document.getString("nome").toString()
+                    val descricao = document.getString("descricao").toString()
                     val guid = document.getString("guid").toString()
                     val login = document.getString("login").toString()
                     val nomeCategoria = document.getString("nomeCategoria").toString()
@@ -226,7 +226,7 @@ class FirestoreHandler {
                     val accessToken = document.getString("accessToken").toString()
                     val uidUsuario = document.getString("uidUsuario").toString()
 
-                    val senhaData = Senha(nome, guid, login, nomeCategoria, senhaDescriptografada, accessToken, uidUsuario)
+                    val senhaData = Senha(descricao, guid, login, nomeCategoria, senhaDescriptografada, accessToken, uidUsuario)
                     listaDeSenhas.add(senhaData)
                 }
             }
@@ -250,7 +250,7 @@ class FirestoreHandler {
                 .await()
 
             for (document in documentos) {
-                val nome = document.getString("nome").orEmpty()
+                val descricao = document.getString("descricao").orEmpty()
                 val guid = document.getString("guid").orEmpty()
                 val login = document.getString("login").orEmpty()
                 val nomeCategoria = document.getString("nomeCategoria").orEmpty()
@@ -259,7 +259,7 @@ class FirestoreHandler {
                 val accessToken = document.getString("accessToken").orEmpty()
                 val uidUsuario = document.getString("uidUsuario").orEmpty()
 
-                listaDeSenhas.add(Senha(nome, guid, login, nomeCategoria, senhaDescriptografada, accessToken, uidUsuario))
+                listaDeSenhas.add(Senha(descricao, guid, login, nomeCategoria, senhaDescriptografada, accessToken, uidUsuario))
             }
         } catch (e: Exception) {
             Log.e("FIRESTORE", "Erro ao buscar senhas: ${e.message}")
