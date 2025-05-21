@@ -268,6 +268,12 @@ class FirestoreHandler {
         return listaDeSenhas
     }
 
+    suspend fun quantidadeDeSenhasPorCategoria(categoria: String): Int {
+        val listaDeSenhas = buscarSenhasPorCategoria(categoria)
+
+        return listaDeSenhas.size;
+    }
+
     suspend fun buscarTodasCategorias(): List<String> {
         val listaDeCategorias = mutableListOf<String>()
         val auth = AuthHandler()
@@ -368,7 +374,7 @@ class FirestoreHandler {
             db.collection("categorias").add(docCategoria)
         }
     }
-    
+
     fun obterNomeUsuario(onResult: (String) -> Unit) {
         val auth = AuthHandler()
         val userUid = auth.obterUidUsuario()
