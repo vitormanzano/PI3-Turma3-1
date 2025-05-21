@@ -268,7 +268,9 @@ class FirestoreHandler {
         return listaDeSenhas
     }
 
-    fun quantidadeDeSenhasPorCategoria(listaDeSenhas: List<Senha>): Int {
+    suspend fun quantidadeDeSenhasPorCategoria(categoria: String): Int {
+        val listaDeSenhas = buscarSenhasPorCategoria(categoria)
+
         return listaDeSenhas.size;
     }
 
