@@ -10,11 +10,6 @@ import br.edu.puc.superid.ui.screens.LoginScreen
 import br.edu.puc.superid.ui.screens.SignUpScreen
 import br.edu.puc.superid.ui.screens.MainScreen
 import br.edu.puc.superid.ui.screens.CreateAccountScreen
-import br.edu.puc.superid.ui.theme.SuperIdTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import android.provider.Settings
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -28,6 +23,7 @@ import br.edu.puc.superid.ui.screens.ProfileScreen
 import br.edu.puc.superid.ui.screens.QRCodeScannerScreen
 import br.edu.puc.superid.ui.screens.SignUpCategoryScreen
 import br.edu.puc.superid.ui.screens.SignUpPasswordScreen
+import br.edu.puc.superid.auth.AuthHandler
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +34,7 @@ class MainActivity : ComponentActivity() {
               val settings = getSharedPreferences(PREFS_NAME, 0)
 
               // Verifica se é a primeira vez
-              val isFirstTime = settings.getBoolean("my_first_time", true)
+              var isFirstTime = settings.getBoolean("my_first_time", true)
 
               // Se for a primeira vez, salva que o app já foi iniciado
               if (isFirstTime) {

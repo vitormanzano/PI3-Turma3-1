@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import br.edu.puc.superid.auth.AuthHandler
@@ -42,6 +44,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var senha by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val auth = AuthHandler()
     val scope = rememberCoroutineScope()
@@ -67,7 +70,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
 
     fun trySignUp() {
         if (allFieldsValid) {
-            auth.cadastrarCredencial(name, email, senha, imei) { success, message ->
+            auth.cadastrarCredencial(context, name, email, senha, imei) { success, message ->
                 scope.launch {
                     if (success) {
                         dialogTitle = "Verifique seu e-mail!"
