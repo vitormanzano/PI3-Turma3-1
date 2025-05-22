@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 
 class AuthHandler {
@@ -96,27 +97,33 @@ class AuthHandler {
             }
     }
 
-     fun emailFoiVerificado(uid: String, user: FirebaseUser, context: Context, onResult: (Boolean) -> Unit) {
-         user.reload().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val verificado = user.isEmailVerified
+     fun emailFoiVerificado(email: String, context: Context, onResult: (Boolean) -> Unit) {
+        val functions = Firebase.functions
+        val data = hashMapOf("email" to email)
 
-                val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
+        functions.getHttpsCallable("getUserByEmail")
+            .call(data)
+            .addOnSuccessListener { result ->
+                val res = result.data as Map<*, *>
+                val uid = res["uid"] as String
+                val verificado = res["emailVerified"] as Boolean
+
+                val prefs = context.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE)
                 prefs.edit().putBoolean("email_validado", verificado).apply()
 
                 if (verificado) {
-                    db.emailValidadoVerdadeiro(uid)
+                    db.emailValidadoVerdadeiro(uid) // sua função personalizada
                 }
 
                 Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
                 onResult(verificado)
             }
-            else {
-                Log.e("EMAIL", "Erro ao recarregar usuário: ${task.exception}")
+            .addOnFailureListener { e ->
+                Log.e("EMAIL", "Erro ao buscar usuário: ${e.message}")
                 onResult(false)
             }
-        }
     }
+
 
     fun enviarEmailParaRedefinirSenha(email: String) {
         auth.sendPasswordResetEmail(email).continueWith { task ->
