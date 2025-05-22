@@ -176,6 +176,16 @@ fun LoginScreen(navController: NavHostController) {
                         )
                     )
 
+                    Text(
+                        text = "Esqueceu sua senha?",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White,
+                        modifier = Modifier.clickable {
+                            navController.navigate("forgotPassword")
+                        }
+                    )
+
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Button(
