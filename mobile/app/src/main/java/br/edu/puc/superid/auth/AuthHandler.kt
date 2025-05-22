@@ -83,7 +83,6 @@ class AuthHandler {
         Log.i("AUTH", "Usuário deslogado com sucesso.")
     }
 
-
     fun enviarEmailParaVerificacao(user: FirebaseUser) {
         user.sendEmailVerification()
             .addOnCompleteListener { verificationTask ->
@@ -97,14 +96,17 @@ class AuthHandler {
             }
     }
 
-     fun emailFoiVerificado(user: FirebaseUser, context: Context, onResult: (Boolean) -> Unit) {
-        val verificado = false
-        user.reload().addOnCompleteListener { task ->
+     fun emailFoiVerificado(uid: String, user: FirebaseUser, context: Context, onResult: (Boolean) -> Unit) {
+         user.reload().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val verificado = user.isEmailVerified
 
                 val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
                 prefs.edit().putBoolean("email_validado", verificado).apply()
+
+                if (verificado) {
+                    db.emailValidadoVerdadeiro(uid)
+                }
 
                 Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
                 onResult(verificado)
