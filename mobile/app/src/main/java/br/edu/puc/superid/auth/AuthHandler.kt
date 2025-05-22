@@ -45,6 +45,7 @@ class AuthHandler {
                     val uid = auth.currentUser!!.uid
 
                     salvarUIDUsuario(context, uid)
+                    salvarEmailUsuario(context, email)
 
                     db.cadastrarUsuario(nome, uid, imei)
 
@@ -96,7 +97,7 @@ class AuthHandler {
             }
     }
 
-     fun emailFoiVerificado(user: FirebaseUser, context: Context, onResult: (Boolean) -> Unit)v {
+     fun emailFoiVerificado(user: FirebaseUser, context: Context, onResult: (Boolean) -> Unit) {
         val verificado = false
         user.reload().addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -132,5 +133,10 @@ class AuthHandler {
     fun salvarUIDUsuario(context: Context, uid: String) {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("userUid", uid).apply()
+    }
+
+    fun salvarEmailUsuario(context: Context, email: String) {
+        val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("email", email).apply()
     }
 }
