@@ -101,7 +101,6 @@ class AuthHandler {
             .call(data)
             .addOnSuccessListener { result ->
                 val res = result.data as Map<*, *>
-                val uid = res["uid"] as String
                 val verificado = res["emailVerified"] as Boolean
 
                 val prefs = context.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE)
