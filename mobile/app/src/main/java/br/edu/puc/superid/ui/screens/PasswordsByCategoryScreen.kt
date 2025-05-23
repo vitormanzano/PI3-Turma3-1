@@ -140,7 +140,7 @@ fun PasswordsByCategoryScreen(
                 fontWeight = FontWeight.Bold
             )
             },
-            text = { Text("Tem certeza que deseja excluir a senha \"${senha.nome}\"?",
+            text = { Text("Tem certeza que deseja excluir a senha \"${senha.descricao   }\"?",
                 color = Color.LightGray,
                 fontSize = 18.sp
             ) },
@@ -192,7 +192,7 @@ fun PasswordItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(senha.nome, color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
+            Text(senha.descricao, color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(4.dp))
             Text(senha.login, color = Color.LightGray, fontSize = 20.sp)
             Spacer(modifier = Modifier.height(4.dp))
