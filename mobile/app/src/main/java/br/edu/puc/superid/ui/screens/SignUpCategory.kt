@@ -44,6 +44,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
+import br.edu.puc.superid.ui.components.CustomDialog
 import kotlinx.coroutines.launch
 
 @Composable

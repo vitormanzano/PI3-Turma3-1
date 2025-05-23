@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +41,7 @@ import kotlin.coroutines.resume
 fun PasswordManagerScreen(navController: NavHostController) {
     var isEditMode by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val isEmailVerified = remember { mutableStateOf(false) }
     val auth = AuthHandler()
@@ -49,7 +51,7 @@ fun PasswordManagerScreen(navController: NavHostController) {
     val user = auth.obterUser()
 
     LaunchedEffect(Unit) {
-        auth.emailFoiVerificado(user!!) { verificado ->
+        auth.emailFoiVerificado(user!!, context) { verificado ->
             isEmailVerified.value = verificado
         }
     }

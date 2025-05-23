@@ -1,3 +1,5 @@
+package br.edu.puc.superid.ui.screens
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import kotlinx.coroutines.launch
@@ -20,9 +23,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun FirstTimeScreen(navController: NavHostController) {
     val pages = listOf(
-        "SuperID oferece uma solução prática e segura para login sem senhas em sites",
-        "Armazene suas senhas de forma criptografada e acessível em um único lugar",
-        "Esqueça a dificuldade de gerenciar várias senhas, use SuperID para maior segurança e agilidade"
+        "O SUPERID OFERECE UMA SOLUÇÃO PRÁTICA E SEGURA PARA LOGIN SEM SENHAS EM SITES",
+        "ARMAZENE SUAS SENHAS DE FORMA CRIPTOGRAFADA E ACESSÍVEL EM UM ÚNICO LUGAR",
+        "ESQUEÇA A DIFICULDADE DE GERENCIAR VÁRIAS SENHAS, USE SUPERID PARA MAIOR SEGURANÇA E AGILIDADE"
     )
 
     val images = listOf(
@@ -101,9 +104,10 @@ fun FirstTimeScreen(navController: NavHostController) {
                 .align(Alignment.BottomCenter)
         ) {
             Text(
-                text = "Próximo",
+                text = "PRÓXIMO",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White
+                color = Color.White,
+                fontSize = 22.sp
             )
         }
     }

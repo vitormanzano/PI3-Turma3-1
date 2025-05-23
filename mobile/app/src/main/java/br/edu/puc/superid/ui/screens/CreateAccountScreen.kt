@@ -68,7 +68,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                     painter = painterResource(id = R.drawable.logo),
                     contentDescription = "SuperID logo",
                     modifier = Modifier
-                        .fillMaxWidth(0.95f)
+                        .fillMaxWidth(0.8f)
                         .aspectRatio(1f)
                         .padding(bottom = 32.dp),
                     contentScale = ContentScale.Crop
@@ -77,9 +77,9 @@ fun CreateAccountScreen(navController: NavHostController) {
 
                 // Title
                 Text(
-                    text = "Crie sua\nconta SuperID",
+                    text = "CRIE SUA\nCONTA SUPERID",
                     color = Color.White,
-                    fontSize = 32.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
@@ -90,7 +90,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                 Text(
                     text = "SuperID é uma ferramenta que te permite armazenar suas senhas de maneira simples e descomplicada.",
                     color = Color(0xFFAAAAAA),
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     textAlign = TextAlign.Center
                 )
 
@@ -108,7 +108,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A5BFF))
                     ) {
-                        Text(text = "Criar conta", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "CRIAR CONTA", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                     }
 
                     OutlinedButton(
@@ -122,7 +122,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                             width = 1.dp,
                         )
                     ) {
-                        Text(text = "Entrar", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "ENTRAR", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -131,24 +131,21 @@ fun CreateAccountScreen(navController: NavHostController) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 64.dp),
+                    .padding(bottom = 100.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Ao continuar você concorda e aceita os nossos",
-                    color = Color(0xFFAAAAAA),
-                    fontSize = 15.sp,
+                    text = "AO CONTINUAR VOCÊ CONCORDA E ACEITA OS NOSSOS ",
+                    color = Color.White,
+                    fontSize = 14.sp,
                     textAlign = TextAlign.Center
                 )
-
-                Row {
-                    Text(
-                        text = "Termos de Uso",
-                        color = Color(0xFF3A5BFF),
-                        fontSize = 15.sp,
-                        modifier = Modifier.clickable { showTerms = true }
-                    )
-                }
+                Text(
+                    text = "TERMOS DE USO",
+                    color = Color(0xFF3A5BFF),
+                    fontSize = 14.sp,
+                    modifier = Modifier.clickable { showTerms = true }
+                )
             }
         }
     }

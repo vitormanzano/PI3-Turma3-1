@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -33,6 +34,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import br.edu.puc.superid.auth.AuthHandler
+import br.edu.puc.superid.ui.components.CustomDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -64,10 +66,11 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
     var dialogIconColor by remember { mutableStateOf(Color(0xFF3366FF)) }
 
     val allFieldsValid = nameValid && emailValid && senhaValid && termosValid
+    val context = LocalContext.current
 
     fun trySignUp() {
         if (allFieldsValid) {
-            auth.cadastrarCredencial(name, email, senha, imei) { success, message ->
+            auth.cadastrarCredencial(context, name, email, senha, imei) { success, message ->
                 scope.launch {
                     if (success) {
                         dialogTitle = "Verifique seu e-mail!"
@@ -119,7 +122,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     )
                 }
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 41.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 80.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
@@ -127,29 +130,29 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "SuperID logo",
                         modifier = Modifier
-                            .fillMaxWidth(0.95f)
+                            .fillMaxWidth(0.8f)
                             .aspectRatio(1f)
                             .padding(bottom = 0.dp),
                         contentScale = ContentScale.Crop
                     )
 
                     Text(
-                        "Crie sua conta",
+                        "CRIE SUA CONTA",
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
-                        fontSize = 24.sp
+                        fontSize = 22.sp
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     // Nome
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = { Text("Nome completo", color = Color.Gray) },
+                        placeholder = { Text("Nome Completo", color = Color.Gray, fontSize = 20.sp) },
                         leadingIcon = { Icon(Icons.Outlined.AccountCircle, contentDescription = null, tint = iconsColor) },
                         trailingIcon = { if (nameValid) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.Green) },
-                        textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
+                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -159,16 +162,16 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(26.dp))
 
                     // Email
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("E-mail", color = Color.Gray) },
+                        placeholder = { Text("Email", color = Color.Gray, fontSize = 20.sp) },
                         leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null, tint = iconsColor) },
                         trailingIcon = { if (emailValid) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.Green) },
-                        textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
+                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -178,17 +181,17 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(26.dp))
 
                     // Senha
                     OutlinedTextField(
                         value = senha,
                         onValueChange = { senha = it },
-                        placeholder = { Text("Senha mestra", color = Color.Gray) },
+                        placeholder = { Text("Senha Mestra", color = Color.Gray, fontSize = 20.sp) },
                         visualTransformation = PasswordVisualTransformation(),
                         leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null, tint = iconsColor) },
                         trailingIcon = { if (senhaValid) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.Green) },
-                        textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
+                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -225,12 +228,12 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         Spacer(modifier = Modifier.width(8.dp))
                         val annotatedText = buildAnnotatedString {
                             withStyle(
-                                style = SpanStyle(color = Color.White, fontSize = 16.sp)
-                            ) { append("Li e estou de acordo com o ") }
+                                style = SpanStyle(color = Color.White, fontSize = 14.sp)
+                            ) { append("LI E ESTOU DE ACORDO COM O ") }
                             pushStringAnnotation(tag = "TERMOS", annotation = "mostrar_dialog")
                             withStyle(
-                                style = SpanStyle(color = iconsColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            ) { append("Termo de Uso") }
+                                style = SpanStyle(color = iconsColor, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            ) { append("TERMO DE USO") }
                             pop()
                         }
                         ClickableText(
@@ -244,7 +247,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
 
                     // Botão Criar Conta
                     Button(
@@ -259,7 +262,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                             .fillMaxWidth()
                             .height(56.dp)
                     ) {
-                        Text("Criar conta", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 16.sp)
+                        Text("CRIAR CONTA", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 22.sp)
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -269,8 +272,8 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Já possui uma conta?",
-                            fontSize = 16.sp,
+                            text = "JÁ POSSUI CONTA?",
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                             modifier = Modifier.clickable { navController.navigate("login") }
@@ -311,67 +314,6 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         showDialog = false
                     }
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun CustomDialog(
-    title: String,
-    message: String,
-    icon: ImageVector,
-    iconColor: Color,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    Dialog(onDismissRequest = { onDismiss() }) {
-        Box(
-            modifier = Modifier
-                .background(Color.DarkGray, RoundedCornerShape(20.dp))
-                .padding(24.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconColor,
-                    modifier = Modifier.size(60.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = title,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = message,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    lineHeight = 20.sp,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(
-                        onClick = { onConfirm() },
-                        colors = ButtonDefaults.buttonColors(containerColor = iconColor),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("OK", color = Color.White)
-                    }
-                }
             }
         }
     }

@@ -1,6 +1,9 @@
 package br.edu.puc.superid.auth
 
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import br.edu.puc.superid.database.FirestoreHandler
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -27,6 +30,7 @@ class AuthHandler {
     }
 
     fun cadastrarCredencial(
+        context: Context,
         nome: String,
         email: String,
         senha: String,
@@ -39,6 +43,9 @@ class AuthHandler {
                 if (task.isSuccessful) {
                     Log.d("SUCCESS", "Credencial criada!")
                     val uid = auth.currentUser!!.uid
+
+                    salvarUIDUsuario(context, uid)
+
                     db.cadastrarUsuario(nome, uid, imei)
 
                     val user = auth.currentUser
@@ -89,17 +96,25 @@ class AuthHandler {
             }
     }
 
-    fun emailFoiVerificado(user: FirebaseUser, onResult: (Boolean) -> Unit) {
+    fun emailFoiVerificado(
+        user: FirebaseUser,
+        context: Context,
+        onResult: (Boolean) -> Unit
+    ) {
+        var verificado = false
+
         user.reload().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                val verificado = user.isEmailVerified
-                Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
-                onResult(verificado)
+                verificado = user.isEmailVerified
 
-            }
-            else {
+                val prefs = context.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE)
+                prefs.edit().putBoolean("email_validado", verificado).apply()
+
+                Log.d("EMAIL", if (verificado) "Email verificado!" else "Email não verificado")
+                onResult(verificado)
+            } else {
                 Log.e("EMAIL", "Erro ao recarregar usuário: ${task.exception}")
-                onResult(false) // ou trate como desejar
+                onResult(false)
             }
         }
     }
@@ -116,5 +131,10 @@ class AuthHandler {
                 Log.e("RecuperarSenha", "Algo deu errado: " + task.exception)
             }
         }
+    }
+
+    fun salvarUIDUsuario(context: Context, uid: String) {
+        val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("userUid", uid).apply()
     }
 }

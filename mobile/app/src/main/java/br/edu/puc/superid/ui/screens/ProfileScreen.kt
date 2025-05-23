@@ -1,5 +1,6 @@
 package br.edu.puc.superid.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,11 +29,9 @@ import br.edu.puc.superid.database.FirestoreHandler
 @Composable
 fun ProfileScreen(navController: NavHostController) {
     val authHandler = AuthHandler()
-    val auth = AuthHandler()
     val firestore = FirestoreHandler()
     val userName = remember { mutableStateOf("") }
-
-    val user = auth.obterUser()
+    val user = AuthHandler().obterUser()
 
     LaunchedEffect(Unit) {
         firestore.obterNomeUsuario { nome ->
@@ -40,98 +39,160 @@ fun ProfileScreen(navController: NavHostController) {
         }
     }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .padding(24.dp)
     ) {
-
-        // Botão de Voltar
-        IconButton(
-            onClick = {
-                navController.navigate("mainScreen") {
-                    popUpTo(0) { inclusive = true }  // limpa tudo
-                    launchSingleTop = true
-                }
-            },
-            modifier = Modifier.align(Alignment.TopStart)
-        ) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
-        }
-
-        // Logo
-        Image(
-            painter = painterResource(id = R.drawable.logo_png),
-            contentDescription = "Logo",
+        Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 10.dp)
-                .height(150.dp)
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .weight(1f)
+                .padding(24.dp)
         ) {
-            Spacer(modifier = Modifier.height(80.dp))
-
-            // Ícone de usuário
-            Image(
-                painter = painterResource(id = R.drawable.profile_icon1),
-                contentDescription = "Ícone de Usuário",
-                modifier = Modifier.size(250.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Olá, ${userName.value}",
-                color = Color.White,
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Botão Editar Senha Mestra
-            Button(
+            // Botão de Voltar
+            IconButton(
                 onClick = {
-                    navController.navigate("editarSenhaMestra")
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3366FF)),
-                shape = RoundedCornerShape(32.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("EDITAR SENHA MESTRA", color = Color.White, fontSize = 16.sp)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Botão Sair
-            Button(
-                onClick = {
-                    authHandler.deslogarUsuario()
-                    navController.navigate("login") {
+                    navController.navigate("mainScreen") {
                         popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A3A3A)),
-                shape = RoundedCornerShape(32.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
+                modifier = Modifier.align(Alignment.TopStart)
             ) {
-                Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.White)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("SAIR", color = Color.White, fontSize = 16.sp)
+                Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
+            }
+
+            // Logo
+            Image(
+                painter = painterResource(id = R.drawable.logo_png),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 10.dp)
+                    .height(150.dp)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Spacer(modifier = Modifier.height(80.dp))
+
+                // Ícone de usuário
+                Image(
+                    painter = painterResource(id = R.drawable.profile_icon1),
+                    contentDescription = "Ícone de Usuário",
+                    modifier = Modifier.size(200.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Nome:",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = userName.value,
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Divider(
+                    color = Color(0xFF3366FF),
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, start = 8.dp, end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Email:",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = user?.email ?: "",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(80.dp))
+
+                // Botão Sair
+                Button(
+                    onClick = {
+                        authHandler.deslogarUsuario()
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF000000), ),
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(2.dp, Color(0xFF3366FF)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ) {
+                    Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.White)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("SAIR", color = Color.White, fontSize = 16.sp)
+                }
             }
         }
+
+        BottomNavigationBar(
+            navController = navController,
+            selectedIndex = 2,
+            onItemSelected = { index ->
+                when (index) {
+                    0 -> navController.navigate("mainScreen") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+
+                    1 -> navController.navigate("qrcode") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+
+                    2 -> navController.navigate("perfil") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
+        )
     }
 }
+
