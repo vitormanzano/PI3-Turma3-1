@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
@@ -22,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -37,13 +40,13 @@ fun LoginScreen(navController: NavHostController) {
     var emailError by remember { mutableStateOf<String?>(null) }
     var senhaError by remember { mutableStateOf<String?>(null) }
     var wasAttempted by remember { mutableStateOf(false) }
+    var senhaVisivel by remember { mutableStateOf(false) }
 
     val iconsColor = Color(0xFF3366FF)
     val buttonColor = Color(0xFF3366FF)
 
     val coroutineScope = rememberCoroutineScope()
 
-    // Estados do diálogo
     var showDialog by remember { mutableStateOf(false) }
     var dialogTitle by remember { mutableStateOf("") }
     var dialogMessage by remember { mutableStateOf("") }
@@ -78,9 +81,7 @@ fun LoginScreen(navController: NavHostController) {
         }
     }
 
-    Scaffold(
-        containerColor = Color.Black
-    ) { padding ->
+    Scaffold(containerColor = Color.Black) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -92,7 +93,6 @@ fun LoginScreen(navController: NavHostController) {
                     .padding(horizontal = 24.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Ícone voltar
                 Row(
                     modifier = Modifier
                         .padding(top = 48.dp)
@@ -122,7 +122,9 @@ fun LoginScreen(navController: NavHostController) {
                             .aspectRatio(1f),
                         contentScale = ContentScale.Crop
                     )
+
                     Spacer(modifier = Modifier.height(24.dp))
+
                     Text(
                         "ENTRE NA SUA CONTA",
                         fontWeight = FontWeight.Bold,
@@ -165,13 +167,20 @@ fun LoginScreen(navController: NavHostController) {
                         value = senha,
                         onValueChange = { senha = it },
                         placeholder = { Text("Senha mestra", color = Color.Gray, fontSize = 20.sp) },
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Outlined.Lock,
                                 contentDescription = null,
                                 tint = iconsColor
                             )
+                        },
+                        trailingIcon = {
+                            val visibilityIcon = if (senhaVisivel) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val description = if (senhaVisivel) "Ocultar senha" else "Mostrar senha"
+                            IconButton(onClick = { senhaVisivel = !senhaVisivel }) {
+                                Icon(imageVector = visibilityIcon, contentDescription = description, tint = Color.Gray)
+                            }
                         },
                         isError = wasAttempted && senhaError != null,
                         supportingText = {
@@ -249,7 +258,6 @@ fun LoginScreen(navController: NavHostController) {
             }
         }
 
-        // Diálogo de erro
         if (showDialog && dialogIcon != null) {
             CustomDialog(
                 title = dialogTitle,

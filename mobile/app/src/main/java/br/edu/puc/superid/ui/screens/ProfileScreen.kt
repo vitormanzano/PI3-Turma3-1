@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,13 +26,17 @@ import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import br.edu.puc.superid.auth.AuthHandler
 import br.edu.puc.superid.database.FirestoreHandler
+import br.edu.puc.superid.ui.components.CustomDialog
 
 @Composable
 fun ProfileScreen(navController: NavHostController) {
     val authHandler = AuthHandler()
     val firestore = FirestoreHandler()
     val userName = remember { mutableStateOf("") }
-    val user = AuthHandler().obterUser()
+    val user = authHandler.obterUser()
+    val isEmailVerified = remember { mutableStateOf(user?.isEmailVerified == true) }
+
+    val showDialog = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         firestore.obterNomeUsuario { nome ->
@@ -49,7 +54,6 @@ fun ProfileScreen(navController: NavHostController) {
                 .weight(1f)
                 .padding(24.dp)
         ) {
-            // Botão de Voltar
             IconButton(
                 onClick = {
                     navController.navigate("mainScreen") {
@@ -62,7 +66,6 @@ fun ProfileScreen(navController: NavHostController) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
             }
 
-            // Logo
             Image(
                 painter = painterResource(id = R.drawable.logo_png),
                 contentDescription = "Logo",
@@ -73,14 +76,12 @@ fun ProfileScreen(navController: NavHostController) {
             )
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Spacer(modifier = Modifier.height(80.dp))
 
-                // Ícone de usuário
                 Image(
                     painter = painterResource(id = R.drawable.profile_icon1),
                     contentDescription = "Ícone de Usuário",
@@ -95,19 +96,9 @@ fun ProfileScreen(navController: NavHostController) {
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Nome:",
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Text("Nome:", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = userName.value,
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal
-                    )
+                    Text(userName.value, color = Color.White, fontSize = 16.sp)
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -120,27 +111,16 @@ fun ProfileScreen(navController: NavHostController) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp, start = 8.dp, end = 8.dp),
+                        .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Email:",
-                        color = Color.White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Text("Email:", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = user?.email ?: "",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal
-                    )
+                    Text(user?.email ?: "", color = Color.White, fontSize = 16.sp)
                 }
 
                 Spacer(modifier = Modifier.height(80.dp))
 
-                // Botão Sair
                 Button(
                     onClick = {
                         authHandler.deslogarUsuario()
@@ -148,7 +128,7 @@ fun ProfileScreen(navController: NavHostController) {
                             popUpTo(0) { inclusive = true }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF000000), ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                     shape = RoundedCornerShape(20.dp),
                     border = BorderStroke(2.dp, Color(0xFF3366FF)),
                     modifier = Modifier
@@ -165,6 +145,7 @@ fun ProfileScreen(navController: NavHostController) {
         BottomNavigationBar(
             navController = navController,
             selectedIndex = 2,
+            isEmailVerified = isEmailVerified.value,
             onItemSelected = { index ->
                 when (index) {
                     0 -> navController.navigate("mainScreen") {
@@ -175,12 +156,18 @@ fun ProfileScreen(navController: NavHostController) {
                         restoreState = true
                     }
 
-                    1 -> navController.navigate("qrcode") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
+                    1 -> {
+                        if (isEmailVerified.value) {
+                            navController.navigate("qrcode") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        } else {
+                            showDialog.value = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
 
                     2 -> navController.navigate("perfil") {
@@ -193,6 +180,18 @@ fun ProfileScreen(navController: NavHostController) {
                 }
             }
         )
+
+        if (showDialog.value) {
+            CustomDialog(
+                title = "Acesso negado",
+                message = "Verifique seu e-mail para acessar esta funcionalidade.",
+                icon = Icons.Default.Warning,
+                iconColor = Color(0xFFEC4D4D),
+                onConfirm = { showDialog.value = false },
+                onDismiss = { showDialog.value = false }
+            )
+        }
     }
 }
+
 

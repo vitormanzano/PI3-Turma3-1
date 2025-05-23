@@ -205,7 +205,7 @@ fun PasswordItem(
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = { mostrarSenha = !mostrarSenha }, modifier = Modifier.size(28.dp)) {
                     Icon(
-                        imageVector = if (mostrarSenha) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        imageVector = if (mostrarSenha) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = "Ver senha",
                         tint = Color(0xFF3366FF)
                     )

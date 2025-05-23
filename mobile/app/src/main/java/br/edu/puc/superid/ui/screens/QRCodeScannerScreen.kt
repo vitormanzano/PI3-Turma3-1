@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
+import br.edu.puc.superid.auth.AuthHandler
 import br.edu.puc.superid.confirmLogin
+import br.edu.puc.superid.database.FirestoreHandler
 import br.edu.puc.superid.validQRCode
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
@@ -38,6 +40,9 @@ fun QRCodeScannerScreen(navController: NavHostController) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val authHandler = AuthHandler()
+    val user = authHandler.obterUser()
+    val isEmailVerified = remember { mutableStateOf(user?.isEmailVerified == true) }
 
     var hasCameraPermission by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableStateOf(1) }
@@ -145,6 +150,7 @@ fun QRCodeScannerScreen(navController: NavHostController) {
                 BottomNavigationBar(
                     navController = navController,
                     selectedIndex = selectedIndex,
+                    isEmailVerified = isEmailVerified.value,
                     onItemSelected = { index -> selectedIndex = index }
                 )
             }

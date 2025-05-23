@@ -8,6 +8,8 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Email
@@ -26,6 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -104,10 +107,9 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.SpaceBetween
+                    .padding(horizontal = 24.dp)
             ) {
-                // Botão de voltar
+                // Seta de voltar (fica no topo, fixo)
                 Row(
                     modifier = Modifier
                         .padding(top = 48.dp)
@@ -121,8 +123,13 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         modifier = Modifier.size(24.dp)
                     )
                 }
+
+                // Conteúdo da tela que será movido para cima
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 80.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset(y = (-20).dp) // aqui você move o conteúdo para cima
+                        .padding(bottom = 50.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
@@ -132,7 +139,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .aspectRatio(1f)
-                            .padding(bottom = 0.dp),
+                            .padding(bottom = 0.dp, top = 0.dp),
                         contentScale = ContentScale.Crop
                     )
 
@@ -183,14 +190,44 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
 
                     Spacer(modifier = Modifier.height(26.dp))
 
-                    // Senha
+                    var senhaVisivel by remember { mutableStateOf(false) }
+
                     OutlinedTextField(
                         value = senha,
                         onValueChange = { senha = it },
-                        placeholder = { Text("Senha Mestra", color = Color.Gray, fontSize = 20.sp) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null, tint = iconsColor) },
-                        trailingIcon = { if (senhaValid) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.Green) },
+                        placeholder = {
+                            Text("Senha Mestra", color = Color.Gray, fontSize = 20.sp)
+                        },
+                        visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Lock,
+                                contentDescription = null,
+                                tint = iconsColor
+                            )
+                        },
+                        trailingIcon = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (senhaValid) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = "Senha válida",
+                                        tint = Color.Green,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                }
+                                IconButton(onClick = { senhaVisivel = !senhaVisivel }) {
+                                    Icon(
+                                        imageVector = if (senhaVisivel) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                        contentDescription = if (senhaVisivel) "Esconder senha" else "Mostrar senha",
+                                        tint = Color.Gray
+                                    )
+                                }
+                            }
+                        },
                         textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -268,7 +305,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 0.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
