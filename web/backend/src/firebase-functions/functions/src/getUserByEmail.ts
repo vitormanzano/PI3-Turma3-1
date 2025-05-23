@@ -15,4 +15,3 @@ exports.getUserByEmail = functions.https.onCall(async (data: any, context: any) 
       throw new functions.https.HttpsError('not-found', 'Usuário não encontrado');
     }
   });
-  

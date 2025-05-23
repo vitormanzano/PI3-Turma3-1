@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.functions.ktx.functions
 
 class AuthHandler {
     private val auth = Firebase.auth
@@ -37,8 +38,7 @@ class AuthHandler {
         senha: String,
         imei: String,
         onResult: (Boolean, String) -> Unit
-    )
-    {
+    ) {
         auth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -54,8 +54,7 @@ class AuthHandler {
                     enviarEmailParaVerificacao(user!!)
 
                     onResult(true, "Conta criada com sucesso!")
-                }
-                else {
+                } else {
                     val exceptionAuth = task.exception
                     val errorMessage = when (exceptionAuth) {
                         is FirebaseAuthWeakPasswordException -> "Senha deve ter no mínimo 6 caracteres!"
@@ -89,14 +88,11 @@ class AuthHandler {
             .addOnCompleteListener { verificationTask ->
                 if (verificationTask.isSuccessful) {
                     Log.i("VERIFICATION", "Email enviado")
-                }
-
-                else {
+                } else {
                     Log.e("VERIFICATION", "Email não enviado")
                 }
             }
     }
-
      fun emailFoiVerificado(email: String, context: Context, onResult: (Boolean) -> Unit) {
         val functions = Firebase.functions
         val data = hashMapOf("email" to email)
@@ -105,17 +101,20 @@ class AuthHandler {
             .call(data)
             .addOnSuccessListener { result ->
                 val res = result.data as Map<*, *>
-                val uid = res["uid"] as String
+
                 val verificado = res["emailVerified"] as Boolean
 
                 val prefs = context.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE)
                 prefs.edit().putBoolean("email_validado", verificado).apply()
 
                 if (verificado) {
-                    db.emailValidadoVerdadeiro(uid) // sua função personalizada
+                    db.emailValidadoVerdadeiro(uid) 
                 }
 
                 Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
+                    val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
+                    prefs.edit().putBoolean("email_validado", verificado).apply()
+            }
                 onResult(verificado)
             }
             .addOnFailureListener { e ->
@@ -129,11 +128,9 @@ class AuthHandler {
         auth.sendPasswordResetEmail(email).continueWith { task ->
             if (task.isCanceled) {
                 Log.e("RecuperarSenha", "Não foi possível mandar a recuperação de senha")
-            }
-            else if (task.isSuccessful) {
+            } else if (task.isSuccessful) {
                 Log.e("RecuperarSenha", "recuperação de senha enviada com sucesso!")
-            }
-            else {
+            } else {
                 Log.e("RecuperarSenha", "Algo deu errado: " + task.exception)
             }
         }

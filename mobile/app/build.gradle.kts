@@ -74,6 +74,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:25.1.3")
     implementation("com.google.firebase:firebase-auth")
 
+    implementation("com.google.firebase:firebase-functions-ktx:21.2.1")
+
     //Mais icones
     implementation("androidx.compose.material:material-icons-extended")
 

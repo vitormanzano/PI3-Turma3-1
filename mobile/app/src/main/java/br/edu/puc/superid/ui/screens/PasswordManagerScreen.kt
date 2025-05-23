@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +36,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-
+import br.edu.puc.superid.ui.components.CustomDialog
 
 @Composable
 fun PasswordManagerScreen(navController: NavHostController) {
@@ -62,10 +63,19 @@ fun PasswordManagerScreen(navController: NavHostController) {
         }
     }
 
+    var currentIndex by rememberSaveable { mutableStateOf(0) }
+
     Scaffold(
         containerColor = Color.Black,
         topBar = { TopBar() },
-        bottomBar = { BottomNavigationBar(navController) }
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                selectedIndex = currentIndex,
+                onItemSelected = { currentIndex = it },
+                isEmailVerified = isEmailVerified.value
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -110,7 +120,7 @@ fun EmailVerificationCard(
     var showCard by remember { mutableStateOf(true) }
 
     val backgroundColor = Color(0xFF3366FF)
-    val statusText = if (isEmailVerified) "E-mail verificado!" else "E-mail não verificado, você não poderá recuperar sua senha mestra!"
+    val statusText = if (isEmailVerified) "E-mail verificado!" else "E-mail não verificado, você não poderá recuperar sua senha mestra e nem utilizar o login sem senha!"
     val actionText = if (isEmailVerified) "OK" else "Verificar agora"
 
     if (showCard) {
@@ -444,13 +454,18 @@ fun CategoryItem(
 fun BottomNavigationBar(
     navController: NavController,
     selectedIndex: Int = 0,
-    onItemSelected: (Int) -> Unit = {}
+    onItemSelected: (Int) -> Unit = {},
+    isEmailVerified: Boolean
 ) {
     val items = listOf(
         NavigationItem(Icons.Default.Home, "mainScreen"),
         NavigationItem(Icons.Default.QrCodeScanner, "qrcode"),
         NavigationItem(Icons.Default.Person, "perfil")
     )
+
+    var showDialog by remember { mutableStateOf(false) }
+    val dialogTitle = "Email não verificado"
+    val dialogMessage = "Você precisa verificar seu email antes de acessar essa funcionalidade."
 
     Column {
         Divider(
@@ -466,15 +481,19 @@ fun BottomNavigationBar(
                 NavigationBarItem(
                     selected = selectedIndex == index,
                     onClick = {
-                        onItemSelected(index)
-                        val currentRoute = navController.currentBackStackEntry?.destination?.route
-                        if (currentRoute != item.route) {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+                        if (item.route == "qrcode" && !isEmailVerified) {
+                            showDialog = true
+                        } else {
+                            onItemSelected(index)
+                            val currentRoute = navController.currentBackStackEntry?.destination?.route
+                            if (currentRoute != item.route) {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
                         }
                     },
@@ -505,6 +524,17 @@ fun BottomNavigationBar(
                     )
                 )
             }
+        }
+
+        if (showDialog) {
+            CustomDialog(
+                title = dialogTitle,
+                message = dialogMessage,
+                icon = Icons.Default.Warning,
+                iconColor = Color(0xFFEC4D4D),
+                onConfirm = { showDialog = false },
+                onDismiss = { showDialog = false }
+            )
         }
     }
 }

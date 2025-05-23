@@ -87,7 +87,7 @@ fun PasswordsByCategoryScreen(
                         senha = senha,
                         onEditClick = {
                             navController.navigate(
-                                "editar_senha/${senha.guid}/${senha.nome}/${senha.login}/${senha.nomeCategoria}/${senha.senha}"
+                                "editar_senha/${senha.guid}/${senha.descricao}/${senha.login}/${senha.nomeCategoria}/${senha.senha}"
                             )
                         },
                         onDeleteClick = {
@@ -140,7 +140,7 @@ fun PasswordsByCategoryScreen(
                 fontWeight = FontWeight.Bold
             )
             },
-            text = { Text("Tem certeza que deseja excluir a senha \"${senha.nome}\"?",
+            text = { Text("Tem certeza que deseja excluir a senha \"${senha.descricao   }\"?",
                 color = Color.LightGray,
                 fontSize = 18.sp
             ) },
@@ -192,7 +192,7 @@ fun PasswordItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(senha.nome, color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
+            Text(senha.descricao, color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(4.dp))
             Text(senha.login, color = Color.LightGray, fontSize = 20.sp)
             Spacer(modifier = Modifier.height(4.dp))
@@ -205,7 +205,7 @@ fun PasswordItem(
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = { mostrarSenha = !mostrarSenha }, modifier = Modifier.size(28.dp)) {
                     Icon(
-                        imageVector = if (mostrarSenha) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        imageVector = if (mostrarSenha) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = "Ver senha",
                         tint = Color(0xFF3366FF)
                     )

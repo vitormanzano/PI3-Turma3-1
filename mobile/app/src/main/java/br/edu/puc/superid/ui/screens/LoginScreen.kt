@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.*
@@ -14,16 +18,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import br.edu.puc.superid.auth.AuthHandler
+import br.edu.puc.superid.ui.components.CustomDialog
 import kotlinx.coroutines.launch
 
 @Composable
@@ -33,12 +40,17 @@ fun LoginScreen(navController: NavHostController) {
     var emailError by remember { mutableStateOf<String?>(null) }
     var senhaError by remember { mutableStateOf<String?>(null) }
     var wasAttempted by remember { mutableStateOf(false) }
+    var senhaVisivel by remember { mutableStateOf(false) }
 
     val iconsColor = Color(0xFF3366FF)
     val buttonColor = Color(0xFF3366FF)
 
-    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogTitle by remember { mutableStateOf("") }
+    var dialogMessage by remember { mutableStateOf("") }
+    var dialogIcon by remember { mutableStateOf<ImageVector?>(null) }
 
     fun validateFields(): Boolean {
         emailError = when {
@@ -59,17 +71,17 @@ fun LoginScreen(navController: NavHostController) {
                     if (success) {
                         navController.navigate("mainScreen")
                     } else {
-                        snackbarHostState.showSnackbar("Email ou senha incorretos")
+                        dialogTitle = "Erro de Login"
+                        dialogMessage = "Email ou senha incorretos"
+                        dialogIcon = Icons.Default.Error
+                        showDialog = true
                     }
                 }
             }
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = Color.Black
-    ) { padding ->
+    Scaffold(containerColor = Color.Black) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,7 +93,6 @@ fun LoginScreen(navController: NavHostController) {
                     .padding(horizontal = 24.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Ícone voltar
                 Row(
                     modifier = Modifier
                         .padding(top = 48.dp)
@@ -98,33 +109,35 @@ fun LoginScreen(navController: NavHostController) {
 
                 Column(
                     modifier = Modifier
-                        .padding(bottom = 109.dp)
-                        .fillMaxSize(), // Preenche a tela inteira
-                    horizontalAlignment = Alignment.CenterHorizontally, // Centraliza os itens horizontalmente
-                    verticalArrangement = Arrangement.Center // Centraliza os itens verticalmente
-                ){
+                        .padding(bottom = 50.dp)
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
                     Image(
                         painter = painterResource(id = R.drawable.logo),
                         contentDescription = "SuperID logo",
                         modifier = Modifier
-                            .fillMaxWidth(0.95f)
-                            .aspectRatio(1f)
-                            .padding(bottom = 0.dp),
+                            .fillMaxWidth(0.8f)
+                            .aspectRatio(1f),
                         contentScale = ContentScale.Crop
                     )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     Text(
-                        "Entre na sua conta",
+                        "ENTRE NA SUA CONTA",
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
-                        fontSize = 24.sp
+                        fontSize = 22.sp
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("E-mail", color = Color.Gray) },
+                        placeholder = { Text("Email", color = Color.Gray, fontSize = 20.sp) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Outlined.Email,
@@ -138,7 +151,7 @@ fun LoginScreen(navController: NavHostController) {
                                 Text(emailError!!, color = Color(0xFFFF5858))
                             }
                         },
-                        textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
+                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -148,11 +161,13 @@ fun LoginScreen(navController: NavHostController) {
                         )
                     )
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     OutlinedTextField(
                         value = senha,
                         onValueChange = { senha = it },
-                        placeholder = { Text("Senha mestra", color = Color.Gray) },
-                        visualTransformation = PasswordVisualTransformation(),
+                        placeholder = { Text("Senha mestra", color = Color.Gray, fontSize = 20.sp) },
+                        visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Outlined.Lock,
@@ -160,13 +175,20 @@ fun LoginScreen(navController: NavHostController) {
                                 tint = iconsColor
                             )
                         },
+                        trailingIcon = {
+                            val visibilityIcon = if (senhaVisivel) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            val description = if (senhaVisivel) "Ocultar senha" else "Mostrar senha"
+                            IconButton(onClick = { senhaVisivel = !senhaVisivel }) {
+                                Icon(imageVector = visibilityIcon, contentDescription = description, tint = Color.Gray)
+                            }
+                        },
                         isError = wasAttempted && senhaError != null,
                         supportingText = {
                             if (wasAttempted && senhaError != null) {
                                 Text(senhaError!!, color = Color(0xFFFF5858))
                             }
                         },
-                        textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
+                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -176,7 +198,7 @@ fun LoginScreen(navController: NavHostController) {
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
 
                     Button(
                         onClick = { tryLogin() },
@@ -191,32 +213,60 @@ fun LoginScreen(navController: NavHostController) {
                             .height(56.dp)
                     ) {
                         Text(
-                            "Entrar",
+                            "ENTRAR",
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
-                            fontSize = 16.sp
+                            fontSize = 22.sp
                         )
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 55.dp),
+                            .padding(bottom = 0.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+
+                        Spacer(modifier = Modifier.height(15.dp))
+
                         Text(
-                            text = "Ainda não possui uma conta?",
-                            fontSize = 16.sp,
+                            text = "ESQUECEU SUA SENHA MESTRA?",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                            modifier = Modifier.clickable {
+                                navController.navigate("forgotPassword")
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(40.dp))
+
+                        Text(
+                            text = "AINDA NÃO POSSUI CONTA?",
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                             modifier = Modifier.clickable {
                                 navController.navigate("signup")
                             }
                         )
+                        Spacer(modifier = Modifier.height(15.dp))
                     }
                 }
             }
+        }
+
+        if (showDialog && dialogIcon != null) {
+            CustomDialog(
+                title = dialogTitle,
+                message = dialogMessage,
+                icon = Icons.Default.Warning,
+                iconColor = Color(0xFFEC4D4D),
+                onConfirm = { showDialog = false },
+                onDismiss = { showDialog = false }
+            )
         }
     }
 }
