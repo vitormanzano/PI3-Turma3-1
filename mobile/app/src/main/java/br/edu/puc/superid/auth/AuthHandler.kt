@@ -96,19 +96,23 @@ class AuthHandler {
             }
     }
 
-     fun emailFoiVerificado(user: FirebaseUser, context: Context, onResult: (Boolean) -> Unit)v {
-        val verificado = false
+    fun emailFoiVerificado(
+        user: FirebaseUser,
+        context: Context,
+        onResult: (Boolean) -> Unit
+    ) {
+        var verificado = false
+
         user.reload().addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                val verificado = user.isEmailVerified
+                verificado = user.isEmailVerified
 
-                val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
+                val prefs = context.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE)
                 prefs.edit().putBoolean("email_validado", verificado).apply()
 
-                Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
+                Log.d("EMAIL", if (verificado) "Email verificado!" else "Email não verificado")
                 onResult(verificado)
-            }
-            else {
+            } else {
                 Log.e("EMAIL", "Erro ao recarregar usuário: ${task.exception}")
                 onResult(false)
             }

@@ -26,6 +26,7 @@ import br.edu.puc.superid.auth.AuthHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import br.edu.puc.superid.R
+import br.edu.puc.superid.ui.components.CustomDialog
 
 @Composable
 fun ForgotPasswordScreen(navController: NavHostController) {
@@ -44,7 +45,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
     fun sendResetPasswordEmail() {
         auth.enviarEmailParaRedefinirSenha(email)
         dialogTitle = "Verifique seu e-mail"
-        dialogMessage = "Se o e-mail informado estiver cadastrado, você receberá um link para redefinir sua senha."
+        dialogMessage = "Se o e-mail informado estiver cadastrado e validadado, você receberá um link para redefinir sua senha."
         dialogIcon = Icons.Default.Check
         dialogIconColor = Color(0xFF4CAF50)
         showDialog = true
@@ -97,7 +98,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "Recuperar Senha",
+                        "Recuperar Senha Mestra",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White

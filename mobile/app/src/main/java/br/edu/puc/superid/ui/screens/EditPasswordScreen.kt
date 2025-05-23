@@ -34,6 +34,7 @@ import androidx.navigation.NavHostController
 import br.edu.puc.superid.R
 import br.edu.puc.superid.database.FirestoreHandler
 import kotlinx.coroutines.launch
+import br.edu.puc.superid.ui.components.CustomDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

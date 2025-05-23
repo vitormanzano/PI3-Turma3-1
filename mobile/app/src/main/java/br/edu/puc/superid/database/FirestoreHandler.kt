@@ -151,7 +151,7 @@ class FirestoreHandler {
                         "nome" to nome,
                         "login" to login,
                         "nomeCategoria" to nomeCategoria,
-                        "senha" to senha
+                        "senha" to criptografarSenha(senha)
                     )
 
                     val document = documents.documents[0]
