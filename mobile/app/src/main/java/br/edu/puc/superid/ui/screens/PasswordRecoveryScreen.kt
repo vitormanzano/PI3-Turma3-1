@@ -1,5 +1,6 @@
 package br.edu.puc.superid.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.auth.AuthHandler
 import kotlinx.coroutines.delay
@@ -83,22 +86,24 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                 // Conteúdo centralizado verticalmente
                 Column(
                     modifier = Modifier
-                        .padding(bottom = 109.dp)
+                        .padding(bottom = 200.dp)
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Email,
-                        contentDescription = null,
-                        tint = iconsColor,
-                        modifier = Modifier.size(64.dp)
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "SuperID logo",
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f)
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Crop
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        "Recuperar Senha Mestra",
+                        "RECUPERAR SENHA MESTRA",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -107,19 +112,19 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        "Digite seu e-mail cadastrado. Enviaremos um link para redefinir sua senha.",
+                        "DIGITE SEU EMAIL CADASTRADO. ENVIAREMOS UM LINK PARA REDEFINIR SUA SENHA",
                         color = Color.Gray,
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
 
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("E-mail", color = Color.Gray) },
+                        placeholder = { Text("Email", color = Color.Gray, fontSize = 20.sp) },
                         leadingIcon = {
                             Icon(
                                 Icons.Outlined.Email,
@@ -134,7 +139,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                                 tint = Color.Green
                             )
                         },
-                        textStyle = TextStyle(color = Color.White),
+                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -144,7 +149,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
 
                     Button(
                         onClick = { sendResetPasswordEmail() },
@@ -158,13 +163,13 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .height(56.dp)
                     ) {
-                        Text("Enviar e-mail", color = Color.White, fontSize = 16.sp)
+                        Text("ENVIAR EMAIL", color = Color.White, fontSize = 22.sp)
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(36.dp))
 
                     Text(
-                        "Voltar para o login",
+                        "VOLTAR PARA O LOGIN",
                         color = Color.White,
                         fontSize = 14.sp,
                         modifier = Modifier.clickable { navController.navigate("login") }
