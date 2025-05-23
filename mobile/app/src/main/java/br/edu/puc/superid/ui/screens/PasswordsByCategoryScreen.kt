@@ -87,7 +87,7 @@ fun PasswordsByCategoryScreen(
                         senha = senha,
                         onEditClick = {
                             navController.navigate(
-                                "editar_senha/${senha.guid}/${senha.nome}/${senha.login}/${senha.nomeCategoria}/${senha.senha}"
+                                "editar_senha/${senha.guid}/${senha.descricao}/${senha.login}/${senha.nomeCategoria}/${senha.senha}"
                             )
                         },
                         onDeleteClick = {
