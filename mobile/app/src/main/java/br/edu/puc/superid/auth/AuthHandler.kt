@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.functions.ktx.functions
 
@@ -45,6 +46,7 @@ class AuthHandler {
                     val uid = auth.currentUser!!.uid
 
                     salvarUIDUsuario(context, uid)
+                    salvarEmailUsuario(context, email)
 
                     db.cadastrarUsuario(nome, uid, imei)
 
@@ -81,7 +83,6 @@ class AuthHandler {
         Log.i("AUTH", "Usuário deslogado com sucesso.")
     }
 
-
     fun enviarEmailParaVerificacao(user: FirebaseUser) {
         user.sendEmailVerification()
             .addOnCompleteListener { verificationTask ->
@@ -92,8 +93,7 @@ class AuthHandler {
                 }
             }
     }
-
-    fun emailFoiVerificado(email: String, context: Context, onResult: (Boolean) -> Unit) {
+     fun emailFoiVerificado(email: String, context: Context, onResult: (Boolean) -> Unit) {
         val functions = Firebase.functions
         val data = hashMapOf("email" to email)
 
@@ -101,20 +101,20 @@ class AuthHandler {
             .call(data)
             .addOnSuccessListener { result ->
                 val res = result.data as Map<*, *>
+
                 val verificado = res["emailVerified"] as Boolean
 
                 val prefs = context.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE)
                 prefs.edit().putBoolean("email_validado", verificado).apply()
 
                 if (verificado) {
-                    val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
-                    prefs.edit().putBoolean("email_validado", verificado).apply()
+                    db.emailValidadoVerdadeiro(uid) 
                 }
 
-                Log.d(
-                    "EMAIL",
-                    if (verificado) "Email verificado!" else "Email ainda não verificado."
-                )
+                Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
+                    val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
+                    prefs.edit().putBoolean("email_validado", verificado).apply()
+            }
                 onResult(verificado)
             }
             .addOnFailureListener { e ->
@@ -139,5 +139,10 @@ class AuthHandler {
     fun salvarUIDUsuario(context: Context, uid: String) {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("userUid", uid).apply()
+    }
+
+    fun salvarEmailUsuario(context: Context, email: String) {
+        val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("email", email).apply()
     }
 }

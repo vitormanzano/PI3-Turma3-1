@@ -42,7 +42,8 @@ class FirestoreHandler {
         val novoDocUsuario = hashMapOf(
             "Nome" to nome,
             "UID" to uid,
-            "IMEI" to imei
+            "IMEI" to imei,
+            "emailFoiVerificado" to false
         )
 
         db.collection("users").add(novoDocUsuario)
@@ -55,6 +56,32 @@ class FirestoreHandler {
                 } else {
                     Log.w("FAILURE", "${task.exception}")
                 }
+            }
+    }
+
+    fun emailValidadoVerdadeiro(uid: String) {
+        db.collection("users")
+            .whereEqualTo("UID", uid)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    db.collection("users")
+                        .document(document.id)
+                        .update("emailFoiVerificado", true)
+                        .addOnSuccessListener {
+                            Log.d("SUCCESS", "Email verificado atualizado para true.")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("FAILURE", "Erro ao atualizar email verificado", e)
+                        }
+                }
+
+                if (documents.isEmpty) {
+                    Log.w("NOT FOUND", "Nenhum usuário encontrado com UID: $uid")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FAILURE", "Erro ao buscar usuário", exception)
             }
     }
 
