@@ -51,8 +51,15 @@ class AuthHandler {
                     db.cadastrarUsuario(nome, uid, imei)
 
                     val user = auth.currentUser
-                    enviarEmailParaVerificacao(user!!)
-
+                    enviarEmailParaVerificacao(
+                        user = user!!,
+                        onSuccess = {
+                            Log.i("EMAIL", "Verificação enviada com sucesso após cadastro.")
+                        },
+                        onFailure = {
+                            Log.e("EMAIL", "Falha ao enviar verificação após cadastro.")
+                        }
+                    )
                     onResult(true, "Conta criada com sucesso!")
                 } else {
                     val exceptionAuth = task.exception
@@ -83,17 +90,24 @@ class AuthHandler {
         Log.i("AUTH", "Usuário deslogado com sucesso.")
     }
 
-    fun enviarEmailParaVerificacao(user: FirebaseUser) {
+    fun enviarEmailParaVerificacao(
+        user: FirebaseUser,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
         user.sendEmailVerification()
             .addOnCompleteListener { verificationTask ->
                 if (verificationTask.isSuccessful) {
                     Log.i("VERIFICATION", "Email enviado")
+                    onSuccess()
                 } else {
                     Log.e("VERIFICATION", "Email não enviado")
+                    onFailure()
                 }
             }
     }
-     fun emailFoiVerificado(email: String, context: Context, onResult: (Boolean) -> Unit) {
+
+    fun emailFoiVerificado(email: String, context: Context, onResult: (Boolean) -> Unit) {
         val functions = Firebase.functions
         val data = hashMapOf("email" to email)
 

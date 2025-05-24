@@ -37,6 +37,7 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import br.edu.puc.superid.ui.components.CustomDialog
+import kotlinx.coroutines.delay
 
 @Composable
 fun PasswordManagerScreen(navController: NavHostController) {
@@ -53,6 +54,15 @@ fun PasswordManagerScreen(navController: NavHostController) {
     LaunchedEffect(Unit) {
         firestore.obterNomeUsuario() { nome ->
             userName.value = nome
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(5000) // espera 5 segundos
+            user?.reload()?.addOnSuccessListener {
+                isEmailVerified.value = user.isEmailVerified
+            }
         }
     }
 
@@ -113,9 +123,14 @@ fun EmailVerificationCard(
     user: FirebaseUser,
     auth: AuthHandler
 ) {
-    // Só mostra o card se o e-mail NÃO estiver verificado
     if (!isEmailVerified) {
         var showCard by remember { mutableStateOf(true) }
+
+        var showDialog by remember { mutableStateOf(false) }
+        var dialogTitle by remember { mutableStateOf("") }
+        var dialogMessage by remember { mutableStateOf("") }
+        var dialogIcon by remember { mutableStateOf(Icons.Default.Warning) }
+        var dialogIconColor by remember { mutableStateOf(Color(0xFFEC4D4D)) }
 
         val backgroundColor = Color(0xFF3366FF)
         val statusText = "E-mail não verificado, você não poderá recuperar sua senha mestra e nem utilizar o login sem senha!"
@@ -136,7 +151,23 @@ fun EmailVerificationCard(
 
                     Button(
                         onClick = {
-                            auth.enviarEmailParaVerificacao(user)
+                            auth.enviarEmailParaVerificacao(
+                                user = user,
+                                onSuccess = {
+                                    dialogTitle = "Verificação enviada"
+                                    dialogMessage = "Um e-mail de verificação foi enviado para ${user.email}"
+                                    dialogIcon = Icons.Default.Check
+                                    dialogIconColor = Color(0xFF4CAF50)
+                                    showDialog = true
+                                },
+                                onFailure = {
+                                    dialogTitle = "Erro ao enviar"
+                                    dialogMessage = "Não foi possível enviar o e-mail de verificação. Tente novamente mais tarde."
+                                    dialogIcon = Icons.Default.Warning
+                                    dialogIconColor = Color(0xFFEC4D4D)
+                                    showDialog = true
+                                }
+                            )
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         shape = RoundedCornerShape(50)
@@ -148,9 +179,19 @@ fun EmailVerificationCard(
                 }
             }
         }
+
+        if (showDialog) {
+            CustomDialog(
+                title = dialogTitle,
+                message = dialogMessage,
+                icon = dialogIcon,
+                iconColor = dialogIconColor,
+                onConfirm = { showDialog = false },
+                onDismiss = { showDialog = false }
+            )
+        }
     }
 }
-
 
 @Composable
 fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolean) -> Unit) {
