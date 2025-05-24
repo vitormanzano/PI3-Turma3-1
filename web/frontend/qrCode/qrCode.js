@@ -2,6 +2,7 @@
 const API_KEY = "f6UIj/l23X+M4xW7yZ9aQ0bVpEs6iYdZgB8nJt2HuKl9rSwzXcAe5oPq1I7b8UjYn2OmLwzXcAe5oPq1I7b8e5oPq1I7b8UjYn2OmLwzXcAe5oPq1I7b8UjYn2OmLw==";
 const SITE_URL = "www.example.com";
 
+
 let loginToken = null;
 let interval = null;
 let intervalsCount = 0;
@@ -48,8 +49,12 @@ async function checkLoginStatus() {
 
     const data = await res.json();
 
+    console.log(data)
+
     if (data.status === "success") {
       clearInterval(interval);
+
+      document.getElementById("qrcode").src = "../assets/pngtree-simple-style-correct-symbol-icon-material-image_2291415.jpg"
 
       document.getElementById("status").innerText = "Login efetuado com sucesso!";
       setTimeout(() => {
