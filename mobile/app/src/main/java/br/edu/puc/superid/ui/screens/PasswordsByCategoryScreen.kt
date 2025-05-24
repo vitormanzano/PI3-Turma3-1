@@ -3,7 +3,9 @@ package br.edu.puc.superid.ui.screens
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -74,13 +76,16 @@ fun PasswordsByCategoryScreen(
                 )
             }
         }
-    ) { innerPadding ->
+    )
+    { innerPadding ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize()
-        ) {
+                .verticalScroll(scrollState),
+            ) {
             if (senhas.isNotEmpty()) {
                 senhas.forEachIndexed { index, senha ->
                     PasswordItem(

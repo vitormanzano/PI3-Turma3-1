@@ -183,8 +183,8 @@ fun ProfileScreen(navController: NavHostController) {
 
         if (showDialog.value) {
             CustomDialog(
-                title = "Acesso negado",
-                message = "Verifique seu e-mail para acessar esta funcionalidade.",
+                title = "mail não verificado",
+                message = "Você precisa verificar seu email antes de usar o login sem senha.",
                 icon = Icons.Default.Warning,
                 iconColor = Color(0xFFEC4D4D),
                 onConfirm = { showDialog.value = false },

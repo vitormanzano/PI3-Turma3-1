@@ -4,7 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Error
@@ -106,13 +108,15 @@ fun LoginScreen(navController: NavHostController) {
                         modifier = Modifier.size(24.dp)
                     )
                 }
+                val scrollState = rememberScrollState()
 
                 Column(
                     modifier = Modifier
                         .padding(bottom = 50.dp)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Top
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.logo),

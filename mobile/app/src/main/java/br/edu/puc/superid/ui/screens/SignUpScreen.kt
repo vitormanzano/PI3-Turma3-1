@@ -124,12 +124,13 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     )
                 }
 
-                // Conteúdo da tela que será movido para cima
+                val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .offset(y = (-20).dp) // aqui você move o conteúdo para cima
-                        .padding(bottom = 50.dp),
+                        .padding(bottom = 50.dp)
+                        .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {

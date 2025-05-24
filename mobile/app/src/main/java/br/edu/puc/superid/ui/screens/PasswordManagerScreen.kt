@@ -44,18 +44,11 @@ fun PasswordManagerScreen(navController: NavHostController) {
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val isEmailVerified = remember { mutableStateOf(false) }
-    val auth = AuthHandler()
+    val authHandler = AuthHandler()
     val firestore = FirestoreHandler()
     val userName = remember { mutableStateOf("") }
-
-    val user = auth.obterUser()
-
-    LaunchedEffect(Unit) {
-        auth.emailFoiVerificado(user!!, context) { verificado ->
-            isEmailVerified.value = verificado
-        }
-    }
+    val user = authHandler.obterUser()
+    val isEmailVerified = remember { mutableStateOf(user?.isEmailVerified == true) }
 
     LaunchedEffect(Unit) {
         firestore.obterNomeUsuario() { nome ->
@@ -72,20 +65,23 @@ fun PasswordManagerScreen(navController: NavHostController) {
             BottomNavigationBar(
                 navController = navController,
                 selectedIndex = currentIndex,
-                onItemSelected = { currentIndex = it },
+                onItemSelected = { currentIndex = 0 },
                 isEmailVerified = isEmailVerified.value
             )
         }
     ) { innerPadding ->
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(horizontal = 24.dp, vertical = 16.dp)
-        ) {
+                .verticalScroll(scrollState),
+            ) {
             Spacer(modifier = Modifier.height(8.dp))
             if (user != null) {
-                EmailVerificationCard(isEmailVerified = isEmailVerified.value, user, auth)
+                EmailVerificationCard(isEmailVerified = isEmailVerified.value, user, authHandler)
             }
             Spacer(modifier = Modifier.height(24.dp))
             QuickActionsBar(navController) { isEditMode = it }
@@ -100,7 +96,7 @@ fun TopBar() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp),
+            .padding(top = 8.dp, bottom = 0.dp),
         contentAlignment = Alignment.TopCenter
     ) {
         Image(
@@ -117,38 +113,27 @@ fun EmailVerificationCard(
     user: FirebaseUser,
     auth: AuthHandler
 ) {
-    var showCard by remember { mutableStateOf(true) }
+    // Só mostra o card se o e-mail NÃO estiver verificado
+    if (!isEmailVerified) {
+        var showCard by remember { mutableStateOf(true) }
 
-    val backgroundColor = Color(0xFF3366FF)
-    val statusText = if (isEmailVerified) "E-mail verificado!" else "E-mail não verificado, você não poderá recuperar sua senha mestra e nem utilizar o login sem senha!"
-    val actionText = if (isEmailVerified) "OK" else "Verificar agora"
+        val backgroundColor = Color(0xFF3366FF)
+        val statusText = "E-mail não verificado, você não poderá recuperar sua senha mestra e nem utilizar o login sem senha!"
+        val actionText = "Verificar agora"
 
-    if (showCard) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(backgroundColor, shape = RoundedCornerShape(16.dp))
-                .padding(24.dp)
-        ) {
-            Column {
-                Text("Status do e-mail", color = Color.White.copy(alpha = 0.7f), fontSize = 16.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(statusText, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Spacer(modifier = Modifier.height(12.dp))
+        if (showCard) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(backgroundColor, shape = RoundedCornerShape(16.dp))
+                    .padding(24.dp)
+            ) {
+                Column {
+                    Text("Status do e-mail", color = Color.White.copy(alpha = 0.7f), fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(statusText, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                if (isEmailVerified) {
-                    Button(
-                        onClick = {
-                            showCard = false // fecha a box
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                        shape = RoundedCornerShape(50)
-                    ) {
-                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.Black)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(actionText, color = Color.Black)
-                    }
-                } else {
                     Button(
                         onClick = {
                             auth.enviarEmailParaVerificacao(user)
@@ -243,12 +228,18 @@ fun DividerVertical() {
 fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
     val firestore = FirestoreHandler()
     var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
+    var quantidades by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
     LaunchedEffect(Unit) {
-        categorias = firestore.buscarTodasCategorias()
-    }
+        val categoriasCarregadas = firestore.buscarTodasCategorias()
+        categorias = categoriasCarregadas
 
-    val scrollState = rememberScrollState()
+        // Para cada categoria, busca a quantidade (paralelamente se quiser)
+        val quantidadesMap = categoriasCarregadas.associateWith { categoria ->
+            firestore.quantidadeDeSenhasPorCategoria(categoria) // Supondo que é uma suspend function
+        }
+        quantidades = quantidadesMap
+    }
 
     Column(
         modifier = Modifier
@@ -267,30 +258,27 @@ fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp)
                     .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
                     .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
                     .padding(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(scrollState)
-                        .fillMaxWidth()
-                ) {
-
+                Column(modifier = Modifier.fillMaxWidth()) {
                     categorias.forEachIndexed { index, categoria ->
+                        val count = quantidades[categoria] ?: 0
+
                         if (categoria != "Sites da Web") {
                             CategoryItem(
                                 name = categoria,
-                                count = 0,
+                                count = count,
                                 onClick = { navController.navigate("senhas/${categoria}") },
-                                isEditMode = isEditMode, // Passa o estado de edição
+                                isEditMode = isEditMode,
                                 onDeleteClick = {
                                     val userUid = FirebaseAuth.getInstance().currentUser?.uid
                                     if (userUid != null) {
                                         firestore.deletarCategoria(userUid, categoria) { success ->
                                             if (success) {
                                                 categorias = categorias.filter { it != categoria }
+                                                quantidades = quantidades - categoria
                                             } else {
                                                 Log.e("FIREBASE", "Falha ao excluir categoria $categoria")
                                             }
@@ -305,7 +293,7 @@ fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
                                 name = categoria,
                                 count = 0,
                                 onClick = { navController.navigate("senhas/${categoria}") },
-                                isEditMode = false, // Não permite edição para "Sites da Web"
+                                isEditMode = false,
                                 onDeleteClick = {}
                             )
                         }
@@ -465,7 +453,7 @@ fun BottomNavigationBar(
 
     var showDialog by remember { mutableStateOf(false) }
     val dialogTitle = "Email não verificado"
-    val dialogMessage = "Você precisa verificar seu email antes de acessar essa funcionalidade."
+    val dialogMessage = "Você precisa verificar seu email antes de usar o login sem senha."
 
     Column {
         Divider(
