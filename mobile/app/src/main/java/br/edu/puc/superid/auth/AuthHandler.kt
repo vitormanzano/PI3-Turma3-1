@@ -101,22 +101,19 @@ class AuthHandler {
             .call(data)
             .addOnSuccessListener { result ->
                 val res = result.data as Map<*, *>
+                val uid = res["uid"] as String
 
                 val verificado = res["emailVerified"] as Boolean
-
-                val prefs = context.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE)
+                
+                val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
                 prefs.edit().putBoolean("email_validado", verificado).apply()
 
-                if (verificado) {
-                    db.emailValidadoVerdadeiro(uid) 
-                }
-
                 Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
-                    val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
-                    prefs.edit().putBoolean("email_validado", verificado).apply()
-            }
+
                 onResult(verificado)
             }
+
+
             .addOnFailureListener { e ->
                 Log.e("EMAIL", "Erro ao buscar usuário: ${e.message}")
                 onResult(false)
