@@ -136,7 +136,7 @@ fun PasswordsByCategoryScreen(
             },
             dismissButton = {
                 TextButton(onClick = { senhaSelecionada = null }) {
-                    Text("Cancelar", color = Color.Gray, fontSize = 17.sp)
+                    Text("Cancelar", color = Color.LightGray, fontSize = 17.sp)
                 }
             },
             title = { Text("Excluir senha",
@@ -149,10 +149,10 @@ fun PasswordsByCategoryScreen(
                 color = Color.LightGray,
                 fontSize = 18.sp
             ) },
-            containerColor = Color(0xFF000000),
+            containerColor = Color.DarkGray,
             shape = RoundedCornerShape(15.dp),
             modifier = Modifier.border(
-                width = 2.dp,
+                width = 1.dp,
                 color = Color(0xFF3366FF),
                 shape = RoundedCornerShape(15.dp)
             )

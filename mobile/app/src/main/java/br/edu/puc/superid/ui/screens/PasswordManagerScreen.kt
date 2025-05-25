@@ -200,7 +200,6 @@ fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolea
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp, horizontal = 16.dp)
             .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
             .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
             .padding(16.dp)
@@ -426,7 +425,7 @@ fun CategoryItem(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Cancelar", color = Color.Gray, fontSize = 17.sp)
+                        Text("Cancelar", color = Color.LightGray, fontSize = 17.sp)
                     }
                 },
                 title = {
@@ -444,10 +443,10 @@ fun CategoryItem(
                         fontSize = 18.sp
                     )
                 },
-                containerColor = Color(0xFF000000),
+                containerColor = Color.DarkGray,
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.border(
-                    width = 2.dp,
+                    width = 1.dp,
                     color = Color(0xFF3366FF),
                     shape = RoundedCornerShape(15.dp)
                 )
