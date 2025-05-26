@@ -41,7 +41,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun PasswordManagerScreen(navController: NavHostController) {
-    var isEditMode by remember { mutableStateOf(false) }
+    var isEditMode by remember { mutableStateOf(true) }
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -88,7 +88,7 @@ fun PasswordManagerScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(horizontal = 24.dp, vertical = 16.dp)
                 .verticalScroll(scrollState),
-            ) {
+        ) {
             Spacer(modifier = Modifier.height(8.dp))
             if (user != null) {
                 EmailVerificationCard(isEmailVerified = isEmailVerified.value, user, authHandler)
@@ -202,7 +202,7 @@ fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolea
             .fillMaxWidth()
             .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
             .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
-            .padding(16.dp) // Agora o padding está dentro, igual ao segundo Box
+            .padding(16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -210,27 +210,17 @@ fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolea
             verticalAlignment = Alignment.CenterVertically
         ) {
             QuickActionItem(
-                title = "  Nova Senha  ",
+                title = "Nova Senha",
                 icon = Icons.Default.Password,
                 iconColor = Color(0xFF3366FF),
                 onClick = { navController.navigate("signuppassword") }
             )
             DividerVertical()
             QuickActionItem(
-                title = "  Nova Categoria  ",
+                title = "Nova Categoria",
                 icon = Icons.Default.Category,
                 iconColor = Color(0xFF3366FF),
                 onClick = { navController.navigate("signupcategory") }
-            )
-            DividerVertical()
-            QuickActionItem(
-                title = if (isEditMode) "Cancelar" else " Editar Categoria",
-                icon = Icons.Default.Edit,
-                iconColor = Color(0xFF3366FF),
-                onClick = {
-                    isEditMode = !isEditMode
-                    onEditModeChanged(isEditMode)
-                }
             )
         }
     }
@@ -333,7 +323,7 @@ fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
                                 name = categoria,
                                 count = 0,
                                 onClick = { navController.navigate("senhas/${categoria}") },
-                                isEditMode = false,
+                                isEditMode = categoria != "Sites da Web",
                                 onDeleteClick = {}
                             )
                         }
@@ -374,11 +364,29 @@ fun CategoryItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+
+                    if (isEditMode) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        IconButton(
+                            onClick = { showDeleteDialog = true },
+                            modifier = Modifier.size(26.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Excluir Categoria",
+                                tint = Color(0xFF3366FF),
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+                    }
+                }
+
                 Text(
                     text = "$count senhas",
                     color = Color.LightGray,
@@ -386,27 +394,11 @@ fun CategoryItem(
                 )
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (isEditMode) {
-                    IconButton(
-                        onClick = { showDeleteDialog = true },
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Excluir Categoria",
-                            tint = Color.Red
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                }
-
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Ver mais",
-                    tint = Color.White
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.ArrowForward,
+                contentDescription = "Ver mais",
+                tint = Color.White
+            )
         }
 
         // Diálogo de confirmação
