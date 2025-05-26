@@ -87,11 +87,12 @@ fun EditPasswordScreen(
                 ) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White, modifier = Modifier.size(24.dp))
                 }
-
+                val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 41.dp),
+                        .padding(bottom = 41.dp)
+                        .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {

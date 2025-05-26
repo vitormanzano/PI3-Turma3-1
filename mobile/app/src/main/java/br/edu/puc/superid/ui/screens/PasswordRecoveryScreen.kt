@@ -4,8 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -83,11 +85,14 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                     )
                 }
 
+
                 // Conteúdo centralizado verticalmente
+                val scrollState = rememberScrollState()
                 Column(
                     modifier = Modifier
                         .padding(bottom = 200.dp)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
