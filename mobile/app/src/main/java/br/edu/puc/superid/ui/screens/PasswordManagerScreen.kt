@@ -202,7 +202,7 @@ fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolea
             .fillMaxWidth()
             .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
             .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
-            .padding(16.dp)
+            .padding(16.dp) // Agora o padding está dentro, igual ao segundo Box
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -210,26 +210,26 @@ fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolea
             verticalAlignment = Alignment.CenterVertically
         ) {
             QuickActionItem(
-                title = "Nova Senha",
+                title = "  Nova Senha  ",
                 icon = Icons.Default.Password,
                 iconColor = Color(0xFF3366FF),
                 onClick = { navController.navigate("signuppassword") }
             )
             DividerVertical()
             QuickActionItem(
-                title = "Nova Categoria",
+                title = "  Nova Categoria  ",
                 icon = Icons.Default.Category,
                 iconColor = Color(0xFF3366FF),
                 onClick = { navController.navigate("signupcategory") }
             )
             DividerVertical()
             QuickActionItem(
-                title = if (isEditMode) "Cancelar" else "Editar",
+                title = if (isEditMode) "Cancelar" else " Editar Categoria",
                 icon = Icons.Default.Edit,
                 iconColor = Color(0xFF3366FF),
                 onClick = {
                     isEditMode = !isEditMode
-                    onEditModeChanged(isEditMode) // Chama a função passada para alterar o estado do modo de edição
+                    onEditModeChanged(isEditMode)
                 }
             )
         }
