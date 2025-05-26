@@ -22,7 +22,7 @@ const db = getFirestore();
 
 export const performAuth = onRequest(async (req, res) => {
   const { apiKey, url } = req.body;
-
+  console.log(apiKey)
   if (!apiKey || !url) {
     res.status(400).send("Missing apiKey or url");
     return;

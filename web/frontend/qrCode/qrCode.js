@@ -1,6 +1,6 @@
  const PROJECT_ID = "superid-ab179"; 
-const API_KEY = "f6UIj/l23X+M4xW7yZ9aQ0bVpEs6iYdZgB8nJt2HuKl9rSwzXcAe5oPq1I7b8UjYn2OmLwzXcAe5oPq1I7b8e5oPq1I7b8UjYn2OmLwzXcAe5oPq1I7b8UjYn2OmLw==";
-const SITE_URL = "www.example.com";
+const API_KEY = "J6rKmP9sVb4nXqLd7oFwYuG2eHt9ZcAx0MlReBnT8sWq3IvNp5TyGhQzLuXcAe9dFq2WmNbYtRuKcJvH3XyPq";
+const SITE_URL = "www.xpto.site.com.br";
 
 
 let loginToken = null;
