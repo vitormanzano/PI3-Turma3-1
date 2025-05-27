@@ -134,7 +134,6 @@ class AuthHandler {
             }
     }
 
-
     fun enviarEmailParaRedefinirSenha(email: String) {
         auth.sendPasswordResetEmail(email).continueWith { task ->
             if (task.isCanceled) {
@@ -156,4 +155,17 @@ class AuthHandler {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("email", email).apply()
     }
+
+    fun salvarEstadoEmail(context: Context, verificado: Boolean) {
+        val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("emailVerificado", verificado).apply()
+        Log.i("EMAIL", verificado.toString())
+    }
+
+    fun estadoDoEmail(context: Context) {
+        val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        val verificado = prefs.getBoolean("emailVerificado", false)
+        Log.i("Email", verificado.toString())
+    }
+
 }
