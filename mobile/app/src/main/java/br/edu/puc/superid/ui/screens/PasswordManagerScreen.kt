@@ -44,6 +44,7 @@ fun PasswordManagerScreen(navController: NavHostController) {
     var isEditMode by remember { mutableStateOf(true) }
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val auth = AuthHandler();
 
     val authHandler = AuthHandler()
     val firestore = FirestoreHandler()
@@ -62,6 +63,7 @@ fun PasswordManagerScreen(navController: NavHostController) {
             delay(5000) // espera 5 segundos
             user?.reload()?.addOnSuccessListener {
                 isEmailVerified.value = user.isEmailVerified
+                auth.salvarEstadoEmail(context, isEmailVerified.value)
             }
         }
     }

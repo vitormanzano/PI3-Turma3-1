@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import br.edu.puc.superid.auth.AuthHandler
@@ -41,6 +43,8 @@ fun ForgotPasswordScreen(navController: NavHostController) {
     var dialogMessage by remember { mutableStateOf("") }
     var dialogIcon by remember { mutableStateOf(Icons.Default.Check) }
     var dialogIconColor by remember { mutableStateOf(Color(0xFF4CAF50)) }
+    var showDialogVerificationEmail by remember {mutableStateOf(false)}
+    val context = LocalContext.current
 
     val auth = AuthHandler()
     val iconsColor = Color(0xFF3366FF)
@@ -49,6 +53,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
 
     fun sendResetPasswordEmail() {
         auth.enviarEmailParaRedefinirSenha(email)
+        auth.estadoDoEmail(context)
         dialogTitle = "Verifique seu e-mail"
         dialogMessage = "Se o e-mail informado estiver cadastrado e validadado, você receberá um link para redefinir sua senha."
         dialogIcon = Icons.Default.Check
@@ -157,7 +162,18 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(30.dp))
 
                     Button(
-                        onClick = { sendResetPasswordEmail() },
+                        onClick = {
+                            val emailEstaVerificado = auth.estadoDoEmail(context)
+
+                            if (emailEstaVerificado) {
+                                sendResetPasswordEmail()
+                            }
+                            else {
+                                showDialogVerificationEmail = true
+                            }
+
+
+                                  },
                         enabled = emailValid,
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -190,6 +206,17 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                         iconColor = dialogIconColor,
                         onConfirm = { showDialog = false },
                         onDismiss = { showDialog = false }
+                    )
+                }
+
+                if (showDialogVerificationEmail) {
+                    CustomDialog(
+                        title = "Email não verificado!",
+                        message = "Para recuperar a senha mestra seu email precisa estar verificado!",
+                        icon = Icons.Default.Close,
+                        iconColor = Color(0xFFEC4D4D),
+                        onConfirm = { showDialogVerificationEmail = false },
+                        onDismiss = { showDialogVerificationEmail = false }
                     )
                 }
             }
