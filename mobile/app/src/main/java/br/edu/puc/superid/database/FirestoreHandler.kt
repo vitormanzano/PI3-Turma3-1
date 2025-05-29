@@ -235,35 +235,7 @@ class FirestoreHandler {
                 onComplete(false)
             }
     }
-
-    fun buscarTodasAsSenhas(userUid: String): List<Senha> {
-        val listaDeSenhas: MutableList<Senha> = mutableListOf()
-
-        db.collection("senhas")
-            .whereEqualTo("uidUsuario", userUid)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val descricao = document.getString("descricao").toString()
-                    val guid = document.getString("guid").toString()
-                    val login = document.getString("login").toString()
-                    val nomeCategoria = document.getString("nomeCategoria").toString()
-                    val senha = document.getString("senha").toString()
-                    val senhaDescriptografada = descriptografarSenha(senha)
-                    val accessToken = document.getString("accessToken").toString()
-                    val uidUsuario = document.getString("uidUsuario").toString()
-
-                    val senhaData = Senha(descricao, guid, login, nomeCategoria, senhaDescriptografada, accessToken, uidUsuario)
-                    listaDeSenhas.add(senhaData)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("FAILURE", "${e.message}")
-            }
-
-        return listaDeSenhas
-    }
-
+    
     suspend fun buscarSenhasPorCategoria(categoria: String): List<Senha> {
         val listaDeSenhas = mutableListOf<Senha>()
         val auth = AuthHandler()
