@@ -186,7 +186,12 @@ fun SignUpCategoryScreen(navController: NavHostController) {
             message = dialogMessage,
             icon = dialogIcon,
             iconColor = dialogIconColor,
-            onConfirm = { showDialog = false },
+            onConfirm = {
+                showDialog = false
+                navController.navigate("mainScreen") {
+                    popUpTo("signUpCategory") { inclusive = true }
+                }
+            },
             onDismiss = { showDialog = false }
         )
     }

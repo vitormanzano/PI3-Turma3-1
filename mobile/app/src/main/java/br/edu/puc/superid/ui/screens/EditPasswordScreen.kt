@@ -241,7 +241,12 @@ fun EditPasswordScreen(
             message = dialogMessage,
             icon = dialogIcon,
             iconColor = dialogIconColor,
-            onConfirm = { showDialog = false },
+            onConfirm = {
+                showDialog = false
+                navController.navigate("mainScreen") {
+                    popUpTo("EditPasswordScreen") { inclusive = true }
+                }
+            },
             onDismiss = { showDialog = false }
         )
     }

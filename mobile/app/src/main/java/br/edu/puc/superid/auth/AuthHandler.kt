@@ -171,10 +171,10 @@ class AuthHandler {
     }
 
     //Obtem o estado do email atual
-    fun estadoDoEmail(context: Context) {
+    fun estadoDoEmail(context: Context): Boolean {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         val verificado = prefs.getBoolean("emailVerificado", false)
         Log.i("Email", verificado.toString())
+        return verificado
     }
-
 }
