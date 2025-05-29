@@ -25,6 +25,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import kotlin.random.Random
 
+//Molde para a senha
 data class Senha (
     var descricao: String,
     var guid: String,
@@ -38,6 +39,7 @@ data class Senha (
 class FirestoreHandler {
     private val db = Firebase.firestore
 
+    //Cadastra campos do usuário no
     fun cadastrarUsuario(nome: String, uid: String, imei: String) {
         val novoDocUsuario = hashMapOf(
             "Nome" to nome,
@@ -52,13 +54,14 @@ class FirestoreHandler {
                     Log.d("SUCCESS", "Usuário criado!")
                     val user = FirebaseAuth.getInstance().currentUser
                     val userUid = user!!.uid
-                    inserirCategoriasIniciais(userUid)
+                    inserirCategoriasIniciais(userUid) //Coloca as 3 categorias iniciais para o user
                 } else {
                     Log.w("FAILURE", "${task.exception}")
                 }
             }
     }
 
+    //Coloca o email como validado
     fun emailValidadoVerdadeiro(uid: String) {
         db.collection("users")
             .whereEqualTo("UID", uid)
@@ -89,6 +92,7 @@ class FirestoreHandler {
         return Random.Default.nextBytes(16)
     }
 
+    //Função de criptografar a senha
     fun criptografar(text: String, key: String): String {
         val keyBytes = key.toByteArray().copyOf(16)
         val secretKey = SecretKeySpec(keyBytes, "AES")
@@ -104,6 +108,7 @@ class FirestoreHandler {
         return Base64.encodeToString(encryptedWithIV, Base64.DEFAULT)
     }
 
+    //Função de descriptografar a senha
     fun descriptografar(encryptedBase64: String, key: String): String {
         val encryptedWithIV = Base64.decode(encryptedBase64, Base64.DEFAULT)
         val iv = encryptedWithIV.sliceArray(0 until 16)
@@ -119,16 +124,19 @@ class FirestoreHandler {
         return String(cipher.doFinal(encrypted))
     }
 
+    //Chama a função para descriptografar
     fun descriptografarSenha(senha: String): String {
         val chaveParaCriptografar = "chaveExemplo1234"
         return descriptografar(senha, chaveParaCriptografar)
     }
 
+    //Chama a funçào de criptografar
     fun criptografarSenha(senha: String): String {
         val chaveParaCriptografar = "chaveExemplo1234"
         return criptografar(senha, chaveParaCriptografar)
     }
 
+    //Gera accessToken do usuário
     fun gerarAccessToken(length: Int = 256): String {
         val byteLength = (length * 6) / 8
         val randomBytes = ByteArray(byteLength)
@@ -140,6 +148,7 @@ class FirestoreHandler {
         return UUID.randomUUID().toString()
     }
 
+    //Cadastra a senha do user
     fun cadastrarSenha(descricao: String, login: String?, categoria: String, senha: String) {
         val guid = gerarGuid()
         val user = FirebaseAuth.getInstance().currentUser
@@ -168,6 +177,7 @@ class FirestoreHandler {
             }
     }
 
+    //Altera senha do user
     fun alterarSenha(guid: String, descricao: String, login: String, nomeCategoria: String, senha: String) {
         db.collection("senhas")
             .whereEqualTo("guid", guid)
@@ -199,6 +209,7 @@ class FirestoreHandler {
             }
     }
 
+    //Deleta senha do user
     fun deletarSenha(guid: String, onComplete: (Boolean) -> Unit) {
         db.collection("senhas")
             .whereEqualTo("guid", guid)
@@ -236,6 +247,7 @@ class FirestoreHandler {
             }
     }
 
+    //Busca todas as senhas do user
     fun buscarTodasAsSenhas(userUid: String): List<Senha> {
         val listaDeSenhas: MutableList<Senha> = mutableListOf()
 
@@ -243,7 +255,7 @@ class FirestoreHandler {
             .whereEqualTo("uidUsuario", userUid)
             .get()
             .addOnSuccessListener { documents ->
-                for (document in documents) {
+                for (document in documents) { //Pega os valores enquanto ter senhas cadastradas
                     val descricao = document.getString("descricao").toString()
                     val guid = document.getString("guid").toString()
                     val login = document.getString("login").toString()
@@ -264,6 +276,7 @@ class FirestoreHandler {
         return listaDeSenhas
     }
 
+    //Pega as senhas pelas categorias
     suspend fun buscarSenhasPorCategoria(categoria: String): List<Senha> {
         val listaDeSenhas = mutableListOf<Senha>()
         val auth = AuthHandler()
@@ -276,7 +289,7 @@ class FirestoreHandler {
                 .get()
                 .await()
 
-            for (document in documentos) {
+            for (document in documentos) { //Pega os valores das senhas
                 val descricao = document.getString("descricao").orEmpty()
                 val guid = document.getString("guid").orEmpty()
                 val login = document.getString("login").orEmpty()
@@ -295,12 +308,14 @@ class FirestoreHandler {
         return listaDeSenhas
     }
 
+    //Pega a quantidade de senhas que tem na categoria
     suspend fun quantidadeDeSenhasPorCategoria(categoria: String): Int {
         val listaDeSenhas = buscarSenhasPorCategoria(categoria)
 
         return listaDeSenhas.size;
     }
 
+    //Pega as categorias cadastradas
     suspend fun buscarTodasCategorias(): List<String> {
         val listaDeCategorias = mutableListOf<String>()
         val auth = AuthHandler()
@@ -312,7 +327,7 @@ class FirestoreHandler {
                 .get()
                 .await()
 
-            for (document in documentos) {
+            for (document in documentos) { //Pega todos as categorias e coloca na lista
                 val nomeCategoria = document.getString("nome") ?: continue
                 listaDeCategorias.add(nomeCategoria)
             }
@@ -334,7 +349,7 @@ class FirestoreHandler {
             .whereEqualTo("nome", nomeCategoria)
             .get()
             .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
+                if (documents.isEmpty) { //Verifica se a categoria ainda não existe
                     val docCategoria = hashMapOf(
                         "nome" to nomeCategoria,
                         "uidUsuario" to userUid
@@ -359,12 +374,12 @@ class FirestoreHandler {
             .whereEqualTo("nome", nomeCategoria)
             .get()
             .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
+                if (!documents.isEmpty) { //Verifica se existe a categoria
                     val document = documents.documents[0]
 
                     CoroutineScope(Dispatchers.IO).launch {
                         val senhasNaCategoria = buscarSenhasPorCategoria(nomeCategoria)
-                        if (senhasNaCategoria.isEmpty()) {
+                        if (senhasNaCategoria.isEmpty()) { //Se tiver senhas na categoria, não deixa excluir
                             db.collection("categorias").document(document.id)
                                 .delete()
                                 .addOnSuccessListener {
@@ -391,7 +406,7 @@ class FirestoreHandler {
             }
     }
 
-    fun inserirCategoriasIniciais(userUid: String) {
+    fun inserirCategoriasIniciais(userUid: String) { //Coloca as 3 primeiras categorias
         val categorias = listOf("Sites da Web", "Aplicativos", "Teclados de Acesso Físico")
         categorias.forEach { nome ->
             val docCategoria = hashMapOf(
@@ -402,7 +417,7 @@ class FirestoreHandler {
         }
     }
 
-    fun obterNomeUsuario(onResult: (String) -> Unit) {
+    fun obterNomeUsuario(onResult: (String) -> Unit) { //Pega o nome do user
         val auth = AuthHandler()
         val userUid = auth.obterUidUsuario()
 
