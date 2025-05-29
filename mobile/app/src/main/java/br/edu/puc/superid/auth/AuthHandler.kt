@@ -18,6 +18,7 @@ class AuthHandler {
     private val auth = Firebase.auth
     private val db = FirestoreHandler()
 
+    //Usa a função do auth para realizar o login so user
     fun login(email: String, senha: String, onResult: (Boolean) -> Unit) {
         auth.signInWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
@@ -31,6 +32,7 @@ class AuthHandler {
             }
     }
 
+    //Cadastra a credencial do user
     fun cadastrarCredencial(
         context: Context,
         nome: String,
@@ -45,13 +47,13 @@ class AuthHandler {
                     Log.d("SUCCESS", "Credencial criada!")
                     val uid = auth.currentUser!!.uid
 
-                    salvarUIDUsuario(context, uid)
+                    salvarUIDUsuario(context, uid) //Salva o uid e email nas prefs
                     salvarEmailUsuario(context, email)
 
                     db.cadastrarUsuario(nome, uid, imei)
 
                     val user = auth.currentUser
-                    enviarEmailParaVerificacao(
+                    enviarEmailParaVerificacao( //Envia o email para validar o email
                         user = user!!,
                         onSuccess = {
                             Log.i("EMAIL", "Verificação enviada com sucesso após cadastro.")
@@ -63,7 +65,7 @@ class AuthHandler {
                     onResult(true, "Conta criada com sucesso!")
                 } else {
                     val exceptionAuth = task.exception
-                    val errorMessage = when (exceptionAuth) {
+                    val errorMessage = when (exceptionAuth) { //Erros que podem ocorrer por causa das regras do auth
                         is FirebaseAuthWeakPasswordException -> "Senha deve ter no mínimo 6 caracteres!"
                         is FirebaseAuthUserCollisionException -> "O e-mail já está em uso!"
                         is FirebaseAuthInvalidCredentialsException -> "E-mail inválido!"
@@ -80,6 +82,7 @@ class AuthHandler {
         return user?.uid
     }
 
+    //Obtem o user, o tipo FirebaseUser
     fun obterUser(): FirebaseUser? {
         val user = auth.currentUser
         return user
@@ -90,6 +93,7 @@ class AuthHandler {
         Log.i("AUTH", "Usuário deslogado com sucesso.")
     }
 
+    //Envia email para validar o email
     fun enviarEmailParaVerificacao(
         user: FirebaseUser,
         onSuccess: () -> Unit,
@@ -107,6 +111,7 @@ class AuthHandler {
             }
     }
 
+    //Verifica se o email foi validado
     fun emailFoiVerificado(email: String, context: Context, onResult: (Boolean) -> Unit) {
         val functions = Firebase.functions
         val data = hashMapOf("email" to email)
@@ -146,22 +151,26 @@ class AuthHandler {
         }
     }
 
+    //Salva o uid do user nas prefs
     fun salvarUIDUsuario(context: Context, uid: String) {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("userUid", uid).apply()
     }
 
+    //Salva o email do user nas prefs
     fun salvarEmailUsuario(context: Context, email: String) {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         prefs.edit().putString("email", email).apply()
     }
 
+    //Salva o estado atual do email (verificado ou não)
     fun salvarEstadoEmail(context: Context, verificado: Boolean) {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         prefs.edit().putBoolean("emailVerificado", verificado).apply()
         Log.i("EMAIL", verificado.toString())
     }
 
+    //Obtem o estado do email atual
     fun estadoDoEmail(context: Context) {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         val verificado = prefs.getBoolean("emailVerificado", false)
