@@ -1,5 +1,6 @@
 import { IHttpResponseModel } from "../models/httpResponse-model";
 
+//Constantes para padronizar o response
 export const ok = async (data: any): Promise<IHttpResponseModel> => {
     return {
         statusCode: 200,
