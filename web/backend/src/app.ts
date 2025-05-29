@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { router } from "./routes";
 import path from "path";
 
+//Cria a aplicação
 export function createApp() {
     const app = express();
 
@@ -13,10 +14,12 @@ export function createApp() {
         res.sendFile(path.resolve(__dirname, "../../frontend/signUp/signup.html"));
     });
 
+    //Rota tela de login
     app.get('/login', (req: Request, res: Response) => {
         res.sendFile(path.resolve(__dirname, "../../frontend/login/login.html"));
     });
 
+    //Rota dr qrcode
     app.get('/qrCode', (req: Request, res: Response) => {
         res.sendFile(path.resolve(__dirname, "../../frontend/qrCode/qrCode.html"));
     });

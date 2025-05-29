@@ -4,6 +4,7 @@ import { IUserLoginModel } from "../models/userLogin-model";
 import { SignUpUserService } from "../services/user/signUpUser-service";
 import { LoginUserService } from "../services/user/loginUser-service";
 
+//Controller que cuida das req e das response
 export const signUpUser = async (
   req: Request,
   res: Response,

@@ -18,8 +18,6 @@ import { generateQRCodeWithBase64 } from "./generateQrCodeWithBase64";
 initializeApp();
 const db = getFirestore();
 
-//Recebe um QR Code base64 com um token gerado para login
-
 export const performAuth = onRequest(async (req, res) => {
   const { apiKey, url } = req.body;
   console.log(apiKey)
@@ -30,7 +28,7 @@ export const performAuth = onRequest(async (req, res) => {
 
   try {
     const partnersRef = db.collection("partners");
-
+    //Verifica se a url e a apikey estão nos partners
     const snapshot = await partnersRef
       .where("url", "==", url)
       .where("apiKey", "==", apiKey)
