@@ -285,7 +285,12 @@ fun SignUpPasswordScreen(navController: NavHostController) {
             message = dialogMessage,
             icon = dialogIcon,
             iconColor = dialogIconColor,
-            onConfirm = { showDialog = false },
+            onConfirm = {
+                showDialog = false
+                navController.navigate("mainScreen") {
+                    popUpTo("signUpPassword") { inclusive = true }
+                }
+            },
             onDismiss = { showDialog = false }
         )
     }

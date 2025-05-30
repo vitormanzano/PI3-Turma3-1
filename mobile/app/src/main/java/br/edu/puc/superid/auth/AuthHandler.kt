@@ -148,5 +148,4 @@ class AuthHandler {
         val verificado = prefs.getBoolean("emailVerificado", false)
         return verificado
     }
-
 }

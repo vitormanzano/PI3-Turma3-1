@@ -383,7 +383,7 @@ fun CategoryItem(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Excluir Categoria",
                                 tint = Color(0xFF3366FF),
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(25.dp)
                             )
                         }
                     }

@@ -3,6 +3,7 @@ package br.edu.puc.superid.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,6 +38,7 @@ fun ProfileScreen(navController: NavHostController) {
     val isEmailVerified = remember { mutableStateOf(user?.isEmailVerified == true) }
 
     val showDialog = remember { mutableStateOf(false) }
+    val confirmLogout = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         firestore.obterNomeUsuario { nome ->
@@ -122,12 +124,7 @@ fun ProfileScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(80.dp))
 
                 Button(
-                    onClick = {
-                        authHandler.deslogarUsuario()
-                        navController.navigate("login") {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    },
+                    onClick = { confirmLogout.value = true }, // Mostra a confirmação
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                     shape = RoundedCornerShape(20.dp),
                     border = BorderStroke(2.dp, Color(0xFF3366FF)),
@@ -183,12 +180,54 @@ fun ProfileScreen(navController: NavHostController) {
 
         if (showDialog.value) {
             CustomDialog(
-                title = "mail não verificado",
+                title = "Email não verificado",
                 message = "Você precisa verificar seu email antes de usar o login sem senha.",
                 icon = Icons.Default.Warning,
                 iconColor = Color(0xFFEC4D4D),
                 onConfirm = { showDialog.value = false },
                 onDismiss = { showDialog.value = false }
+            )
+        }
+
+        // Diálogo de confirmação de sair
+        if (confirmLogout.value) {
+            AlertDialog(
+                onDismissRequest = { confirmLogout.value = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            authHandler.deslogarUsuario()
+                            navController.navigate("login") {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Text("Sim", color = Color(0xFF3366FF), fontSize = 17.sp)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { confirmLogout.value = false }
+                    ) {
+                        Text("Não", color = Color.LightGray, fontSize = 17.sp)
+                    }
+                },
+                title = {
+                    Text(
+                        "Sair da Conta",
+                        color = Color(0xFF3366FF),
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = { Text("Deseja realmente sair?", color = Color.LightGray, fontSize = 18.sp)},
+                containerColor = Color.DarkGray,
+                shape = RoundedCornerShape(15.dp),
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = Color(0xFF3366FF),
+                    shape = RoundedCornerShape(15.dp)
+                )
             )
         }
     }
