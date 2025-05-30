@@ -177,6 +177,11 @@ class FirestoreHandler {
             }
     }
 
+    //Troca o campo access token da senha
+    fun trocarAccessTokenDaSenha() {
+        
+    }
+
     //Altera senha do user
     fun alterarSenha(guid: String, descricao: String, login: String, nomeCategoria: String, senha: String) {
         db.collection("senhas")
