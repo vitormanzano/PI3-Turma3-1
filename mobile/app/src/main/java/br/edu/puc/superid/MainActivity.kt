@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = "mainScreen"
+                    startDestination = startDestination
                 ) {
                     composable("mainScreen") { PasswordManagerScreen(navController) }
                     composable("firstTime") { FirstTimeScreen(navController) }

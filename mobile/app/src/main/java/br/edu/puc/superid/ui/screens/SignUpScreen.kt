@@ -60,6 +60,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
     val backgroundColor = MaterialTheme.colorScheme.background
     val surfaceColor = MaterialTheme.colorScheme.surface
     val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
     val nameValid = name.isNotBlank()
     val emailValid = email.contains("@") && Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$").matches(email)
@@ -246,7 +247,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         Text(
                             text = "Sua senha deve possuir no mínimo 6 caracteres",
                             fontSize = 16.sp,
-                            color = surfaceColor,
+                            color = onSurfaceColor,
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .align(Alignment.Start)
