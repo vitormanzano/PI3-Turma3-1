@@ -111,34 +111,6 @@ class AuthHandler {
             }
     }
 
-    //Verifica se o email foi validado
-    fun emailFoiVerificado(email: String, context: Context, onResult: (Boolean) -> Unit) {
-        val functions = Firebase.functions
-        val data = hashMapOf("email" to email)
-
-        functions.getHttpsCallable("getUserByEmail")
-            .call(data)
-            .addOnSuccessListener { result ->
-                val res = result.data as Map<*, *>
-                val uid = res["uid"] as String
-
-                val verificado = res["emailVerified"] as Boolean
-                
-                val prefs = context.getSharedPreferences("MyPrefsFile", MODE_PRIVATE)
-                prefs.edit().putBoolean("email_validado", verificado).apply()
-
-                Log.d("EMAIL", if (verificado) "Email verificado!" else "Email ainda não verificado.")
-
-                onResult(verificado)
-            }
-
-
-            .addOnFailureListener { e ->
-                Log.e("EMAIL", "Erro ao buscar usuário: ${e.message}")
-                onResult(false)
-            }
-    }
-
     fun enviarEmailParaRedefinirSenha(email: String) {
         auth.sendPasswordResetEmail(email).continueWith { task ->
             if (task.isCanceled) {
@@ -174,7 +146,6 @@ class AuthHandler {
     fun estadoDoEmail(context: Context): Boolean {
         val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
         val verificado = prefs.getBoolean("emailVerificado", false)
-        Log.i("Email", verificado.toString())
         return verificado
     }
 }

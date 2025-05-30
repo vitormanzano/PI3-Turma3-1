@@ -209,7 +209,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                     )
                 }
 
-                if (showDialogVerificationEmail) {
+                if (showDialogVerificationEmail) { //Feedback caso email não esteja validado
                     CustomDialog(
                         title = "Email não verificado!",
                         message = "Para recuperar a senha mestra seu email precisa estar verificado!",
