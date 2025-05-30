@@ -17,7 +17,7 @@ Para rodar o site você precisará fazer algumas coisas antes.
 
 1. Antes de tudo, instale o node na sua máquina.
 2. Após dar o fork do projeto. Abra o seu terminal e localize o projeto. 
-PI3-Turma3-1 - Deve se parecer com isso.
+<pre>PI3-Turma3-1</pre>
 3. Após isso você deve entrar na pasta 
 <pre>PI3-Turma3-1/web/backend</pre>
 4. Dentro da pasta backend você precisará dar o comando 
@@ -36,7 +36,7 @@ novamente, pois o firebase-functions cria um package.json diferente para rodas a
  Assim como na pasta frontend/qrCode/qrCode.js, você precisará colocar o Id do projeto que deseja usar
 11. Após esses processos, dê um build na mesma pasta para construir o arquivo lib
  <pre>npm run build </pre>
-OBS: Após dar o build, será criado a pasta lib, verifique se na raiz do projeto tem o arquivo index.js, se não, você precisará pegar e arrastar ele da pasta <pre>lib/firebase-functions</pre>, se atente a isso! 
+OBS: Após dar o build, será criado a pasta lib, verifique se na raiz do projeto tem o arquivo index.js, se não, você precisará pegar e arrastar ele da pasta <pre>lib/firebase-functions</pre> se atente a isso! <br>
 12. Após concluir todas as etapas, dentro da pasta <pre>web/backend</pre> você precisará dar o seguinte comando:  
 <pre>npm run start:watch </pre>
 Isso fará o server rodar, após o server rodar, dentro da pasta: <pre>src/firebase-functions/functions</pre>
