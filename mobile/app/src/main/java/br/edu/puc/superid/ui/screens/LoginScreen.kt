@@ -35,6 +35,7 @@ import br.edu.puc.superid.auth.AuthHandler
 import br.edu.puc.superid.ui.components.CustomDialog
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
@@ -44,8 +45,11 @@ fun LoginScreen(navController: NavHostController) {
     var wasAttempted by remember { mutableStateOf(false) }
     var senhaVisivel by remember { mutableStateOf(false) }
 
-    val iconsColor = Color(0xFF3366FF)
-    val buttonColor = Color(0xFF3366FF)
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -83,11 +87,11 @@ fun LoginScreen(navController: NavHostController) {
         }
     }
 
-    Scaffold(containerColor = Color.Black) { padding ->
+    Scaffold(containerColor = backgroundColor) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black),
+                .background(backgroundColor),
         ) {
             Column(
                 modifier = Modifier
@@ -104,7 +108,7 @@ fun LoginScreen(navController: NavHostController) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Voltar",
-                        tint = Color.White,
+                        tint = textColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -119,7 +123,7 @@ fun LoginScreen(navController: NavHostController) {
                     verticalArrangement = Arrangement.Top
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.logo_png),
                         contentDescription = "SuperID logo",
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
@@ -132,7 +136,7 @@ fun LoginScreen(navController: NavHostController) {
                     Text(
                         "ENTRE NA SUA CONTA",
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = textColor,
                         fontSize = 22.sp
                     )
 
@@ -155,12 +159,12 @@ fun LoginScreen(navController: NavHostController) {
                                 Text(emailError!!, color = Color(0xFFFF5858))
                             }
                         },
-                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                        textStyle = TextStyle(color = textColor, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -192,12 +196,12 @@ fun LoginScreen(navController: NavHostController) {
                                 Text(senhaError!!, color = Color(0xFFFF5858))
                             }
                         },
-                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                        textStyle = TextStyle(color = textColor, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -207,8 +211,8 @@ fun LoginScreen(navController: NavHostController) {
                     Button(
                         onClick = { tryLogin() },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (email.isNotBlank() && senha.isNotBlank()) buttonColor else Color.DarkGray,
-                            disabledContainerColor = Color.DarkGray
+                            containerColor = if (email.isNotBlank() && senha.isNotBlank()) iconsColor else surfaceColor,
+                            disabledContainerColor = surfaceColor
                         ),
                         enabled = email.isNotBlank() && senha.isNotBlank(),
                         shape = RoundedCornerShape(10.dp),
@@ -219,7 +223,7 @@ fun LoginScreen(navController: NavHostController) {
                         Text(
                             "ENTRAR",
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = textColor,
                             fontSize = 22.sp
                         )
                     }
@@ -239,7 +243,7 @@ fun LoginScreen(navController: NavHostController) {
                             text = "ESQUECEU SUA SENHA MESTRA?",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
+                            color = textColor,
                             modifier = Modifier.clickable {
                                 navController.navigate("forgotPassword")
                             }
@@ -251,7 +255,7 @@ fun LoginScreen(navController: NavHostController) {
                             text = "AINDA NÃO POSSUI CONTA?",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
+                            color = textColor,
                             modifier = Modifier.clickable {
                                 navController.navigate("signup")
                             }

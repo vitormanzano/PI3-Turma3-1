@@ -47,9 +47,15 @@ fun ForgotPasswordScreen(navController: NavHostController) {
     val context = LocalContext.current
 
     val auth = AuthHandler()
-    val iconsColor = Color(0xFF3366FF)
     val emailValid =
         email.contains("@") && Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$").matches(email)
+
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
     fun sendResetPasswordEmail() {
         auth.enviarEmailParaRedefinirSenha(email)
@@ -62,12 +68,12 @@ fun ForgotPasswordScreen(navController: NavHostController) {
     }
 
     Scaffold(
-        containerColor = Color.Black
+        containerColor = backgroundColor
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black),
+                .background(backgroundColor),
         ) {
             Column(
                 modifier = Modifier
@@ -85,7 +91,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Voltar",
-                        tint = Color.White,
+                        tint = textColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -102,7 +108,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.logo_png),
                         contentDescription = "SuperID logo",
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
@@ -116,7 +122,7 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                         "RECUPERAR SENHA MESTRA",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = textColor
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -149,12 +155,12 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                                 tint = Color.Green
                             )
                         },
-                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                        textStyle = TextStyle(color = textColor, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -177,21 +183,21 @@ fun ForgotPasswordScreen(navController: NavHostController) {
                         enabled = emailValid,
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (emailValid) iconsColor else Color.DarkGray,
-                            disabledContainerColor = Color.DarkGray
+                            containerColor = if (emailValid) iconsColor else surfaceColor,
+                            disabledContainerColor = surfaceColor
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
                     ) {
-                        Text("ENVIAR EMAIL", color = Color.White, fontSize = 22.sp)
+                        Text("ENVIAR EMAIL", color = textColor, fontSize = 22.sp)
                     }
 
                     Spacer(modifier = Modifier.height(36.dp))
 
                     Text(
                         "VOLTAR PARA O LOGIN",
-                        color = Color.White,
+                        color = textColor,
                         fontSize = 14.sp,
                         modifier = Modifier.clickable { navController.navigate("login") }
                     )

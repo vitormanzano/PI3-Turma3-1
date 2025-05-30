@@ -40,6 +40,13 @@ fun ProfileScreen(navController: NavHostController) {
     val showDialog = remember { mutableStateOf(false) }
     val confirmLogout = remember { mutableStateOf(false) }
 
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
     LaunchedEffect(Unit) {
         firestore.obterNomeUsuario { nome ->
             userName.value = nome
@@ -49,7 +56,7 @@ fun ProfileScreen(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(backgroundColor)
     ) {
         Box(
             modifier = Modifier
@@ -65,7 +72,7 @@ fun ProfileScreen(navController: NavHostController) {
                 },
                 modifier = Modifier.align(Alignment.TopStart)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
+                Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = textColor)
             }
 
             Image(
@@ -98,14 +105,14 @@ fun ProfileScreen(navController: NavHostController) {
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Nome:", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Medium)
+                    Text("Nome:", color = textColor, fontSize = 20.sp, fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(userName.value, color = Color.White, fontSize = 16.sp)
+                    Text(userName.value, color = textColor, fontSize = 16.sp)
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
                 Divider(
-                    color = Color(0xFF3366FF),
+                    color = iconsColor,
                     thickness = 1.dp,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
@@ -116,25 +123,25 @@ fun ProfileScreen(navController: NavHostController) {
                         .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Email:", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Medium)
+                    Text("Email:", color = textColor, fontSize = 20.sp, fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(user?.email ?: "", color = Color.White, fontSize = 16.sp)
+                    Text(user?.email ?: "", color = textColor, fontSize = 16.sp)
                 }
 
                 Spacer(modifier = Modifier.height(80.dp))
 
                 Button(
                     onClick = { confirmLogout.value = true }, // Mostra a confirmação
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
                     shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(2.dp, Color(0xFF3366FF)),
+                    border = BorderStroke(2.dp, iconsColor),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                 ) {
-                    Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.White)
+                    Icon(Icons.Default.ExitToApp, contentDescription = null, tint = textColor)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("SAIR", color = Color.White, fontSize = 16.sp)
+                    Text("SAIR", color = textColor, fontSize = 16.sp)
                 }
             }
         }
@@ -202,30 +209,30 @@ fun ProfileScreen(navController: NavHostController) {
                             }
                         }
                     ) {
-                        Text("Sim", color = Color(0xFF3366FF), fontSize = 17.sp)
+                        Text("Sim", color = iconsColor, fontSize = 17.sp)
                     }
                 },
                 dismissButton = {
                     TextButton(
                         onClick = { confirmLogout.value = false }
                     ) {
-                        Text("Não", color = Color.LightGray, fontSize = 17.sp)
+                        Text("Não", color = onSurfaceColor, fontSize = 17.sp)
                     }
                 },
                 title = {
                     Text(
                         "Sair da Conta",
-                        color = Color(0xFF3366FF),
+                        color = iconsColor,
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Bold
                     )
                 },
-                text = { Text("Deseja realmente sair?", color = Color.LightGray, fontSize = 18.sp)},
-                containerColor = Color.DarkGray,
+                text = { Text("Deseja realmente sair?", color = onSurfaceColor, fontSize = 18.sp)},
+                containerColor = surfaceColor,
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.border(
                     width = 1.dp,
-                    color = Color(0xFF3366FF),
+                    color = iconsColor,
                     shape = RoundedCornerShape(15.dp)
                 )
             )

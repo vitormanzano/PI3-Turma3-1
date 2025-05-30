@@ -55,8 +55,11 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
     var showSuccessDialog by remember { mutableStateOf(false) }
     var showTermsDialog by remember { mutableStateOf(false) }
 
-    val iconsColor = Color(0xFF3366FF)
-    val buttonColor = Color(0xFF3366FF)
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
 
     val nameValid = name.isNotBlank()
     val emailValid = email.contains("@") && Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$").matches(email)
@@ -96,12 +99,12 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = Color.Black
+        containerColor = backgroundColor
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(backgroundColor)
         ) {
 
             Column(
@@ -119,7 +122,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Voltar",
-                        tint = Color.White,
+                        tint = textColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -135,7 +138,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     verticalArrangement = Arrangement.Top
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.logo_png),
                         contentDescription = "SuperID logo",
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
@@ -147,7 +150,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                     Text(
                         "CRIE SUA CONTA",
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = textColor,
                         fontSize = 22.sp
                     )
 
@@ -160,12 +163,12 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         placeholder = { Text("Nome Completo", color = Color.Gray, fontSize = 20.sp) },
                         leadingIcon = { Icon(Icons.Outlined.AccountCircle, contentDescription = null, tint = iconsColor) },
                         trailingIcon = { if (nameValid) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.Green) },
-                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                        textStyle = TextStyle(color = textColor, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -179,12 +182,12 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         placeholder = { Text("Email", color = Color.Gray, fontSize = 20.sp) },
                         leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null, tint = iconsColor) },
                         trailingIcon = { if (emailValid) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.Green) },
-                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                        textStyle = TextStyle(color = textColor, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -224,17 +227,17 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                                     Icon(
                                         imageVector = if (senhaVisivel) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                         contentDescription = if (senhaVisivel) "Esconder senha" else "Mostrar senha",
-                                        tint = Color.Gray
+                                        tint = surfaceColor
                                     )
                                 }
                             }
                         },
-                        textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                        textStyle = TextStyle(color = textColor, fontSize = 20.sp),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -243,7 +246,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         Text(
                             text = "Sua senha deve possuir no mínimo 6 caracteres",
                             fontSize = 16.sp,
-                            color = Color.Gray,
+                            color = surfaceColor,
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .align(Alignment.Start)
@@ -259,14 +262,14 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                             onCheckedChange = { checked = it },
                             colors = CheckboxDefaults.colors(
                                 checkedColor = iconsColor,
-                                uncheckedColor = Color.Gray,
-                                checkmarkColor = Color.White
+                                uncheckedColor = surfaceColor,
+                                checkmarkColor = textColor
                             )
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         val annotatedText = buildAnnotatedString {
                             withStyle(
-                                style = SpanStyle(color = Color.White, fontSize = 14.sp)
+                                style = SpanStyle(color = textColor, fontSize = 14.sp)
                             ) { append("LI E ESTOU DE ACORDO COM O ") }
                             pushStringAnnotation(tag = "TERMOS", annotation = "mostrar_dialog")
                             withStyle(
@@ -281,7 +284,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                                     showTermsDialog = true
                                 }
                             },
-                            style = TextStyle(color = Color.White)
+                            style = TextStyle(color = textColor)
                         )
                     }
 
@@ -292,15 +295,15 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         onClick = { trySignUp() },
                         enabled = allFieldsValid,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (allFieldsValid) buttonColor else Color.DarkGray,
-                            disabledContainerColor = Color.DarkGray
+                            containerColor = if (allFieldsValid) iconsColor else surfaceColor,
+                            disabledContainerColor = surfaceColor
                         ),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
                     ) {
-                        Text("CRIAR CONTA", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 22.sp)
+                        Text("CRIAR CONTA", fontWeight = FontWeight.Bold, color = textColor, fontSize = 22.sp)
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -313,7 +316,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                             text = "JÁ POSSUI CONTA?",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color.White,
+                            color = textColor,
                             modifier = Modifier.clickable { navController.navigate("login") }
                         )
                     }
@@ -328,7 +331,7 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
                         },
                         title = { Text("Termos de Uso") },
                         text = { Text("termos.") },
-                        containerColor = Color.White
+                        containerColor = textColor
                     )
                 }
             }
@@ -359,6 +362,11 @@ fun SignUpScreen(imei: String, navController: NavHostController) {
 
 @Composable
 fun TermsDialog(onDismiss: () -> Unit) {
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -366,7 +374,7 @@ fun TermsDialog(onDismiss: () -> Unit) {
                 onClick = onDismiss,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF3366FF), // Cor de fundo
-                    contentColor = Color.White // Cor do texto
+                    contentColor = textColor // Cor do texto
                 )
             ) {
                 Text("Fechar")
@@ -417,7 +425,7 @@ fun TermsDialog(onDismiss: () -> Unit) {
                             Dúvidas? vitor.mvd@puccampinas.edu.br
                     """.trimIndent(),
                     fontSize = 14.sp,
-                    color = Color.White
+                    color = textColor
                 )
             }
         },
@@ -427,7 +435,7 @@ fun TermsDialog(onDismiss: () -> Unit) {
                 color = Color (0xFF3366FF),
                 shape = RoundedCornerShape(16.dp)
             ),
-        containerColor = Color.DarkGray,
+        containerColor = surfaceColor,
         shape = RoundedCornerShape(16.dp)
     )
 }

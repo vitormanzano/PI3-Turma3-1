@@ -39,6 +39,13 @@ fun PasswordsByCategoryScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
     // Carrega senhas inicialmente
     LaunchedEffect(categoryName) {
         senhas = firestore.buscarSenhasPorCategoria(categoryName)
@@ -52,18 +59,18 @@ fun PasswordsByCategoryScreen(
         }
 
     Scaffold(
-        containerColor = Color.Black,
+        containerColor = backgroundColor,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = categoryName, color = Color(0xFF3366FF), fontSize = 28.sp)
+                    Text(text = categoryName, color = iconsColor, fontSize = 28.sp)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Voltar", tint = textColor)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Black)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = backgroundColor)
             )
         },
         snackbarHost = {
@@ -72,7 +79,7 @@ fun PasswordsByCategoryScreen(
                 Snackbar(
                     snackbarData = data,
                     containerColor = if (isError) Color.Red else Color(0xFF4CAF50),
-                    contentColor = Color.White
+                    contentColor = textColor
                 )
             }
         }
@@ -101,12 +108,12 @@ fun PasswordsByCategoryScreen(
                     )
                     if (index != senhas.lastIndex) {
                         Spacer(modifier = Modifier.height(12.dp))
-                        Divider(color = Color(0xFF3366FF).copy(alpha = 0.3f), thickness = 1.dp)
+                        Divider(color = iconsColor.copy(alpha = 0.3f), thickness = 1.dp)
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             } else {
-                Text("Nenhuma senha cadastrada.", color = Color.LightGray)
+                Text("Nenhuma senha cadastrada.", color = onSurfaceColor)
             }
         }
     }
@@ -131,29 +138,29 @@ fun PasswordsByCategoryScreen(
                         }
                     }
                 }) {
-                    Text("Confirmar", color = Color(0xFF3366FF), fontSize = 17.sp)
+                    Text("Confirmar", color = iconsColor, fontSize = 17.sp)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { senhaSelecionada = null }) {
-                    Text("Cancelar", color = Color.LightGray, fontSize = 17.sp)
+                    Text("Cancelar", color = onSurfaceColor, fontSize = 17.sp)
                 }
             },
             title = { Text("Excluir senha",
-                color = Color(0xFF3366FF),
+                color = iconsColor,
                 fontSize = 23.sp,
                 fontWeight = FontWeight.Bold
             )
             },
             text = { Text("Tem certeza que deseja excluir a senha \"${senha.descricao   }\"?",
-                color = Color.LightGray,
+                color = onSurfaceColor,
                 fontSize = 18.sp
             ) },
-            containerColor = Color.DarkGray,
+            containerColor = surfaceColor,
             shape = RoundedCornerShape(15.dp),
             modifier = Modifier.border(
                 width = 1.dp,
-                color = Color(0xFF3366FF),
+                color = iconsColor,
                 shape = RoundedCornerShape(15.dp)
             )
         )
@@ -172,10 +179,10 @@ fun PasswordsByCategoryScreen(
                 ) {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.width(16.dp))
-                    Text("Excluindo...", color = Color.Black)
+                    Text("Excluindo...", color = backgroundColor)
                 }
             },
-            containerColor = Color.White
+            containerColor = textColor
         )
     }
 }
@@ -189,6 +196,13 @@ fun PasswordItem(
     var expanded by remember { mutableStateOf(false) }
     var mostrarSenha by remember { mutableStateOf(false) }
 
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -197,9 +211,9 @@ fun PasswordItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(senha.descricao, color = Color.White, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
+            Text(senha.descricao, color = textColor, fontSize = 23.sp, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(senha.login, color = Color.LightGray, fontSize = 20.sp)
+            Text(senha.login, color = onSurfaceColor, fontSize = 20.sp)
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -212,7 +226,7 @@ fun PasswordItem(
                     Icon(
                         imageVector = if (mostrarSenha) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = "Ver senha",
-                        tint = Color(0xFF3366FF)
+                        tint = iconsColor
                     )
                 }
             }
@@ -220,7 +234,7 @@ fun PasswordItem(
 
         Box {
             IconButton(onClick = { expanded = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = Color.White, modifier = Modifier.size(28.dp))
+                Icon(Icons.Default.MoreVert, contentDescription = "Menu", tint = textColor, modifier = Modifier.size(28.dp))
             }
 
             DropdownMenu(

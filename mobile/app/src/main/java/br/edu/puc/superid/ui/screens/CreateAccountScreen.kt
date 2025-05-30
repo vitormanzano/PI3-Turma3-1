@@ -31,11 +31,16 @@ import br.edu.puc.superid.R
 @Composable
 fun CreateAccountScreen(navController: NavHostController) {
     var showTerms by remember { mutableStateOf(false) }
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(backgroundColor)
     ) {
         Column(
             modifier = Modifier
@@ -53,7 +58,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,  // Ícone de seta para voltar
                     contentDescription = "Voltar",
-                    tint = Color.White,  // Cor do ícone
+                    tint = textColor,  // Cor do ícone
                     modifier = Modifier.size(24.dp)  // Tamanho do ícone
                 )
             }
@@ -65,7 +70,7 @@ fun CreateAccountScreen(navController: NavHostController) {
             ) {
                 // Image (replace with your resource)
                 Image(
-                    painter = painterResource(id = R.drawable.logo),
+                    painter = painterResource(id = R.drawable.logo_png),
                     contentDescription = "SuperID logo",
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
@@ -78,7 +83,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                 // Title
                 Text(
                     text = "CRIE SUA\nCONTA SUPERID",
-                    color = Color.White,
+                    color = textColor,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -89,7 +94,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                 // Description
                 Text(
                     text = "SuperID é uma ferramenta que te permite armazenar suas senhas de maneira simples e descomplicada.",
-                    color = Color(0xFFAAAAAA),
+                    color = onSurfaceColor,
                     fontSize = 18.sp,
                     textAlign = TextAlign.Center
                 )
@@ -106,7 +111,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A5BFF))
+                        colors = ButtonDefaults.buttonColors(containerColor = iconsColor)
                     ) {
                         Text(text = "CRIAR CONTA", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                     }
@@ -117,7 +122,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = textColor),
                         border = ButtonDefaults.outlinedButtonBorder.copy(
                             width = 1.dp,
                         )
@@ -136,13 +141,13 @@ fun CreateAccountScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "AO CONTINUAR VOCÊ CONCORDA E ACEITA OS NOSSOS ",
-                    color = Color.White,
+                    color = textColor,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = "TERMOS DE USO",
-                    color = Color(0xFF3A5BFF),
+                    color = iconsColor,
                     fontSize = 14.sp,
                     modifier = Modifier.clickable { showTerms = true }
                 )
@@ -158,7 +163,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                     onClick = { showTerms = false },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF3366FF), // Cor de fundo
-                        contentColor = Color.White // Cor do texto
+                        contentColor = textColor // Cor do texto
                     )
                 ) {
                     Text("Fechar")
@@ -209,7 +214,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                             Dúvidas? vitor.mvd@puccampinas.edu.br
                         """.trimIndent(),
                         fontSize = 14.sp,
-                        color = Color.White
+                        color = textColor
                     )
                 }
             },
@@ -219,7 +224,7 @@ fun CreateAccountScreen(navController: NavHostController) {
                     color = Color (0xFF3366FF),
                     shape = RoundedCornerShape(16.dp)
                 ),
-            containerColor = Color.DarkGray,
+            containerColor = surfaceColor,
             shape = RoundedCornerShape(16.dp)
         )
     }

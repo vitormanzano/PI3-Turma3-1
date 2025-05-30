@@ -39,6 +39,7 @@ import kotlin.coroutines.resume
 import br.edu.puc.superid.ui.components.CustomDialog
 import kotlinx.coroutines.delay
 
+
 @Composable
 fun PasswordManagerScreen(navController: NavHostController) {
     var isEditMode by remember { mutableStateOf(true) }
@@ -51,6 +52,13 @@ fun PasswordManagerScreen(navController: NavHostController) {
     val userName = remember { mutableStateOf("") }
     val user = authHandler.obterUser()
     val isEmailVerified = remember { mutableStateOf(user?.isEmailVerified == true) }
+
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
     LaunchedEffect(Unit) {
         firestore.obterNomeUsuario() { nome ->
@@ -71,7 +79,7 @@ fun PasswordManagerScreen(navController: NavHostController) {
     var currentIndex by rememberSaveable { mutableStateOf(0) }
 
     Scaffold(
-        containerColor = Color.Black,
+        containerColor = backgroundColor,
         topBar = { TopBar() },
         bottomBar = {
             BottomNavigationBar(
@@ -125,6 +133,12 @@ fun EmailVerificationCard(
     user: FirebaseUser,
     auth: AuthHandler
 ) {
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     if (!isEmailVerified) {
         var showCard by remember { mutableStateOf(true) }
 
@@ -134,7 +148,7 @@ fun EmailVerificationCard(
         var dialogIcon by remember { mutableStateOf(Icons.Default.Warning) }
         var dialogIconColor by remember { mutableStateOf(Color(0xFFEC4D4D)) }
 
-        val backgroundColor = Color(0xFF3366FF)
+        val backgroundColor = iconsColor
         val statusText = "E-mail não verificado, você não poderá recuperar sua senha mestra e nem utilizar o login sem senha!"
         val actionText = "Verificar agora"
 
@@ -146,9 +160,9 @@ fun EmailVerificationCard(
                     .padding(24.dp)
             ) {
                 Column {
-                    Text("Status do e-mail", color = Color.White.copy(alpha = 0.7f), fontSize = 16.sp)
+                    Text("Status do e-mail", color = textColor.copy(alpha = 0.7f), fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(statusText, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(statusText, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
@@ -171,12 +185,12 @@ fun EmailVerificationCard(
                                 }
                             )
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        colors = ButtonDefaults.buttonColors(containerColor = textColor),
                         shape = RoundedCornerShape(50)
                     ) {
-                        Icon(Icons.Default.Email, contentDescription = null, tint = Color.Black)
+                        Icon(Icons.Default.Email, contentDescription = null, tint = backgroundColor)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(actionText, color = Color.Black)
+                        Text(actionText, color = backgroundColor)
                     }
                 }
             }
@@ -198,12 +212,18 @@ fun EmailVerificationCard(
 @Composable
 fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolean) -> Unit) {
     var isEditMode by remember { mutableStateOf(false) }  // Estado local de edição
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
-            .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
+            .border(width = 1.dp, color = iconsColor, shape = RoundedCornerShape(24.dp))
+            .background(backgroundColor.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
             .padding(16.dp)
     ) {
         Row(
@@ -214,14 +234,14 @@ fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolea
             QuickActionItem(
                 title = "Nova Senha",
                 icon = Icons.Default.Password,
-                iconColor = Color(0xFF3366FF),
+                iconColor = iconsColor,
                 onClick = { navController.navigate("signuppassword") }
             )
             DividerVertical()
             QuickActionItem(
                 title = "Nova Categoria",
                 icon = Icons.Default.Category,
-                iconColor = Color(0xFF3366FF),
+                iconColor = iconsColor,
                 onClick = { navController.navigate("signupcategory") }
             )
         }
@@ -230,6 +250,12 @@ fun QuickActionsBar(navController: NavHostController, onEditModeChanged: (Boolea
 
 @Composable
 fun QuickActionItem(title: String, icon: ImageVector, iconColor: Color, onClick: (() -> Unit)? = null ){
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -242,7 +268,7 @@ fun QuickActionItem(title: String, icon: ImageVector, iconColor: Color, onClick:
             modifier = Modifier.size(32.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        Text(title, color = textColor, fontSize = 14.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -262,13 +288,23 @@ fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
     var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
     var quantidades by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
 
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogTitle by remember { mutableStateOf("") }
+    var dialogMessage by remember { mutableStateOf("") }
+    var dialogIcon by remember { mutableStateOf(Icons.Default.Warning) }
+    var dialogIconColor by remember { mutableStateOf(Color(0xFFEC4D4D)) } // padrão: vermelho
+
     LaunchedEffect(Unit) {
         val categoriasCarregadas = firestore.buscarTodasCategorias()
         categorias = categoriasCarregadas
 
-        // Para cada categoria, busca a quantidade (paralelamente se quiser)
         val quantidadesMap = categoriasCarregadas.associateWith { categoria ->
-            firestore.quantidadeDeSenhasPorCategoria(categoria) // Supondo que é uma suspend function
+            firestore.quantidadeDeSenhasPorCategoria(categoria)
         }
         quantidades = quantidadesMap
     }
@@ -280,7 +316,7 @@ fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
     ) {
         Text(
             text = "CATEGORIAS",
-            color = Color.White,
+            color = textColor,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
@@ -290,57 +326,77 @@ fun CategorySection(navController: NavHostController, isEditMode: Boolean) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(width = 1.dp, color = Color(0xFF3366FF), shape = RoundedCornerShape(24.dp))
-                    .background(Color.Black.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
+                    .border(width = 1.dp, color = iconsColor, shape = RoundedCornerShape(24.dp))
+                    .background(backgroundColor.copy(alpha = 0.7f), shape = RoundedCornerShape(24.dp))
                     .padding(16.dp)
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     categorias.forEachIndexed { index, categoria ->
                         val count = quantidades[categoria] ?: 0
 
-                        if (categoria != "Sites da Web") {
-                            CategoryItem(
-                                name = categoria,
-                                count = count,
-                                onClick = { navController.navigate("senhas/${categoria}") },
-                                isEditMode = isEditMode,
-                                onDeleteClick = {
-                                    val userUid = FirebaseAuth.getInstance().currentUser?.uid
-                                    if (userUid != null) {
-                                        firestore.deletarCategoria(userUid, categoria) { success ->
-                                            if (success) {
-                                                categorias = categorias.filter { it != categoria }
-                                                quantidades = quantidades - categoria
-                                            } else {
-                                                Log.e("FIREBASE", "Falha ao excluir categoria $categoria")
-                                            }
-                                        }
-                                    } else {
-                                        Log.e("FIREBASE", "Usuário não autenticado")
-                                    }
+                        CategoryItem(
+                            name = categoria,
+                            count = count,
+                            onClick = { navController.navigate("senhas/${categoria}") },
+                            isEditMode = isEditMode && categoria != "Sites da Web",
+                            onDeleteClick = {
+                                val userUid = FirebaseAuth.getInstance().currentUser?.uid
+                                if (userUid == null) {
+                                    dialogTitle = "Usuário não autenticado"
+                                    dialogMessage = "Não foi possível identificar o usuário. Faça login novamente."
+                                    showDialog = true
+                                    return@CategoryItem
                                 }
-                            )
-                        } else {
-                            CategoryItem(
-                                name = categoria,
-                                count = 0,
-                                onClick = { navController.navigate("senhas/${categoria}") },
-                                isEditMode = categoria != "Sites da Web",
-                                onDeleteClick = {}
-                            )
-                        }
+
+                                if (count > 0) {
+                                    dialogTitle = "Erro ao excluir"
+                                    dialogMessage = "Não é possível excluir a categoria \"$categoria\" pois ela contém $count senha(s)."
+                                    showDialog = true
+                                    return@CategoryItem
+                                }
+
+                                firestore.deletarCategoria(userUid, categoria) { success ->
+                                    if (success) {
+                                        categorias = categorias.filter { it != categoria }
+                                        quantidades = quantidades - categoria
+
+                                        dialogTitle = "Categoria excluída"
+                                        dialogMessage = "A categoria \"$categoria\" foi excluída com sucesso."
+                                        dialogIcon = Icons.Default.Check
+                                        dialogIconColor = Color(0xFF4CAF50) // verde
+                                    } else {
+                                        dialogTitle = "Erro ao excluir"
+                                        dialogMessage = "Houve um erro ao excluir a categoria \"$categoria\". Tente novamente."
+                                        dialogIcon = Icons.Default.Warning
+                                        dialogIconColor = Color(0xFFEC4D4D) // vermelho
+                                    }
+                                    showDialog = true
+                                }
+                            }
+                        )
 
                         if (index != categorias.lastIndex) {
                             Spacer(modifier = Modifier.height(12.dp))
-                            Divider(color = Color(0xFF3366FF), thickness = 1.dp)
+                            Divider(color = iconsColor, thickness = 1.dp)
                             Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
                 }
             }
         } else {
-            Text("Carregando categorias...", color = Color.LightGray)
+            Text("Carregando categorias...", color = onSurfaceColor)
         }
+    }
+
+    if (showDialog) {
+        CustomDialog(
+            title = dialogTitle,
+            message = dialogMessage,
+            icon = dialogIcon,
+            iconColor = dialogIconColor,
+            onConfirm = { showDialog = false },
+            onDismiss = { showDialog = false }
+        )
     }
 }
 
@@ -350,11 +406,14 @@ fun CategoryItem(
     count: Int,
     onClick: () -> Unit,
     isEditMode: Boolean,
-    onDeleteClick: (Boolean) -> Unit
+    onDeleteClick: () -> Unit
 ) {
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val surfaceColor = MaterialTheme.colorScheme.surface
+
     var showDeleteDialog by remember { mutableStateOf(false) }
-    var showSnackbar by remember { mutableStateOf(false) }
-    var snackbarMessage by remember { mutableStateOf("") }
 
     Column {
         Row(
@@ -370,7 +429,7 @@ fun CategoryItem(
                     Text(
                         text = name,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White
+                        color = textColor
                     )
 
                     if (isEditMode) {
@@ -382,7 +441,7 @@ fun CategoryItem(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Excluir Categoria",
-                                tint = Color(0xFF3366FF),
+                                tint = iconsColor,
                                 modifier = Modifier.size(25.dp)
                             )
                         }
@@ -391,7 +450,7 @@ fun CategoryItem(
 
                 Text(
                     text = "$count senhas",
-                    color = Color.LightGray,
+                    color = onSurfaceColor,
                     fontSize = 12.sp
                 )
             }
@@ -399,33 +458,30 @@ fun CategoryItem(
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Ver mais",
-                tint = Color.White
+                tint = textColor
             )
         }
 
-        // Diálogo de confirmação
         if (showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
                 confirmButton = {
                     TextButton(onClick = {
-                        onDeleteClick(true)
-                        showSnackbar = true
-                        snackbarMessage = "Categoria '$name' excluída com sucesso!"
+                        onDeleteClick()
                         showDeleteDialog = false
                     }) {
-                        Text("Confirmar", color = Color(0xFF3366FF), fontSize = 17.sp)
+                        Text("Confirmar", color = iconsColor, fontSize = 17.sp)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Cancelar", color = Color.LightGray, fontSize = 17.sp)
+                        Text("Cancelar", color = onSurfaceColor, fontSize = 17.sp)
                     }
                 },
                 title = {
                     Text(
                         "Excluir categoria",
-                        color = Color(0xFF3366FF),
+                        color = iconsColor,
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -433,44 +489,22 @@ fun CategoryItem(
                 text = {
                     Text(
                         "Tem certeza que deseja excluir a categoria \"$name\"?",
-                        color = Color.LightGray,
+                        color = onSurfaceColor,
                         fontSize = 18.sp
                     )
                 },
-                containerColor = Color.DarkGray,
+                containerColor = surfaceColor,
                 shape = RoundedCornerShape(15.dp),
                 modifier = Modifier.border(
                     width = 1.dp,
-                    color = Color(0xFF3366FF),
+                    color = iconsColor,
                     shape = RoundedCornerShape(15.dp)
                 )
             )
         }
-
-        // Snackbar de sucesso
-        if (showSnackbar) {
-            Snackbar(
-                modifier = Modifier.padding(16.dp),
-                containerColor = Color(0xFF1E1E1E),
-                contentColor = Color.White,
-                content = { Text(snackbarMessage) },
-                action = {
-                    Button(
-                        onClick = { showSnackbar = false },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF3366FF),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(50)
-                    ) {
-                        Text("Fechar")
-                    }
-                }
-            )
-        }
-
     }
 }
+
 
 @Composable
 fun BottomNavigationBar(
@@ -479,6 +513,13 @@ fun BottomNavigationBar(
     onItemSelected: (Int) -> Unit = {},
     isEmailVerified: Boolean
 ) {
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
     val items = listOf(
         NavigationItem(Icons.Default.Home, "mainScreen"),
         NavigationItem(Icons.Default.QrCodeScanner, "qrcode"),
@@ -491,13 +532,13 @@ fun BottomNavigationBar(
 
     Column {
         Divider(
-            color = Color(0xFF3366FF),
+            color = iconsColor,
             thickness = 0.8.dp
         )
 
         NavigationBar(
-            containerColor = Color.Black,
-            contentColor = Color.White
+            containerColor = backgroundColor,
+            contentColor = textColor
         ) {
             items.forEachIndexed { index, item ->
                 NavigationBarItem(
@@ -524,7 +565,7 @@ fun BottomNavigationBar(
                             Icon(
                                 imageVector = item.icon,
                                 contentDescription = null,
-                                tint = if (selectedIndex == index) Color(0xFF3366FF) else Color.White,
+                                tint = if (selectedIndex == index) iconsColor else textColor,
                                 modifier = Modifier.size(
                                     if (item.icon == Icons.Default.QrCodeScanner) 36.dp else 30.dp
                                 )
@@ -534,7 +575,7 @@ fun BottomNavigationBar(
                                 Box(
                                     modifier = Modifier
                                         .size(6.dp)
-                                        .background(Color(0xFF3366FF), shape = CircleShape)
+                                        .background(iconsColor, shape = CircleShape)
                                 )
                             } else {
                                 Spacer(modifier = Modifier.height(6.dp))

@@ -2,6 +2,7 @@ package br.edu.puc.superid.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -28,19 +29,39 @@ fun FirstTimeScreen(navController: NavHostController) {
         "ESQUEÇA A DIFICULDADE DE GERENCIAR VÁRIAS SENHAS, USE SUPERID PARA MAIOR SEGURANÇA E AGILIDADE"
     )
 
-    val images = listOf(
-        R.drawable.person,
-        R.drawable.lock,
-        R.drawable.thinking_person
-    )
+    @Composable
+    fun getImagesByTheme(): List<Int> {
+        val isDarkTheme = isSystemInDarkTheme()
+
+        return if (isDarkTheme) {
+            listOf(
+                R.drawable.person,
+                R.drawable.lock,
+                R.drawable.thinking_person
+            )
+        } else {
+            listOf(
+                R.drawable.person_white,
+                R.drawable.lock_white,
+                R.drawable.thinking_person_white
+            )
+        }
+    }
+
+    val images = getImagesByTheme()
 
     val pagerState = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
 
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(backgroundColor)
             .padding(24.dp)
             .padding(bottom = 32.dp)
     ) {
@@ -72,7 +93,7 @@ fun FirstTimeScreen(navController: NavHostController) {
                     Text(
                         text = pages[page],
                         style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
+                        color = textColor,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -97,7 +118,7 @@ fun FirstTimeScreen(navController: NavHostController) {
                     }
                 }
             },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3366FF)),
+            colors = ButtonDefaults.buttonColors(containerColor = iconsColor),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
@@ -106,7 +127,7 @@ fun FirstTimeScreen(navController: NavHostController) {
             Text(
                 text = "PRÓXIMO",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
+                color = textColor,
                 fontSize = 22.sp
             )
         }
@@ -118,6 +139,8 @@ fun PagerIndicator(
     size: Int,
     currentPage: Int
 ) {
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -130,7 +153,7 @@ fun PagerIndicator(
                     .height(8.dp)
                     .width(if (index == currentPage) 16.dp else 32.dp)
                     .background(
-                        color = if (index == currentPage) Color(0xFF3366FF) else Color.White,
+                        color = if (index == currentPage) iconsColor else textColor,
                         shape = CircleShape
                     )
             )

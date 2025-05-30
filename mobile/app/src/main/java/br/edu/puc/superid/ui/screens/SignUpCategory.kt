@@ -52,8 +52,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun SignUpCategoryScreen(navController: NavHostController) {
     var nomeCategoria by remember { mutableStateOf("") }
-    val iconsColor = Color(0xFF3366FF)
-    val buttonColor = Color(0xFF3366FF)
     val allFieldsValid = nomeCategoria.isNotBlank()
     val firestore = FirestoreHandler()
     val scope = rememberCoroutineScope()
@@ -64,11 +62,18 @@ fun SignUpCategoryScreen(navController: NavHostController) {
     var dialogIcon by remember { mutableStateOf(Icons.Default.Check) }
     var dialogIconColor by remember { mutableStateOf(Color.Green) }
 
-    Scaffold(containerColor = Color.Black) { padding ->
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
+    Scaffold(containerColor = backgroundColor) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(backgroundColor)
         ) {
             Column(
                 modifier = Modifier
@@ -85,7 +90,7 @@ fun SignUpCategoryScreen(navController: NavHostController) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Voltar",
-                        tint = Color.White,
+                        tint = textColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -100,7 +105,7 @@ fun SignUpCategoryScreen(navController: NavHostController) {
                     verticalArrangement = Arrangement.Top
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.logo_png),
                         contentDescription = "SuperID logo",
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
@@ -112,7 +117,7 @@ fun SignUpCategoryScreen(navController: NavHostController) {
                     Text(
                         "Nova Categoria",
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = textColor,
                         fontSize = 24.sp
                     )
 
@@ -122,7 +127,7 @@ fun SignUpCategoryScreen(navController: NavHostController) {
                         value = nomeCategoria,
                         onValueChange = { nomeCategoria = it },
                         placeholder = { Text("Nome da categoria", color = Color.Gray) },
-                        textStyle = TextStyle(color = Color.White),
+                        textStyle = TextStyle(color = textColor),
                         leadingIcon = {
                             Icon(
                                 Icons.Outlined.Label,
@@ -134,7 +139,7 @@ fun SignUpCategoryScreen(navController: NavHostController) {
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -163,15 +168,15 @@ fun SignUpCategoryScreen(navController: NavHostController) {
                         },
                         enabled = allFieldsValid,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (allFieldsValid) buttonColor else Color.DarkGray,
-                            disabledContainerColor = Color.DarkGray
+                            containerColor = if (allFieldsValid) iconsColor else surfaceColor,
+                            disabledContainerColor = surfaceColor
                         ),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
                     ) {
-                        Text("Salvar Categoria", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Salvar Categoria", fontWeight = FontWeight.Bold, color = textColor)
                     }
 
                     Spacer(modifier = Modifier.height(200.dp))

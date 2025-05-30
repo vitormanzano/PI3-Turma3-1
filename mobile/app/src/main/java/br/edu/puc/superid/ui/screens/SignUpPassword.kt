@@ -34,6 +34,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Abc
 import androidx.compose.material.icons.outlined.Description
@@ -62,8 +64,12 @@ fun SignUpPasswordScreen(navController: NavHostController) {
     val senhaValid = senha.length >= 1
     val firestore = FirestoreHandler()
     var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
-    val iconsColor = Color(0xFF3366FF)
-    val buttonColor = Color(0xFF3366FF)
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     val allFieldsValid = senhaValid && categoria.isNotBlank() && name.isNotBlank()
 
     val scope = rememberCoroutineScope()
@@ -81,12 +87,12 @@ fun SignUpPasswordScreen(navController: NavHostController) {
     }
 
     Scaffold(
-        containerColor = Color.Black
+        containerColor = backgroundColor
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(backgroundColor)
         ) {
             Column(
                 modifier = Modifier
@@ -103,7 +109,7 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Voltar",
-                        tint = Color.White,
+                        tint = textColor,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -118,7 +124,7 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                     verticalArrangement = Arrangement.Top
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.logo_png),
                         contentDescription = "SuperID logo",
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
@@ -129,7 +135,7 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                     Text(
                         "Nova Senha",
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = textColor,
                         fontSize = 24.sp
                     )
 
@@ -139,13 +145,13 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                         value = name,
                         onValueChange = { name = it },
                         placeholder = { Text("Nome da senha", color = Color.Gray) },
-                        textStyle = TextStyle(color = Color.White),
+                        textStyle = TextStyle(color = textColor),
                         leadingIcon = { Icon(Icons.Outlined.Label, contentDescription = null, tint = iconsColor) },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -156,31 +162,42 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                         value = login,
                         onValueChange = { login = it },
                         placeholder = { Text("Login (opcional)", color = Color.Gray) },
-                        textStyle = TextStyle(color = Color.White),
+                        textStyle = TextStyle(color = textColor),
                         leadingIcon = { Icon(Icons.Outlined.AccountCircle, contentDescription = null, tint = iconsColor) },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    var senhaVisivel by remember { mutableStateOf(false) }
+
                     OutlinedTextField(
                         value = senha,
                         onValueChange = { senha = it },
                         placeholder = { Text("Senha", color = Color.Gray) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null, tint = iconsColor) },
-                        textStyle = TextStyle(color = Color.White),
+                        visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
+                        leadingIcon = {
+                            Icon(Icons.Outlined.Lock, contentDescription = null, tint = iconsColor)
+                        },
+                        trailingIcon = {
+                            val icon = if (senhaVisivel) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
+                            val description = if (senhaVisivel) "Esconder senha" else "Mostrar senha"
+                            IconButton(onClick = { senhaVisivel = !senhaVisivel }) {
+                                Icon(imageVector = icon, contentDescription = description, tint = iconsColor)
+                            }
+                        },
+                        textStyle = TextStyle(color = textColor),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -203,10 +220,10 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                                 .fillMaxWidth(),
                             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
                                 focusedBorderColor = iconsColor,
-                                unfocusedBorderColor = Color.DarkGray,
+                                unfocusedBorderColor = surfaceColor,
                                 cursorColor = iconsColor,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
+                                focusedTextColor = textColor,
+                                unfocusedTextColor = textColor,
                                 focusedPlaceholderColor = Color.Gray,
                                 unfocusedPlaceholderColor = Color.Gray
                             )
@@ -220,7 +237,7 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                             if (categorias.isNotEmpty()) {
                                 categorias.forEach { option ->
                                     DropdownMenuItem(
-                                        text = { Text(option, color = Color.White) },
+                                        text = { Text(option, color = textColor) },
                                         onClick = {
                                             categoria = option
                                             expanded = false
@@ -230,7 +247,7 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                                 }
                             } else {
                                 DropdownMenuItem(
-                                    text = { Text("Carregando categorias...", color = Color.LightGray) },
+                                    text = { Text("Carregando categorias...", color = onSurfaceColor) },
                                     onClick = {},
                                     enabled = false,
                                     modifier = Modifier.background(Color(0xFF2B2B2B))
@@ -262,15 +279,15 @@ fun SignUpPasswordScreen(navController: NavHostController) {
                         },
                         enabled = allFieldsValid,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (allFieldsValid) buttonColor else Color.DarkGray,
-                            disabledContainerColor = Color.DarkGray
+                            containerColor = if (allFieldsValid) iconsColor else surfaceColor,
+                            disabledContainerColor = surfaceColor
                         ),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
                     ) {
-                        Text("Salvar senha", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Salvar senha", fontWeight = FontWeight.Bold, color = textColor)
                     }
 
                     Spacer(modifier = Modifier.height(100.dp))

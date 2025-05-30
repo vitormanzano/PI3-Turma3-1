@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -57,8 +58,6 @@ fun EditPasswordScreen(
 
     val firestore = FirestoreHandler()
     var categorias by remember { mutableStateOf<List<String>>(emptyList()) }
-    val iconsColor = Color(0xFF3366FF)
-    val buttonColor = Color(0xFF3366FF)
     val scope = rememberCoroutineScope()
 
     var showDialog by remember { mutableStateOf(false) }
@@ -67,12 +66,19 @@ fun EditPasswordScreen(
     var dialogIcon by remember { mutableStateOf(Icons.Default.Check) }
     var dialogIconColor by remember { mutableStateOf(Color.Green) }
 
+    val iconsColor = MaterialTheme.colorScheme.primary
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val inputTextColor = MaterialTheme.colorScheme.onSurface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
     LaunchedEffect(Unit) {
         categorias = firestore.buscarTodasCategorias()
     }
 
-    Scaffold(containerColor = Color.Black) { padding ->
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+    Scaffold(containerColor = backgroundColor) { padding ->
+        Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -85,7 +91,7 @@ fun EditPasswordScreen(
                         .clickable { navController.popBackStack() },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = "Voltar", tint = Color.White, modifier = Modifier.size(24.dp))
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Voltar", tint = textColor, modifier = Modifier.size(24.dp))
                 }
                 val scrollState = rememberScrollState()
                 Column(
@@ -97,7 +103,7 @@ fun EditPasswordScreen(
                     verticalArrangement = Arrangement.Top
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.logo),
+                        painter = painterResource(id = R.drawable.logo_png),
                         contentDescription = "SuperID logo",
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
@@ -105,20 +111,20 @@ fun EditPasswordScreen(
                         contentScale = ContentScale.Crop
                     )
 
-                    Text("Editar Senha", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 24.sp)
+                    Text("Editar Senha", fontWeight = FontWeight.Bold, color = textColor, fontSize = 24.sp)
                     Spacer(modifier = Modifier.height(24.dp))
 
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
                         placeholder = { Text("Nome da senha", color = Color.Gray) },
-                        textStyle = TextStyle(color = Color.White),
+                        textStyle = TextStyle(color = textColor),
                         leadingIcon = { Icon(Icons.Outlined.Label, null, tint = iconsColor) },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
@@ -129,34 +135,44 @@ fun EditPasswordScreen(
                         value = login,
                         onValueChange = { login = it },
                         placeholder = { Text("Login (opcional)", color = Color.Gray) },
-                        textStyle = TextStyle(color = Color.White),
+                        textStyle = TextStyle(color = textColor),
                         leadingIcon = { Icon(Icons.Outlined.AccountCircle, null, tint = iconsColor) },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    var senhaVisivel by remember { mutableStateOf(false) }
+
                     OutlinedTextField(
                         value = senha,
                         onValueChange = { senha = it },
                         placeholder = { Text("Senha", color = Color.Gray) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        textStyle = TextStyle(color = Color.White),
-                        leadingIcon = { Icon(Icons.Outlined.Lock, null, tint = iconsColor) },
+                        visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
+                        textStyle = TextStyle(color = textColor),
+                        leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null, tint = iconsColor) },
+                        trailingIcon = {
+                            val visibilityIcon = if (senhaVisivel) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
+                            val description = if (senhaVisivel) "Esconder senha" else "Mostrar senha"
+                            IconButton(onClick = { senhaVisivel = !senhaVisivel }) {
+                                Icon(imageVector = visibilityIcon, contentDescription = description, tint = iconsColor)
+                            }
+                        },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = iconsColor,
-                            unfocusedBorderColor = Color.DarkGray,
+                            unfocusedBorderColor = surfaceColor,
                             cursorColor = iconsColor
                         )
                     )
+
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -174,9 +190,9 @@ fun EditPasswordScreen(
                             modifier = Modifier.menuAnchor().fillMaxWidth(),
                             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
                                 focusedBorderColor = iconsColor,
-                                unfocusedBorderColor = Color.DarkGray,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
+                                unfocusedBorderColor = surfaceColor,
+                                focusedTextColor = textColor,
+                                unfocusedTextColor = textColor
                             )
                         )
 
@@ -187,7 +203,7 @@ fun EditPasswordScreen(
                         ) {
                             categorias.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(option, color = Color.White) },
+                                    text = { Text(option, color = textColor) },
                                     onClick = {
                                         categoria = option
                                         expanded = false
@@ -221,12 +237,12 @@ fun EditPasswordScreen(
                         },
                         enabled = allFieldsValid,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (allFieldsValid) buttonColor else Color.DarkGray
+                            containerColor = if (allFieldsValid) iconsColor else surfaceColor
                         ),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth().height(56.dp)
                     ) {
-                        Text("Salvar alterações", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Salvar alterações", fontWeight = FontWeight.Bold, color = textColor)
                     }
 
                     Spacer(modifier = Modifier.height(100.dp))
