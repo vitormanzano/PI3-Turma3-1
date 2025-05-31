@@ -1,3 +1,9 @@
 import { Router } from "express";
+import { loginUser, signUpUser } from "./controllers/user-controller";
 
-export const router = Router(); //router que vai cuidar das nossas routes
+export const router = Router();
+
+// Rota de cadastro
+router.put("/signUp", signUpUser);
+router.put("/login", loginUser);
+router.put("/qrCode");

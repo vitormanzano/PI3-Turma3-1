@@ -1,0 +1,97 @@
+function isValidSignUp(completeName, email, password) {
+    var valid = false;
+    completeName = completeName.trim();
+    email = email.trim();
+    password = password.trim();
+
+    if (completeName && email && password) {
+        valid = true;
+    } else if (completeName.length == 0 && email.length == 0 && password.length == 0) {
+        // dar um erro dizendo para preencher todos os campos
+        showErrorMessage("Preencha todos os campos.");
+    } else {
+        // dar um erro para o campo específico que não foi preenchido
+        if (completeName.length == 0) {
+            showErrorMessage("Preencha o nome completo.");
+        } else if (email.length == 0) {
+            showErrorMessage("Preencha o email.");
+        } else {
+            showErrorMessage("Preencha a senha.");
+        }
+    }
+    return valid;
+}
+
+// Exibe uma mensagem de erro
+function showErrorMessage(message) {
+    var mb = document.getElementById("messageBox");
+    document.getElementById("message").innerHTML = message;
+    mb.style.display = "block";
+    mb.style.backgroundColor = "red";
+}
+
+// Exibe uma mensagem de sucesso
+function showSucessMessage(message) {
+    var mb = document.getElementById("messageBox");
+    document.getElementById("message").innerHTML = message;
+    mb.style.display = "block";
+    mb.style.backgroundColor = "green";
+}
+
+// Oculta a mensagem de erro
+function hideErrorMessage() {
+    var mb = document.getElementById("messageBox");
+    mb.style.display = "none";
+}
+
+// Submete os dados do SignUp para a API
+async function performSignUp() {
+    var completeName = document.getElementById("completeName").value;
+    var email = document.getElementById("email").value;
+    var password = document.getElementById("password").value;
+
+    if (isValidSignUp(completeName, email, password)) {
+        try {
+            const response = await fetch("http://localhost:3000/signUp", {
+                method: 'PUT',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    completeName: completeName,
+                    email: email,
+                    password: password
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                showErrorMessage(errorText);
+                throw new Error(`Erro HTTP! Status: ${response.status}, Mensagem: ${errorText}`);
+            }
+
+            showSucessMessage("Cadastro realizado com sucesso!");
+            setTimeout(() => {
+                window.location.href = "../login/login.html";
+            }, 3000);
+
+        } catch (error) {
+            console.error('Erro ao realizar cadastro:', error);
+        }
+    }
+}
+
+
+
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const showPasswordCheckbox = document.getElementById('show-password');
+
+    // Alterna entre os tipos "password" e "text"
+    if (showPasswordCheckbox.checked) {
+        passwordInput.type = 'text';
+    } else {
+        passwordInput.type = 'password';
+    }
+}

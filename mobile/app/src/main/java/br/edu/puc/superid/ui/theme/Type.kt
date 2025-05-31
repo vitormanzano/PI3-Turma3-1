@@ -1,20 +1,58 @@
 package br.edu.puc.superid.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import br.edu.puc.superid.R
 
-// Set of Material typography styles to start with
+
+val BebasNeue = FontFamily(
+    Font(R.font.bebas_neue_regular)
+)
+
 val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+    displayLarge = TextStyle(
+        fontFamily = BebasNeue,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
+        fontSize = 48.sp
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = BebasNeue,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp
     )
+)
+
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
@@ -31,4 +69,3 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
-)
